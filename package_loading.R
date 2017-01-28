@@ -1,5 +1,6 @@
 library("devtools")
 library(roxygen2)
+devtools::use_rcpp()
 
 devtools::document()
 devtools::load_all()

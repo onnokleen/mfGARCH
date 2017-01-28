@@ -1,12 +1,19 @@
 #' This function estimates a multiplicative mixed-frequency GARCH model
-#' @param df, y, x, K , low.freq, var.ratio.freq.
+#' @param df, y, x, K , low_freq, var_ratio_freq.
 #' @keywords fit_mfgarch
 #' @export fit_mfgarch
 #' @importFrom magrittr %>%
+#' @importFrom numDeriv jacobian
+#' @importFrom stats nlminb
+#' @importFrom stats optimHess
 #' @importFrom tibble data_frame
 # @examples likelihood_gjrgarch(0.01, 0.02, 0.9, 0.02, y = rnorm(1:4), mu = 0, g.0 = 0.2)
 
 fit_mfgarch <- function(df, y, x, K, low_freq = "Date", var_ratio_freq = NULL) {
+
+  if (sum(is.na(df$return) == TRUE) > 0 | sum(is.na(df$NFCI) == TRUE) > 0) {
+    stop("Either y or x include NAs")
+  }
 
   if ("Date" %in% colnames(df) == FALSE) {
     stop("No Date column.")
@@ -37,9 +44,7 @@ fit_mfgarch <- function(df, y, x, K, low_freq = "Date", var_ratio_freq = NULL) {
 
   df.llh <- df %>% select_(., ~get(y), ~get(x), ~get(low_freq))
 
-  garch_fit <- fit_garch(df$return[-1])$broom
-
-  g_zero <- as.numeric(garch_fit[2,2]/(1 - garch_fit[3,2] - garch_fit[4,2]))
+  g_zero <- var(df$return^2)
 
   # Parameter estimation
   if (K == 0) {
@@ -87,7 +92,7 @@ fit_mfgarch <- function(df, y, x, K, low_freq = "Date", var_ratio_freq = NULL) {
       sum(likelihood_mg_mf(df = df.llh,
                            y = y,
                            x = x,
-                           low.freq = low.freq,
+                           low_freq = low_freq,
                            mu = parameters["mu"],
                            omega = 1 - parameters["alpha"] - parameters["beta"],
                            alpha = parameters["alpha"],
@@ -113,7 +118,7 @@ fit_mfgarch <- function(df, y, x, K, low_freq = "Date", var_ratio_freq = NULL) {
 
     tau.estimate <- calculate_tau_mf(df = df,
                                      x = x,
-                                     low.freq = low.freq,
+                                     low_freq = low_freq,
                                      w1 = 1,
                                      w2 = 1,
                                      theta = p.e.nlminb$par["theta"],
@@ -142,7 +147,7 @@ fit_mfgarch <- function(df, y, x, K, low_freq = "Date", var_ratio_freq = NULL) {
     lf <- function(parameters) {
       sum(likelihood_mg_mf(df = df.llh,
                            y = y, x = x,
-                           low.freq = low.freq,
+                           low_freq = low_freq,
                            mu = parameters["mu"],
                            omega = 1 - parameters["alpha"] - parameters["beta"] - parameters["gamma"]/2,
                            alpha = parameters["alpha"],
@@ -169,7 +174,7 @@ fit_mfgarch <- function(df, y, x, K, low_freq = "Date", var_ratio_freq = NULL) {
 
     tau.estimate <- calculate_tau_mf(df = df,
                                      x = x,
-                                     low.freq = low.freq,
+                                     low_freq = low_freq,
                                      w1 = 1,
                                      w2 = p.e.nlminb$par["w2"],
                                      theta = p.e.nlminb$par["theta"],
@@ -217,7 +222,7 @@ fit_mfgarch <- function(df, y, x, K, low_freq = "Date", var_ratio_freq = NULL) {
     lf_mgarch_score <- function(parameters) {
       likelihood_mg_mf(df = df.llh,
                        y = y, x = x,
-                       low.freq = low.freq,
+                       low_freq = low_freq,
                        mu = parameters["mu"],
                        omega = 1 - parameters["alpha"] - parameters["beta"] - parameters["gamma"]/2,
                        alpha = parameters["alpha"],
@@ -236,7 +241,7 @@ fit_mfgarch <- function(df, y, x, K, low_freq = "Date", var_ratio_freq = NULL) {
     lf_mgarch_score <- function(parameters) {
       likelihood_mg_mf(df = df.llh,
                        y = y, x = x,
-                       low.freq = low.freq,
+                       low_freq = low_freq,
                        mu = parameters["mu"],
                        omega = 1 - parameters["alpha"] - parameters["beta"] - parameters["gamma"]/2,
                        alpha = parameters["alpha"],
@@ -251,7 +256,7 @@ fit_mfgarch <- function(df, y, x, K, low_freq = "Date", var_ratio_freq = NULL) {
     }
   }
 
-  G <- jacobian(func = lf_mgarch_score, x = p.e.nlminb$par)
+  G <- numDeriv::jacobian(func = lf_mgarch_score, x = p.e.nlminb$par)
 
   GGsum <- t(G) %*% G
   #
@@ -292,17 +297,17 @@ fit_mfgarch <- function(df, y, x, K, low_freq = "Date", var_ratio_freq = NULL) {
                 mgarch.tau = tau.estimate,
                 mgarch.g = g.estimate.mg,
                 df.fitted = df.fitted,
-                variance.ratio = 100 * (df.fitted %>% group_by_(var.ratio.freq) %>% summarise(mean.tau = mean(tau.mgarch), mean.tau.g = mean(tau.mgarch * g.mgarch)) %>% ungroup() %>% summarise(var.ratio = var(log(mean.tau), na.rm = TRUE)/var(log(mean.tau.g), na.rm = TRUE)) %>% unlist())))
+                variance.ratio = 100 * (df.fitted %>% group_by_(var_ratio_freq) %>% summarise(mean.tau = mean(tau.mgarch), mean.tau.g = mean(tau.mgarch * g.mgarch)) %>% ungroup() %>% summarise(var.ratio = var(log(mean.tau), na.rm = TRUE)/var(log(mean.tau.g), na.rm = TRUE)) %>% unlist())))
   }
 }
 
 
-calculate_tau_mf <- function (df, x, low.freq, w1, w2, theta, m, K) {
+calculate_tau_mf <- function (df, x, low_freq, w1, w2, theta, m, K) {
 
   phi.var <- calculate_phi(w1, w2, K)
 
   covariate <- df %>%
-    select_(., ~get(low.freq), ~get(x)) %>%
+    select_(., ~get(low_freq), ~get(x)) %>%
     unique() %>%
     select_(., ~get(x)) %>%
     unlist()
@@ -316,17 +321,17 @@ calculate_tau_mf <- function (df, x, low.freq, w1, w2, theta, m, K) {
                     K = K))
   full_join(df,
             eval(parse(text = paste0("tbl_df(cbind(",
-                                     low.freq,
-                                     " = unlist(unique(select_(df, ~get(low.freq)))), tau))"))),
-            by = low.freq)
+                                     low_freq,
+                                     " = unlist(unique(select_(df, ~get(low_freq)))), tau))"))),
+            by = low_freq)
 
 }
 
-likelihood_mg_mf <- function(df, x, y, low.freq, mu, omega, alpha, beta, gamma, m, theta, w1 = 1, w2 = 1, g_zero, K = 2) {
+likelihood_mg_mf <- function(df, x, y, low_freq, mu, omega, alpha, beta, gamma, m, theta, w1 = 1, w2 = 1, g_zero, K = 2) {
 
   tau <- calculate_tau_mf(df = df,
                           x = x,
-                          low.freq = low.freq,
+                          low_freq = low_freq,
                           w1 = w1,
                           w2 = w2,
                           theta = theta,

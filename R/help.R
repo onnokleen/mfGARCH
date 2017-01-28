@@ -15,6 +15,6 @@
 #'is the function for you.
 
 
-#'@useDynLib grch
-#'@aliases grch grch-package
+#' @useDynLib mfGARCH
+#' @importFrom Rcpp sourceCpp
 NULL

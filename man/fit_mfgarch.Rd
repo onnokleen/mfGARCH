@@ -4,10 +4,10 @@
 \alias{fit_mfgarch}
 \title{This function estimates a multiplicative mixed-frequency GARCH model}
 \usage{
-fit_mfgarch(df, y, x, K, low.freq = "Date", var.ratio.freq = NULL)
+fit_mfgarch(df, y, x, K, low_freq = "Date", var_ratio_freq = NULL)
 }
 \arguments{
-\item{df, }{y, x, K , low.freq, var.ratio.freq.}
+\item{df, }{y, x, K , low_freq, var.ratio.freq.}
 }
 \description{
 This function estimates a multiplicative mixed-frequency GARCH model

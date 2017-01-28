@@ -1,7 +1,7 @@
 load_all()
 
-fit_mfgarch(df = df_mf_financial,
+fit_mfgarch(df = dplyr::filter(df_mf_financial, Date >="1974-01-01"),
             y = "return",
             x = "NFCI",
             low_freq = "week_id",
-            K = 12)
+            K = 52)

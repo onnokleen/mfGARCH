@@ -2,7 +2,7 @@
 
 export(calculate_g)
 export(fit_mfgarch)
-export(sum_tau)
+importFrom(Rcpp,sourceCpp)
 importFrom(magrittr,"%>%")
 importFrom(tibble,data_frame)
-useDynLib(grch)
+useDynLib(mfGARCH)

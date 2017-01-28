@@ -10,7 +10,6 @@ using namespace Rcpp;
 //   http://adv-r.had.co.nz/Rcpp.html
 //   http://gallery.rcpp.org/
 //
-//' @export
 // [[Rcpp::export]]
 
 double sum_tau(int i, double m, double theta, NumericVector phivar, NumericVector covariate, int K) {

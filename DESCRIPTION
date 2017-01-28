@@ -1,0 +1,21 @@
+Package: mfGARCH
+Title: A mixed-frequency GARCH package
+Version: 0.0.1
+Authors@R: person("Onno", "Kleen", email = "mail@onnokleen.de", role = c("aut", "cre"))
+Description: This package provides GARCH-related functions such as QMLE estimators and forecasting procedures.
+Depends:
+    R (>= 3.3.0)
+License: MIT
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 5.0.1
+Imports:
+    dplyr,
+    ggplot2,
+    magrittr,
+    Rcpp,
+    stats,
+    tibble,
+    numDeriv
+LinkingTo: Rcpp
+BugReports: https://github.com/onnokleen/grch/issues

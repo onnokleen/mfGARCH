@@ -8,3 +8,4 @@ devtools::load_all()
 formatR::tidy_dir("R")
 # Check for inconsistencies
 lintr::lint_package()
+

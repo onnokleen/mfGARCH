@@ -19,3 +19,4 @@ Imports:
     numDeriv
 LinkingTo: Rcpp
 BugReports: https://github.com/onnokleen/grch/issues
+Suggests: testthat

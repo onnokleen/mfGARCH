@@ -6,14 +6,14 @@
 #' @importFrom tibble data_frame
 # @examples likelihood_gjrgarch(0.01, 0.02, 0.9, 0.02, y = rnorm(1:4), mu = 0, g.0 = 0.2)
 
-fit_mfgarch <- function(df, y, x, K, low.freq = "Date", var.ratio.freq = NULL) {
+fit_mfgarch <- function(df, y, x, K, low_freq = "Date", var_ratio_freq = NULL) {
 
   if ("Date" %in% colnames(df) == FALSE) {
     stop("No Date column.")
   }
 
   if (length(unlist(unique(select_(df, "Date")))) != dim(df)[1]) {
-    stop("There is more than one observation per Date.")
+    stop("There is more than one observation per high frequency (presumably day).")
   }
 
   # If this is not the case, we may order by low frequency variable
@@ -26,16 +26,16 @@ fit_mfgarch <- function(df, y, x, K, low.freq = "Date", var.ratio.freq = NULL) {
   if(x %in% colnames(df) == FALSE) {
     stop(paste("There is no variable in your data frame with name ", x, "."))
   }
-  if(low.freq %in% colnames(df) == FALSE) {
-    stop(paste("There is no low freq. variable in your data frame with name ", low.freq, "."))
+  if(low_freq %in% colnames(df) == FALSE) {
+    stop(paste("There is no low freq. variable in your data frame with name ", low_freq, "."))
   }
 
-  if (is.null(var.ratio.freq) == TRUE) {
-    var.ratio.freq <- low.freq
-    print("No frequency specified for calculating the variance ratio - default: low.freq")
+  if (is.null(var_ratio_freq) == TRUE) {
+    var_ratio_freq <- low_freq
+    print("No frequency specified for calculating the variance ratio - default: low_freq")
   }
 
-  df.llh <- df %>% select_(., ~get(y), ~get(x), ~get(low.freq))
+  df.llh <- df %>% select_(., ~get(y), ~get(x), ~get(low_freq))
 
   garch_fit <- fit_garch(df$return[-1])$broom
 
@@ -357,10 +357,7 @@ likelihood_mg_simple <- function(df, y, mu, omega, alpha, beta, gamma, m, g_zero
   ret <- df %>% select_(., ~get(y)) %>% unlist()
 
   tau <- rep(exp(m), times = length(ret))
-  #
-  # ret <- ret[which.min(is.na(tau)):length(ret)] # lags can't be used for likelihood
-  # tau <- tau[which.min(is.na(tau)):length(tau)]
-  #
+
   g <- calculate_g(omega = omega,
                    alpha = alpha,
                    beta = beta,
@@ -369,19 +366,7 @@ likelihood_mg_simple <- function(df, y, mu, omega, alpha, beta, gamma, m, g_zero
                    g0 = g_zero)
 
   1/2 * log(2*pi) + 1/2 * log(g * tau) + 1/2 * (ret - mu)^2 / (g * tau)
-  # if(sum(g <= 0) > 0) {
-  #   rep(NA, times = length(y))
-  # } else {
-  #   #likelihood <- exp(1/2 * log(2 * pi)) * (g * tau)^(1/2) * exp(1/2 * (ret - mu)^2 / (g * tau))
-  #   #print(sum(log(likelihood)))
-  #   #log(likelihood)
-  #   1/2 * log(2*pi) + 1/2 * log(g * tau) + 1/2 * (ret - mu)^2 / (g * tau)
-  # }
-  #1/2 * log(2*pi) + 1/2 * log(g * tau) + 1/2 * (y - mu)^2 / (g * tau)
 }
-
-
-
 
 
 

@@ -2,7 +2,7 @@
 % Please edit documentation in R/fit_mfgarch.R
 \name{fit_mfgarch}
 \alias{fit_mfgarch}
-\title{Calculates weights as described in}
+\title{This function estimates a multiplicative mixed-frequency GARCH model}
 \usage{
 fit_mfgarch(df, y, x, K, low.freq = "Date", var.ratio.freq = NULL)
 }
@@ -10,7 +10,7 @@ fit_mfgarch(df, y, x, K, low.freq = "Date", var.ratio.freq = NULL)
 \item{df, }{y, x, K , low.freq, var.ratio.freq.}
 }
 \description{
-This function allows you to express your love of cats.
+This function estimates a multiplicative mixed-frequency GARCH model
 }
 \keyword{fit_mfgarch}
 

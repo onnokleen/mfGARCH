@@ -7,7 +7,7 @@
 fit_mfgarch(df, y, x, K, low_freq = "Date", var_ratio_freq = NULL)
 }
 \arguments{
-\item{df, }{y, x, K , low_freq, var.ratio.freq.}
+\item{df, }{y, x, K , low_freq, var_ratio_freq.}
 }
 \description{
 This function estimates a multiplicative mixed-frequency GARCH model

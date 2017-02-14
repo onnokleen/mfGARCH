@@ -1,8 +1,8 @@
 Package: mfGARCH
-Title: A mixed-frequency GARCH package
+Title: A tidyverse mixed-frequency GARCH package
 Version: 0.0.1
 Authors@R: person("Onno", "Kleen", email = "mail@onnokleen.de", role = c("aut", "cre"))
-Description: This package provides GARCH-related functions such as QMLE estimators and forecasting procedures.
+Description: This is an R package accompanying the paper ‘‘Statistical Properties of Multiplicative GARCH Models’’ by Conrad, Christian and Kleen, Onno (2016). In this paper, we ...
 Depends:
     R (>= 3.3.0)
 License: MIT
@@ -18,5 +18,5 @@ Imports:
     tibble,
     numDeriv
 LinkingTo: Rcpp
-BugReports: https://github.com/onnokleen/grch/issues
+BugReports: https://github.com/onnokleen/mfGARCH/issues
 Suggests: testthat

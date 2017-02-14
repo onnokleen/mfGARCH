@@ -79,7 +79,7 @@ fit_mfgarch <- function(df, y, x, K, low_freq = "Date", var_ratio_freq = NULL) {
 
     if (K == 1) {
         lf <- function(parameters) {
-            sum(likelihood_mg_mf(df = df.llh, y = y, x = x, low_freq = low_freq, mu = parameters["mu"], omega = 1 - parameters["alpha"] - parameters["beta"], alpha = parameters["alpha"],
+            sum(likelihood_mg_mf(df = df.llh, y = y, x = x, low_freq = low_freq, mu = parameters["mu"], omega = 1 - parameters["alpha"] - parameters["beta"] - parameters["gamma"]/2, alpha = parameters["alpha"],
                 beta = parameters["beta"], gamma = parameters["gamma"], m = parameters["m"], theta = parameters["theta"], w1 = 1, w2 = 1, g_zero = g_zero, K = K))
         }
 

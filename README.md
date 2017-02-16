@@ -32,6 +32,7 @@ Future
 * Employ more than one variable
 * Employ more than GJR-GARCH
 * Broom-package plug-in
+* Allow for different releases for improving real-time forecasting
 
 ## History
 - January 2017: Initial submit

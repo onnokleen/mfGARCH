@@ -6,7 +6,7 @@
 using namespace Rcpp;
 
 // calculate_g
-// Calculates the conditional variance component g_t NumericVector calculate_g(double omega, double alpha, double beta, double gamma, NumericVector returns, double g0);
+NumericVector calculate_g(double omega, double alpha, double beta, double gamma, NumericVector returns, double g0);
 RcppExport SEXP mfGARCH_calculate_g(SEXP omegaSEXP, SEXP alphaSEXP, SEXP betaSEXP, SEXP gammaSEXP, SEXP returnsSEXP, SEXP g0SEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -22,7 +22,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // sum_tau
-// Calculates the long-term component double sum_tau(int i, double m, double theta, NumericVector phivar, NumericVector covariate, int K);
+double sum_tau(int i, double m, double theta, NumericVector phivar, NumericVector covariate, int K);
 RcppExport SEXP mfGARCH_sum_tau(SEXP iSEXP, SEXP mSEXP, SEXP thetaSEXP, SEXP phivarSEXP, SEXP covariateSEXP, SEXP KSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;

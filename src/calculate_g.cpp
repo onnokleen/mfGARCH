@@ -1,10 +1,15 @@
-
+//Includes/namespaces
 #include <Rcpp.h>
 using namespace Rcpp;
 
-//' @export calculate_g
+
+//' @title
+//' calculate_g
+//' @description
+//' Calculates the short-term component
+//' @export
 // [[Rcpp::export]]
-// Calculates the conditional variance component g_t
+
 NumericVector calculate_g(double omega, double alpha, double beta, double gamma, NumericVector returns, double g0) {
   int n = returns.size();
 

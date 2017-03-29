@@ -6,7 +6,7 @@
 #' @importFrom numDeriv jacobian
 #' @importFrom stats nlminb
 #' @importFrom stats optimHess
-#' @importFrom tibble data_frame
+#' @importFrom dplyr select_
 # @examples likelihood_gjrgarch(0.01, 0.02, 0.9, 0.02, y = rnorm(1:4), mu = 0, g.0 = 0.2)
 
 fit_mfgarch <- function(df, y, x, K, low_freq = "Date", var_ratio_freq = NULL) {

@@ -1,8 +1,9 @@
 library(devtools)
 library(roxygen2)
 
-#' @useDynLib mfGARCH
+
 #' @importFrom Rcpp sourceCpp
+#' @useDynLib mfGARCH
 NULL
 
 devtools::use_rcpp()

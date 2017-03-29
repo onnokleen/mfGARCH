@@ -1,4 +1,4 @@
-library("devtools")
+library(devtools)
 library(roxygen2)
 
 #' @useDynLib mfGARCH
@@ -6,6 +6,7 @@ library(roxygen2)
 NULL
 
 devtools::use_rcpp()
+Rcpp::compileAttributes()
 
 devtools::document()
 devtools::load_all()

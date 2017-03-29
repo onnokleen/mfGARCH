@@ -11,7 +11,7 @@
 
 fit_mfgarch <- function(df, y, x, K, low_freq = "Date", var_ratio_freq = NULL) {
 
-    if (sum(is.na(df$return) == TRUE) > 0 | sum(is.na(df$x) == TRUE) > 0) {
+    if (sum(is.na(df$return) == TRUE) > 0 | sum(is.na(select_(df, ~get(x))) == TRUE) > 0) {
         stop("Either y or x include NAs")
     }
 
@@ -156,7 +156,6 @@ fit_mfgarch <- function(df, y, x, K, low_freq = "Date", var_ratio_freq = NULL) {
     G <- numDeriv::jacobian(func = lf_mgarch_score, x = p.e.nlminb$par)
 
     GGsum <- t(G) %*% G
-    # p.e.nlminb.robust.standard.errors <- sqrt(diag(solve(GGsum))) * mean((df.fitted$residuals^2 - 1)^2, na.rm = TRUE)/2
 
     p.e.nlminb.robust.standard.errors <- (p.e.nlminb.n.i.hess %*% GGsum %*% p.e.nlminb.n.i.hess) %>% diag() %>% sqrt()
 
@@ -182,7 +181,7 @@ fit_mfgarch <- function(df, y, x, K, low_freq = "Date", var_ratio_freq = NULL) {
     }
 }
 
-
+#' @keywords internal
 calculate_tau_mf <- function(df, x, low_freq, w1, w2, theta, m, K) {
 
     phi.var <- calculate_phi(w1, w2, K)
@@ -195,6 +194,7 @@ calculate_tau_mf <- function(df, x, low_freq, w1, w2, theta, m, K) {
 
 }
 
+#' @keywords internal
 likelihood_mg_mf <- function(df, x, y, low_freq, mu, omega, alpha, beta, gamma, m, theta, w1 = 1, w2 = 1, g_zero, K = 2) {
 
     tau <- calculate_tau_mf(df = df, x = x, low_freq = low_freq, w1 = w1, w2 = w2, theta = theta, m = m, K = K)$tau
@@ -212,9 +212,8 @@ likelihood_mg_mf <- function(df, x, y, low_freq, mu, omega, alpha, beta, gamma, 
     }
 }
 
-
+#' @keywords internal
 likelihood_mg_simple <- function(df, y, mu, omega, alpha, beta, gamma, m, g_zero) {
-
     ret <- df %>% select_(., ~get(y)) %>% unlist()
 
     tau <- rep(exp(m), times = length(ret))

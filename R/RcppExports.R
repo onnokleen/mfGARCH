@@ -6,6 +6,7 @@ calculate_g <- function(omega, alpha, beta, gamma, returns, g0) {
     .Call('mfGARCH_calculate_g', PACKAGE = 'mfGARCH', omega, alpha, beta, gamma, returns, g0)
 }
 
+#' @export sum_tau
 sum_tau <- function(i, m, theta, phivar, covariate, K) {
     .Call('mfGARCH_sum_tau', PACKAGE = 'mfGARCH', i, m, theta, phivar, covariate, K)
 }

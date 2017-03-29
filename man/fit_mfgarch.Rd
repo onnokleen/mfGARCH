@@ -13,4 +13,3 @@ fit_mfgarch(df, y, x, K, low_freq = "Date", var_ratio_freq = NULL)
 This function estimates a multiplicative mixed-frequency GARCH model
 }
 \keyword{fit_mfgarch}
-

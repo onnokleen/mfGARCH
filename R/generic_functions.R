@@ -1,4 +1,3 @@
-
 print.mfGARCH <- function(x) {
     if (class(x) != "mfGARCH") {
         stop("Obejct is not in class mfGARCH")

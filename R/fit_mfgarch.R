@@ -11,7 +11,7 @@
 
 fit_mfgarch <- function(df, y, x, K, low_freq = "Date", var_ratio_freq = NULL) {
 
-    if (sum(is.na(df$return) == TRUE) > 0 | sum(is.na(df$NFCI) == TRUE) > 0) {
+    if (sum(is.na(df$return) == TRUE) > 0 | sum(is.na(df$x) == TRUE) > 0) {
         stop("Either y or x include NAs")
     }
 
@@ -172,10 +172,13 @@ fit_mfgarch <- function(df, y, x, K, low_freq = "Date", var_ratio_freq = NULL) {
     }
 
     if (K > 1) {
-        return(list(mgarch = p.e.nlminb, broom.mgarch = data_frame(term = c("mu", "alpha", "beta", "gamma", "m", "theta", "w2", "llh"), estimate = c(p.e.nlminb$par[1:7], -p.e.nlminb$value),
+        output <-
+          list(mgarch = p.e.nlminb, broom.mgarch = data_frame(term = c("mu", "alpha", "beta", "gamma", "m", "theta", "w2", "llh"), estimate = c(p.e.nlminb$par[1:7], -p.e.nlminb$value),
             rob.std.err = c(p.e.nlminb.robust.standard.errors[1:7], NA)), mgarch.tau = tau.estimate, mgarch.g = g.estimate.mg, df.fitted = df.fitted, variance.ratio = 100 * (df.fitted %>%
             group_by_(var_ratio_freq) %>% summarise(mean.tau = mean(tau.mgarch), mean.tau.g = mean(tau.mgarch * g.mgarch)) %>% ungroup() %>% summarise(var.ratio = var(log(mean.tau),
-            na.rm = TRUE)/var(log(mean.tau.g), na.rm = TRUE)) %>% unlist())))
+            na.rm = TRUE)/var(log(mean.tau.g), na.rm = TRUE)) %>% unlist()))
+        class(output) <- "mfGARCH"
+        output
     }
 }
 

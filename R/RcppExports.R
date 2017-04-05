@@ -5,7 +5,7 @@
 #' calculate_g
 #' @description
 #' Calculates the short-term component
-#' @export
+#' @export calculate_g
 calculate_g <- function(omega, alpha, beta, gamma, returns, g0) {
     .Call('mfGARCH_calculate_g', PACKAGE = 'mfGARCH', omega, alpha, beta, gamma, returns, g0)
 }

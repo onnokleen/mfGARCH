@@ -15,5 +15,5 @@ devtools::load_all()
 # Clean up empty spaces
 #formatR::tidy_dir("R")
 # Check for inconsistencies
-lintr::lint_package()
+#lintr::lint_package()
 

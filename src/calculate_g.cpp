@@ -7,7 +7,7 @@ using namespace Rcpp;
 //' calculate_g
 //' @description
 //' Calculates the short-term component
-//' @export
+//' @export calculate_g
 // [[Rcpp::export]]
 
 NumericVector calculate_g(double omega, double alpha, double beta, double gamma, NumericVector returns, double g0) {

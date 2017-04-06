@@ -134,7 +134,7 @@ fit_mfgarch <- function(df, y, x, K, low.freq = "Date", var.ratio.freq = NULL) {
 
         tau_forecast <-
           exp(sum_tau(m = p.e.nlminb$par["m"],
-                  i = 53,
+                  i = K + 1,
                   theta = p.e.nlminb$par["theta"],
                   phivar = calculate_phi(w1 = 1, w2 = p.e.nlminb$par["w2"], K = K),
                   covariate = c(df %>% select_(., ~get(x), ~get(low.freq)) %>%

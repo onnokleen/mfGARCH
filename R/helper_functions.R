@@ -7,16 +7,15 @@ calculate_phi <- function(w1, w2, K) {
 }
 
 # Calculates the long-term component in its log specification
-#' @keywords internal
 calculate_tau <- function(covariate, w1, w2, theta, m, K) {
     phi_var <- calculate_phi(w1, w2, K)
     covariate <- c(rep(NA, times = K), covariate)
-    ln_tau <- exp(sapply(c((K + 1):length(covariate)),
+    tau <- exp(sapply(c((K + 1):length(covariate)),
                          FUN = sum_tau,
                          m = m,
                          theta = theta,
                          phivar = phi_var,
                          covariate = covariate,
                          K = K))
-    ln_tau
+    tau
 }

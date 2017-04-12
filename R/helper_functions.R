@@ -6,6 +6,7 @@ calculate_phi <- function(w1, w2, K) {
     weights
 }
 
+#' @export calculate_tau
 # Calculates the long-term component in its log specification
 calculate_tau <- function(covariate, w1, w2, theta, m, K) {
     phi_var <- calculate_phi(w1, w2, K)

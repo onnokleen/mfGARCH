@@ -16,32 +16,32 @@
 #' @importFrom dplyr ungroup
 # @examples likelihood_gjrgarch(0.01, 0.02, 0.9, 0.02, y = rnorm(1:4), mu = 0, g.0 = 0.2)
 
-fit_mfgarch <- function(df, y, x, K, low.freq = "Date", var.ratio.freq = NULL) {
-  
-  if (sum(is.na(df$return) == TRUE) > 0 | sum(is.na(select_(df, ~get(x))) == TRUE) > 0) {
+fit_mfgarch <- function(df, y, x, K, low.freq = "date", var.ratio.freq = NULL) {
+
+  if (y %in% colnames(df) == FALSE) {
+    stop(paste("There is no variable in your data frame with name ", y, "."))
+  }
+  if (x %in% colnames(df) == FALSE) {
+    stop(paste("There is no variable in your data frame with name ", x, "."))
+  }
+  if (low.freq %in% colnames(df) == FALSE) {
+    stop(paste("There is no low freq. variable in your data frame with name ", low.freq, "."))
+  }
+
+  if (sum(is.na(select_(df, ~get(y))) == TRUE) > 0 | sum(is.na(select_(df, ~get(x))) == TRUE) > 0) {
     stop("Either y or x include NAs")
   }
 
-  if ("Date" %in% colnames(df) == FALSE) {
-    stop("No Date column.")
+  if ("date" %in% colnames(df) == FALSE) {
+    stop("No date column.")
   }
 
-    if (length(unlist(unique(select_(df, "Date")))) != dim(df)[1]) {
-        stop("There is more than one observation per high frequency (presumably day).")
+    if (length(unlist(unique(select_(df, "date")))) != dim(df)[1]) {
+        stop("There is more than one observation per high frequency (presumably date).")
     }
 
     # If this is not the case, we may order by low frequency variable
-    df <- df %>% dplyr::arrange_("Date")
-
-    if (y %in% colnames(df) == FALSE) {
-        stop(paste("There is no variable in your data frame with name ", y, "."))
-    }
-    if (x %in% colnames(df) == FALSE) {
-        stop(paste("There is no variable in your data frame with name ", x, "."))
-    }
-    if (low.freq %in% colnames(df) == FALSE) {
-        stop(paste("There is no low freq. variable in your data frame with name ", low.freq, "."))
-    }
+    df <- df %>% dplyr::arrange_("date")
 
     if (is.null(var.ratio.freq) == TRUE) {
         var.ratio.freq <- low.freq

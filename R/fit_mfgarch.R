@@ -17,8 +17,11 @@
 #' @importFrom dplyr distinct
 # @examples likelihood_gjrgarch(0.01, 0.02, 0.9, 0.02, y = rnorm(1:4), mu = 0, g.0 = 0.2)
 
-fit_mfgarch <- function(df, y, x, K, low.freq = "date", var.ratio.freq = NULL) {
+fit_mfgarch <- function(df, y, x, low.freq = "date",  K = NULL, var.ratio.freq = NULL) {
 
+  if (is.null(K) == TRUE) {
+    K = 0
+  }
   if (y %in% colnames(df) == FALSE) {
     stop(paste("There is no variable in your data frame with name ", y, "."))
   }
@@ -211,9 +214,11 @@ fit_mfgarch <- function(df, y, x, K, low.freq = "date", var.ratio.freq = NULL) {
 
     if (K == 0) {
         return(list(mgarch = p.e.nlminb,
-                    broom.mgarch = data_frame(term = c("mu", "alpha", "beta", "gamma", "m", "llh"),
-                                              estimate = c(p.e.nlminb$par[1:5], -p.e.nlminb$value),
-                                              rob.std.err = c(p.e.nlminb.robust.standard.errors[1:5], NA)),
+                    par = p.e.nlminb$par,
+                    std.err = p.e.nlminb.robust.standard.errors[1:5],
+                    broom.mgarch = data_frame(term = c("mu", "alpha", "beta", "gamma", "m"),
+                                              estimate = c(p.e.nlminb$par[1:5]),
+                                              rob.std.err = c(p.e.nlminb.robust.standard.errors[1:5])),
                     mgarch.tau = tau.estimate,
                     mgarch.g = g.estimate.mg,
                     df.fitted = df.fitted,
@@ -231,21 +236,24 @@ fit_mfgarch <- function(df, y, x, K, low.freq = "date", var.ratio.freq = NULL) {
     }
 
     if (K > 1) {
-        output <-
-          list(mgarch = p.e.nlminb, broom.mgarch = data_frame(term = c("mu", "alpha", "beta", "gamma", "m", "theta", "w2"),
-                                                              estimate = c(p.e.nlminb$par[1:7]),
-            rob.std.err = c(p.e.nlminb.robust.standard.errors[1:7])),
-            mgarch.tau = tau.estimate,
-            mgarch.g = g.estimate.mg,
-            df.fitted = df.fitted,
-            variance.ratio = 100 * (df.fitted %>%
-            group_by_(var.ratio.freq) %>% summarise(mean.tau = mean(tau.mgarch), mean.tau.g = mean(tau.mgarch * g.mgarch)) %>% ungroup() %>% summarise(var.ratio = var(log(mean.tau),
-            na.rm = TRUE)/var(log(mean.tau.g), na.rm = TRUE)) %>% unlist()),
-            tau_forecast = tau_forecast,
-            llh = -p.e.nlminb$value,
-            bic = log(sum(!is.na(tau.estimate))) * 7 - 2 * (-p.e.nlminb$value))
-        class(output) <- "mfGARCH"
-        output
+      output <-
+        list(mgarch = p.e.nlminb,
+             broom.mgarch = data_frame(term = c("mu", "alpha", "beta", "gamma", "m", "theta", "w2"),
+                                       estimate = c(p.e.nlminb$par[1:7]),
+                                       rob.std.err = c(p.e.nlminb.robust.standard.errors[1:7])),
+             par = p.e.nlminb$par,
+             std.err = p.e.nlminb.robust.standard.errors[1:7],
+             mgarch.tau = tau.estimate,
+             mgarch.g = g.estimate.mg,
+             df.fitted = df.fitted,
+             variance.ratio = 100 * (df.fitted %>%
+                                       group_by_(var.ratio.freq) %>% summarise(mean.tau = mean(tau.mgarch), mean.tau.g = mean(tau.mgarch * g.mgarch)) %>% ungroup() %>% summarise(var.ratio = var(log(mean.tau),
+                                                                                                                                                                                                  na.rm = TRUE)/var(log(mean.tau.g), na.rm = TRUE)) %>% unlist()),
+             tau_forecast = tau_forecast,
+             llh = -p.e.nlminb$value,
+             bic = log(sum(!is.na(tau.estimate))) * 7 - 2 * (-p.e.nlminb$value))
+      class(output) <- "mfGARCH"
+      output
     }
 }
 

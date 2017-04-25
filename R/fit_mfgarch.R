@@ -14,6 +14,7 @@
 #' @importFrom dplyr group_by_
 #' @importFrom dplyr summarise
 #' @importFrom dplyr ungroup
+#' @importFrom dplyr distinct
 # @examples likelihood_gjrgarch(0.01, 0.02, 0.9, 0.02, y = rnorm(1:4), mu = 0, g.0 = 0.2)
 
 fit_mfgarch <- function(df, y, x, K, low.freq = "date", var.ratio.freq = NULL) {
@@ -36,21 +37,23 @@ fit_mfgarch <- function(df, y, x, K, low.freq = "date", var.ratio.freq = NULL) {
     stop("No date column.")
   }
 
-    if (length(unlist(unique(select_(df, "date")))) != dim(df)[1]) {
-        stop("There is more than one observation per high frequency (presumably date).")
-    }
+  if (length(unlist(distinct(select_(df, "date")))) != dim(df)[1]) {
+    stop("There is more than one observation per high frequency (presumably date).")
+  }
 
-    # If this is not the case, we may order by low frequency variable
-    df <- df %>% dplyr::arrange_("date")
+  # If this is not the case, we may order by low frequency variable
+  df <- df %>% dplyr::arrange_("date")
 
-    if (is.null(var.ratio.freq) == TRUE) {
-        var.ratio.freq <- low.freq
-        print("No frequency specified for calculating the variance ratio - default: low.freq")
-    }
+  if (is.null(var.ratio.freq) == TRUE) {
+    var.ratio.freq <- low.freq
+    print("No frequency specified for calculating the variance ratio - default: low.freq")
+  }
 
-    df_llh <- df %>% select_(., ~get(y), ~get(x), ~get(low.freq))
+  mutate_call <- lazyeval::interp(~ as.numeric(a), a = as.name(low.freq))
+  df_llh <- df %>% select_(., ~get(y), ~get(x), ~get(low.freq)) %>% mutate_(., .dots = setNames(list(mutate_call), low.freq))
+  rm(mutate_call)
 
-    g_zero <- var(df$return^2)
+  g_zero <- var(df$return^2)
 
     # Parameter estimation
     if (K == 0) {
@@ -138,7 +141,7 @@ fit_mfgarch <- function(df, y, x, K, low.freq = "date", var.ratio.freq = NULL) {
                   theta = p.e.nlminb$par["theta"],
                   phivar = calculate_phi(w1 = 1, w2 = p.e.nlminb$par["w2"], K = K),
                   covariate = c(df %>% select_(., ~get(x), ~get(low.freq)) %>%
-                    unique() %>% select_(~get(x)) %>%
+                    distinct() %>% select_(~get(x)) %>%
                     unlist() %>%
                     tail(K), NA),
                   K = K))
@@ -213,25 +216,34 @@ fit_mfgarch <- function(df, y, x, K, low.freq = "date", var.ratio.freq = NULL) {
                                               rob.std.err = c(p.e.nlminb.robust.standard.errors[1:5], NA)),
                     mgarch.tau = tau.estimate,
                     mgarch.g = g.estimate.mg,
-                    df.fitted = df.fitted))
+                    df.fitted = df.fitted,
+                    llh = -p.e.nlminb$value,
+                    bic = log(sum(!is.na(tau.estimate))) * 5 - 2 * (-p.e.nlminb$value)))
     }
 
     if (K == 1) {
         return(list(mgarch = p.e.nlminb, broom.mgarch = data_frame(term = c("mu", "alpha", "beta", "gamma", "m", "theta", "llh"), estimate = c(p.e.nlminb$par[1:6], -p.e.nlminb$value),
-            rob.std.err = c(p.e.nlminb.robust.standard.errors[1:6], NA)), mgarch.tau = tau.estimate, mgarch.g = g.estimate.mg, df.fitted = df.fitted))
+            rob.std.err = c(p.e.nlminb.robust.standard.errors[1:6], NA)),
+            mgarch.tau = tau.estimate,
+            mgarch.g = g.estimate.mg,
+            df.fitted = df.fitted))
 
     }
 
     if (K > 1) {
         output <-
-          list(mgarch = p.e.nlminb, broom.mgarch = data_frame(term = c("mu", "alpha", "beta", "gamma", "m", "theta", "w2", "llh"), estimate = c(p.e.nlminb$par[1:7], -p.e.nlminb$value),
-            rob.std.err = c(p.e.nlminb.robust.standard.errors[1:7], NA)),
-            mgarch.tau = tau.estimate, mgarch.g = g.estimate.mg,
+          list(mgarch = p.e.nlminb, broom.mgarch = data_frame(term = c("mu", "alpha", "beta", "gamma", "m", "theta", "w2"),
+                                                              estimate = c(p.e.nlminb$par[1:7]),
+            rob.std.err = c(p.e.nlminb.robust.standard.errors[1:7])),
+            mgarch.tau = tau.estimate,
+            mgarch.g = g.estimate.mg,
             df.fitted = df.fitted,
             variance.ratio = 100 * (df.fitted %>%
             group_by_(var.ratio.freq) %>% summarise(mean.tau = mean(tau.mgarch), mean.tau.g = mean(tau.mgarch * g.mgarch)) %>% ungroup() %>% summarise(var.ratio = var(log(mean.tau),
             na.rm = TRUE)/var(log(mean.tau.g), na.rm = TRUE)) %>% unlist()),
-            tau_forecast = tau_forecast)
+            tau_forecast = tau_forecast,
+            llh = -p.e.nlminb$value,
+            bic = log(sum(!is.na(tau.estimate))) * 7 - 2 * (-p.e.nlminb$value))
         class(output) <- "mfGARCH"
         output
     }
@@ -242,14 +254,14 @@ calculate_tau_mf <- function(df, x, low.freq, w1, w2, theta, m, K) {
 
     phi.var <- calculate_phi(w1, w2, K)
 
-    covariate <- df %>% select_(., ~get(low.freq), ~get(x)) %>% unique() %>% select_(., ~get(x)) %>% unlist()
+    covariate <- df %>% select_(., ~get(low.freq), ~get(x)) %>% distinct() %>% select_(., ~get(x)) %>% unlist()
 
     covariate <- c(rep(NA, times = K), covariate)
     tau <- exp(sapply(c((K + 1):length(covariate)),
                       FUN = sum_tau,
                       m = m, theta = theta,
                       phivar = phi.var, covariate = covariate, K = K))
-    full_join(df, eval(parse(text = paste0("tbl_df(cbind(", low.freq, " = unlist(unique(select_(df, ~get(low.freq)))), tau))"))), by = low.freq)
+    full_join(df, eval(parse(text = paste0("tbl_df(cbind(", low.freq, " = unlist(distinct(select_(df, ~get(low.freq)))), tau))"))), by = low.freq)
 
 }
 
@@ -262,8 +274,8 @@ likelihood_mg_mf <- function(df, x, y, low.freq, mu, omega, alpha, beta, gamma, 
 
     ret <- ret[which.min(is.na(tau)):length(ret)]  # lags can't be used for likelihood
     tau <- tau[which.min(is.na(tau)):length(tau)]
-
     g <- calculate_g(omega = omega, alpha = alpha, beta = beta, gamma = gamma, returns = ((ret - mu)/sqrt(tau)), g0 = g_zero)
+
     if (sum(g <= 0) > 0) {
         rep(NA, times = length(y))
     } else {

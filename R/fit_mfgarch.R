@@ -220,7 +220,9 @@ fit_mfgarch <- function(df, y, x, low.freq = "date",  K = NULL, var.ratio.freq =
                                               estimate = c(p.e.nlminb$par[1:5]),
                                               rob.std.err = c(p.e.nlminb.robust.standard.errors[1:5])),
                     mgarch.tau = tau.estimate,
+                    tau = tau.estimate,
                     mgarch.g = g.estimate.mg,
+                    g = g.estimate.mg,
                     df.fitted = df.fitted,
                     llh = -p.e.nlminb$value,
                     bic = log(sum(!is.na(tau.estimate))) * 5 - 2 * (-p.e.nlminb$value)))
@@ -230,7 +232,9 @@ fit_mfgarch <- function(df, y, x, low.freq = "date",  K = NULL, var.ratio.freq =
         return(list(mgarch = p.e.nlminb, broom.mgarch = data_frame(term = c("mu", "alpha", "beta", "gamma", "m", "theta", "llh"), estimate = c(p.e.nlminb$par[1:6], -p.e.nlminb$value),
             rob.std.err = c(p.e.nlminb.robust.standard.errors[1:6], NA)),
             mgarch.tau = tau.estimate,
+            tau = tau.estimate,
             mgarch.g = g.estimate.mg,
+            g = g.estimate.mg,
             df.fitted = df.fitted))
 
     }
@@ -244,7 +248,9 @@ fit_mfgarch <- function(df, y, x, low.freq = "date",  K = NULL, var.ratio.freq =
              par = p.e.nlminb$par,
              std.err = p.e.nlminb.robust.standard.errors[1:7],
              mgarch.tau = tau.estimate,
+             tau = tau.estimate,
              mgarch.g = g.estimate.mg,
+             g = g.estimate.mg,
              df.fitted = df.fitted,
              variance.ratio = 100 * (df.fitted %>%
                                        group_by_(var.ratio.freq) %>% summarise(mean.tau = mean(tau.mgarch), mean.tau.g = mean(tau.mgarch * g.mgarch)) %>% ungroup() %>% summarise(var.ratio = var(log(mean.tau),

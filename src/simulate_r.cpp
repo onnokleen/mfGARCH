@@ -9,7 +9,7 @@ using namespace Rcpp;
 //' @export simulate_r
 // [[Rcpp::export]]
 List simulate_r(double n_days, double n_intraday, double alpha, double beta, double gamma, NumericVector Z, double h0) {
-  //int n = n_days * n_intraday;
+
   NumericVector r(n_days);
   NumericVector r_intraday(n_days * n_intraday);
   NumericVector h(n_days);

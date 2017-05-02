@@ -7,6 +7,19 @@ x <- fit_mfgarch(df = dplyr::filter(dplyr::mutate(df_mf_financial, date = Date),
             K = 52)
 )
 
+mgarch <- fit_mfgarch(df = dplyr::filter(dplyr::mutate(df_mf_financial, date = Date), date >="1974-01-01"),
+            y = "return",
+            x = "NFCI",
+            low.freq = "week_id",
+            K = 52)
+
+
+fit_mfgarch(df = dplyr::filter(dplyr::mutate(df_mf_financial, date = Date), date >="1974-01-01"),
+            y = "return",
+            x = "NFCI",
+            low.freq = "week_id",
+            K = 1)
+
 profvis(
   fit_mfgarch(df = dplyr::filter(dplyr::mutate(df_mf_financial, date = Date), date >="1974-01-01"),
               y = "return",

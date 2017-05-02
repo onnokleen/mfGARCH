@@ -21,6 +21,23 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// simulate_r
+List simulate_r(double n_days, double n_intraday, double alpha, double beta, double gamma, NumericVector Z, double h0);
+RcppExport SEXP mfGARCH_simulate_r(SEXP n_daysSEXP, SEXP n_intradaySEXP, SEXP alphaSEXP, SEXP betaSEXP, SEXP gammaSEXP, SEXP ZSEXP, SEXP h0SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type n_days(n_daysSEXP);
+    Rcpp::traits::input_parameter< double >::type n_intraday(n_intradaySEXP);
+    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< double >::type beta(betaSEXP);
+    Rcpp::traits::input_parameter< double >::type gamma(gammaSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type Z(ZSEXP);
+    Rcpp::traits::input_parameter< double >::type h0(h0SEXP);
+    rcpp_result_gen = Rcpp::wrap(simulate_r(n_days, n_intraday, alpha, beta, gamma, Z, h0));
+    return rcpp_result_gen;
+END_RCPP
+}
 // sum_tau
 double sum_tau(int i, double m, double theta, NumericVector phivar, NumericVector covariate, int K);
 RcppExport SEXP mfGARCH_sum_tau(SEXP iSEXP, SEXP mSEXP, SEXP thetaSEXP, SEXP phivarSEXP, SEXP covariateSEXP, SEXP KSEXP) {

@@ -11,6 +11,15 @@ calculate_g <- function(omega, alpha, beta, gamma, returns, g0) {
 }
 
 #' @title
+#' simulate_r
+#' @description
+#' Calculates part of the long-term component
+#' @export simulate_r
+simulate_r <- function(n_days, n_intraday, alpha, beta, gamma, Z, h0) {
+    .Call('mfGARCH_simulate_r', PACKAGE = 'mfGARCH', n_days, n_intraday, alpha, beta, gamma, Z, h0)
+}
+
+#' @title
 #' sum_tau
 #' @description
 #' Calculates part of the long-term component

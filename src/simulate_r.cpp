@@ -7,7 +7,7 @@ using namespace Rcpp;
 //' @description
 //' Calculates part of the long-term component
 //' @export simulate_r
-// [[Rcpp::export(name = "simulate_r")]]
+// [[Rcpp::export]]
 List simulate_r(double n_days, double n_intraday, double alpha, double beta, double gamma, NumericVector Z, double h0) {
   int n = n_days * n_intraday;
   NumericVector r(n_days);

@@ -1,4 +1,8 @@
 load_all()
+
+
+simulate_mfgarch(n.days = 1000, mu = 0, alpha = 0.02, beta = 0.9, gamma = 0, m = 0, theta = 1, w2 = 2, K = 10, psi = 0.4, sigma.psi = 0.4)
+
 profvis(
 x <- fit_mfgarch(df = dplyr::filter(dplyr::mutate(df_mf_financial, date = Date), date >="1974-01-01"),
             y = "return",

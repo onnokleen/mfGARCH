@@ -263,7 +263,10 @@ fit_mfgarch <- function(df, y, x, low.freq = "date",  K = NULL, var.ratio.freq =
     }
 }
 
-#' @keywords internal
+#' @export calculate_tau_mf
+#' @importFrom dplyr select_
+#' @importFrom dplyr full_join
+#' @importFrom dplyr tbl_df
 calculate_tau_mf <- function(df, x, low.freq, w1, w2, theta, m, K) {
 
     phi.var <- calculate_phi(w1, w2, K)

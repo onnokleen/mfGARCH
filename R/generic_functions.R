@@ -12,7 +12,7 @@ print.mfGARCH <- function(x) {
 # }
 
 #' @export
-predict.mfGARCH <- function(mgarch, horizon = c(1:10), fcts.tau = NULL, std.return = NULL, cond.var = NULL, cond.tau = NULL) {
+predict.mfGARCH <- function(mgarch, horizon = c(1:10), fcts.tau = NULL, return = NULL, cond.var = NULL, cond.tau = NULL) {
   if (class(mgarch) != "mfGARCH") {
     stop("Obejct is not in class mfGARCH")
   }
@@ -29,8 +29,8 @@ predict.mfGARCH <- function(mgarch, horizon = c(1:10), fcts.tau = NULL, std.retu
     fcts.tau <- mgarch$tau_forecast
   }
 
-  if (is.null(std.return) == TRUE) {
-    std.return <- tail(mgarch$df.fitted$return, 1) / tail(sqrt(mgarch$df.fitted$tau.mgarch), 1)
+  if (is.null(return) == TRUE) {
+    return <- tail(mgarch$df.fitted$return, 1)
   }
 
   fcts.tau * as.numeric(sapply(horizon, forecast_garch,
@@ -38,6 +38,6 @@ predict.mfGARCH <- function(mgarch, horizon = c(1:10), fcts.tau = NULL, std.retu
                                alpha = mgarch$mgarch$par["alpha"],
                                beta = mgarch$mgarch$par["beta"],
                                gamma = mgarch$mgarch$par["gamma"],
-                               ret = std.return,
+                               ret = (return - - mgarch$par["mu"])/ sqrt(cond.tau),
                                g = cond.var))
 }

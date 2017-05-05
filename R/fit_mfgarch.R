@@ -10,6 +10,7 @@
 #' @importFrom dplyr full_join
 #' @importFrom dplyr tbl_df
 #' @importFrom dplyr mutate
+#' @importFrom dplyr mutate_
 #' @importFrom dplyr data_frame
 #' @importFrom dplyr group_by_
 #' @importFrom dplyr summarise
@@ -213,30 +214,41 @@ fit_mfgarch <- function(df, y, x, low.freq = "date",  K = NULL, var.ratio.freq =
     p.e.nlminb.robust.standard.errors <- (p.e.nlminb.n.i.hess %*% GGsum %*% p.e.nlminb.n.i.hess) %>% diag() %>% sqrt()
 
     if (K == 0) {
-        return(list(mgarch = p.e.nlminb,
-                    par = p.e.nlminb$par,
-                    std.err = p.e.nlminb.robust.standard.errors[1:5],
-                    broom.mgarch = data_frame(term = c("mu", "alpha", "beta", "gamma", "m"),
-                                              estimate = c(p.e.nlminb$par[1:5]),
-                                              rob.std.err = c(p.e.nlminb.robust.standard.errors[1:5])),
-                    mgarch.tau = tau.estimate,
-                    tau = tau.estimate,
-                    mgarch.g = g.estimate.mg,
-                    g = g.estimate.mg,
-                    df.fitted = df.fitted,
-                    llh = -p.e.nlminb$value,
-                    bic = log(sum(!is.na(tau.estimate))) * 5 - 2 * (-p.e.nlminb$value)))
+      output <-
+        list(mgarch = p.e.nlminb,
+             par = p.e.nlminb$par,
+             std.err = p.e.nlminb.robust.standard.errors[1:5],
+             broom.mgarch = data_frame(term = c("mu", "alpha", "beta", "gamma", "m"),
+                                       estimate = c(p.e.nlminb$par[1:5]),
+                                       rob.std.err = c(p.e.nlminb.robust.standard.errors[1:5])),
+             mgarch.tau = tau.estimate,
+             tau = tau.estimate,
+             mgarch.g = g.estimate.mg,
+             g = g.estimate.mg,
+             df.fitted = df.fitted,
+             llh = -p.e.nlminb$value,
+             bic = log(sum(!is.na(tau.estimate))) * 5 - 2 * (-p.e.nlminb$value))
+      class(output) <- "mfGARCH"
+      return(output)
     }
 
     if (K == 1) {
-        return(list(mgarch = p.e.nlminb, broom.mgarch = data_frame(term = c("mu", "alpha", "beta", "gamma", "m", "theta", "llh"), estimate = c(p.e.nlminb$par[1:6], -p.e.nlminb$value),
-            rob.std.err = c(p.e.nlminb.robust.standard.errors[1:6], NA)),
-            mgarch.tau = tau.estimate,
-            tau = tau.estimate,
-            mgarch.g = g.estimate.mg,
-            g = g.estimate.mg,
-            df.fitted = df.fitted))
-
+      output <-
+        list(mgarch = p.e.nlminb,
+             par = p.e.nlminb$par,
+             std.err = p.e.nlminb.robust.standard.errors[1:6],
+             broom.mgarch = data_frame(term = c("mu", "alpha", "beta", "gamma", "m", "theta"),
+                                       estimate = p.e.nlminb$par[1:6],
+                                       rob.std.err = p.e.nlminb.robust.standard.errors[1:6]),
+             mgarch.tau = tau.estimate,
+             tau = tau.estimate,
+             mgarch.g = g.estimate.mg,
+             g = g.estimate.mg,
+             df.fitted = df.fitted,
+             llh = -p.e.nlminb$value,
+             bic = log(sum(!is.na(tau.estimate))) * 6 - 2 * (-p.e.nlminb$value))
+      class(output) <- "mfGARCH"
+      return(output)
     }
 
     if (K > 1) {
@@ -259,7 +271,7 @@ fit_mfgarch <- function(df, y, x, low.freq = "date",  K = NULL, var.ratio.freq =
              llh = -p.e.nlminb$value,
              bic = log(sum(!is.na(tau.estimate))) * 7 - 2 * (-p.e.nlminb$value))
       class(output) <- "mfGARCH"
-      output
+      return(output)
     }
 }
 

@@ -11,6 +11,7 @@
 #' @importFrom dplyr group_by_
 #' @importFrom dplyr summarise
 #' @importFrom dplyr ungroup
+#' @importFrom dplyr group_by
 #' @importFrom zoo rollapplyr
 simulate_mfgarch <- function(n.days, mu, alpha, beta, gamma, m, theta, w1 = 1, w2, K, psi, sigma.psi, low.freq = 1, student.t = NULL) {
   # Simulate a MG time series.

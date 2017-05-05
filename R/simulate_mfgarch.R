@@ -12,7 +12,7 @@
 #' @importFrom dplyr summarise
 #' @importFrom dplyr ungroup
 #' @importFrom zoo rollapplyr
-simulate_mfgarch <- function(n.days, mu, alpha, beta, gamma, m, theta, w1 = 1, w2, K, psi, sigma.psi, low.freq = 1) {
+simulate_mfgarch <- function(n.days, mu, alpha, beta, gamma, m, theta, w1 = 1, w2, K, psi, sigma.psi, low.freq = 1, student.t = NULL) {
   # Simulate a MG time series.
   #
   # Args:
@@ -48,12 +48,22 @@ simulate_mfgarch <- function(n.days, mu, alpha, beta, gamma, m, theta, w1 = 1, w
 
   tau <- rep(tau, each = low.freq)
 
-  sim <- simulate_r(n_days = n.days, n_intraday = n.intraday,
-                             alpha = alpha,
-                             beta = beta,
-                             gamma = gamma,
-                             Z = rnorm(n.days * n.intraday),
-                             h0 = 0.1)
+  if (is.null(student.t) == TRUE) {
+    sim <- simulate_r(n_days = n.days, n_intraday = n.intraday,
+                      alpha = alpha,
+                      beta = beta,
+                      gamma = gamma,
+                      Z = rnorm(n.days * n.intraday),
+                      h0 = 0.1)
+  } else {
+    sim <- simulate_r(n_days = n.days, n_intraday = n.intraday,
+                      alpha = alpha,
+                      beta = beta,
+                      gamma = gamma,
+                      Z = rnorm(n = n.days * n.intraday, df = student.t),
+                      h0 = 0.1)
+  }
+
 
   ret <- sim$ret_intraday * sqrt(rep(tau, each = n.intraday)) + mu /n.intraday
 

@@ -5,7 +5,7 @@
 \title{This function estimates a multiplicative mixed-frequency GARCH model}
 \usage{
 simulate_mfgarch(n.days, mu, alpha, beta, gamma, m, theta, w1 = 1, w2, K, psi,
-  sigma.psi, low.freq = 1)
+  sigma.psi, low.freq = 1, student.t = NULL)
 }
 \arguments{
 \item{n.days, }{mu, alpha, beta, gamma, m, theta, w1 = 1, w2, K, psi, sigma.psi, low.freq = 1}

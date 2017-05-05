@@ -57,7 +57,7 @@ fit_mfgarch <- function(df, y, x, low.freq = "date",  K = NULL, var.ratio.freq =
   df_llh <- df %>% select_(., ~get(y), ~get(x), ~get(low.freq)) %>% mutate_(., .dots = setNames(list(mutate_call), low.freq))
   rm(mutate_call)
 
-  g_zero <- var(df$return^2)
+  g_zero <- var(df$return)
 
     # Parameter estimation
     if (K == 0) {

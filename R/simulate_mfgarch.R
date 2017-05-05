@@ -61,7 +61,7 @@ simulate_mfgarch <- function(n.days, mu, alpha, beta, gamma, m, theta, w1 = 1, w
                       alpha = alpha,
                       beta = beta,
                       gamma = gamma,
-                      Z = rnorm(n = n.days * n.intraday, df = student.t),
+                      Z = rt(n = n.days * n.intraday, df = student.t),
                       h0 = 0.1)
   }
 

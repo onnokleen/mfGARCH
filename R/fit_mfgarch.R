@@ -33,6 +33,14 @@ fit_mfgarch <- function(df, y, x, low.freq = "date",  K = NULL, var.ratio.freq =
     stop(paste("There is no low freq. variable in your data frame with name ", low.freq, "."))
   }
 
+  if ("tau" %in% colnames(df) == FALSE) {
+    stop("There may not be a column named tau - it will be part of df.fitted")
+  }
+
+  if ("g" %in% colnames(df) == FALSE) {
+    stop("There may not be a column named g - it will be part of df.fitted")
+  }
+
   if (sum(is.na(select_(df, ~get(y))) == TRUE) > 0 | sum(is.na(select_(df, ~get(x))) == TRUE) > 0) {
     stop("Either y or x include NAs")
   }

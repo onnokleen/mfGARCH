@@ -33,11 +33,11 @@ fit_mfgarch <- function(df, y, x, low.freq = "date",  K = NULL, var.ratio.freq =
     stop(paste("There is no low freq. variable in your data frame with name ", low.freq, "."))
   }
 
-  if ("tau" %in% colnames(df) == FALSE) {
+  if ("tau" %in% colnames(df) == TRUE) {
     stop("There may not be a column named tau - it will be part of df.fitted")
   }
 
-  if ("g" %in% colnames(df) == FALSE) {
+  if ("g" %in% colnames(df) == TRUE) {
     stop("There may not be a column named g - it will be part of df.fitted")
   }
 
@@ -84,8 +84,8 @@ fit_mfgarch <- function(df, y, x, low.freq = "date",  K = NULL, var.ratio.freq =
 
         parameters.start <- c(mu = 0, alpha = 0.02, beta = 0.85, gamma = 0.04, m = 0)
 
-        ui.opt <- rbind(c(0, -1, -1, -1/2, 0), c(0, 1, 0, 0, 0), c(0, 0, 1, 0, 0), c(0, 0, 0, 1, 0))
-        ci.opt <- c(-0.99999, 0, 0, 0)
+        ui.opt <- rbind(c(0, -1, -1, -1/2, 0), c(0, 1, 0, 0, 0), c(0, 0, 1, 0, 0))
+        ci.opt <- c(-0.99999, 0, 0)
 
 
         p.e.nlminb <- constrOptim(theta = parameters.start, f = lf, grad = NULL, ui = ui.opt, ci = ci.opt, hessian = FALSE)

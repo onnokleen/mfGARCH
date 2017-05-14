@@ -93,8 +93,8 @@ simulate_mfgarch <- function(n.days, mu, alpha, beta, gamma, m, theta, w1 = 1, w
                     g = sim$h_daily,
                     vol_half_hour = half.hour.vol$vol,
                     real_vol = five.vol$vol) %>%
-    mutate(real_vol_5_days = zoo::rollapplyr(.$real_vol, width = 5, FUN = mean, na.rm = TRUE, fill = NA)) %>%
-    mutate(real_vol_22_days = zoo::rollapplyr(.$real_vol, width = 22, FUN = mean, na.rm = TRUE, fill = NA))
+    mutate(real_vol_5_days = rollapplyr(.$real_vol, width = 5, FUN = mean, na.rm = TRUE, fill = NA)) %>%
+    mutate(real_vol_22_days = rollapplyr(.$real_vol, width = 22, FUN = mean, na.rm = TRUE, fill = NA))
 
   res [(low.freq * 1000 + 1):n.days, ]
 }

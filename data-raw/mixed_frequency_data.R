@@ -103,3 +103,15 @@ rm(i, last_NFCI, last_week_id)
 
 write_csv(df_mf_financial, "data-raw/df_mf_financial.csv")
 devtools::use_data(df_mf_financial, overwrite = TRUE)
+
+### ---------------------------------------------------
+
+df_demo <- readr::read_csv("~/Dropbox/Research/Paper/multiplicative-garch/R/data/data_real_time/df_recent_releases.csv") %>%
+  dplyr::mutate(vix = as.numeric(vix),
+                real_vol = as.numeric(real_vol),
+                vix_sqrt_252 = vix/sqrt(252),
+                sqrt_rv_sq_22 = sqrt(zoo::rollapplyr(return^2, width = 22, FUN = mean, fill = NA))) %>%
+  select(-vix_med_plus)
+
+devtools::use_data(df_demo, overwrite = TRUE)
+

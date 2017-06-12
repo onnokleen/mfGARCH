@@ -9,12 +9,12 @@ mgarch_52 <- fit_mfgarch(df = dplyr::filter(dplyr::mutate(df_mf_financial, date 
             x = "NFCI",
             low.freq = "week_id",
             K = 52)
+profvis::profvis(
+  mgarch_0 <- fit_mfgarch(data = filter(df_demo, date >="1974-01-01"),
+                          y = "return",
+                          K = 0)
+)
 
-mgarch_0 <- fit_mfgarch(df = dplyr::filter(dplyr::mutate(df_mf_financial, date = Date), date >="1974-01-01"),
-            y = "return",
-            x = "NFCI",
-            low.freq = "week_id",
-            K = 0)
 
 mgarch_1 <- fit_mfgarch(df = dplyr::filter(dplyr::mutate(df_mf_financial, date = Date), date >="1974-01-01"),
                         y = "return",
@@ -29,12 +29,20 @@ fit_mfgarch(df = dplyr::filter(dplyr::mutate(df_mf_financial, date = Date), date
             low.freq = "week_id",
             K = 1)
 
-profvis(
-  fit_mfgarch(df = dplyr::filter(dplyr::mutate(df_mf_financial, date = Date), date >="1974-01-01"),
+profvis::profvis(
+  fit_mfgarch(data = filter(df_demo, date >="1973-01-01", is.na(nfci) == FALSE),
               y = "return",
-              x = "NFCI",
-              low.freq = "week_id",
+              x = "nfci",
+              low.freq = "year_week",
               K = 52)
+)
+
+
+profvis::profvis(
+  fit_mfgarch(data = filter(df_demo, date >="1990-01-01", is.na(vix) == FALSE),
+              y = "return",
+              x = "vix",
+              K = 3)
 )
 
 saveRDS(x, file = "test.rds")

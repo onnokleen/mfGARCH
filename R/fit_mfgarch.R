@@ -1,5 +1,11 @@
 #' This function estimates a multiplicative mixed-frequency GARCH model
-#' @param df, y, x, K , low.freq, var.ratio.freq.
+#' @param df data frame, should contain date column
+#' @param y name of high frequency dependent variable in df.
+#' @param x covariate employed in mfGARCH.
+#' @param K an integer specifying lag length K in the long-term component.
+#' @param low.freq a string of the low frequency variable in the df.
+#' @param var.ratio.freq specify a frequency column on which the variance ratio should be calculated.
+#' @param gamma if TRUE, an asymmetric GJR GARCH is used as the short-term component. If FALSE, a simple GARCH(1,1) is employed.
 #' @keywords fit_mfgarch
 #' @export fit_mfgarch
 #' @importFrom magrittr %>%
@@ -16,322 +22,406 @@
 #' @importFrom dplyr summarise
 #' @importFrom dplyr ungroup
 #' @importFrom dplyr distinct
-# @examples likelihood_gjrgarch(0.01, 0.02, 0.9, 0.02, y = rnorm(1:4), mu = 0, g.0 = 0.2)
+#' @importFrom stats constrOptim
+#' @importFrom stats na.exclude
+#' @importFrom stats var
+#' @importFrom utils tail
+#' @importFrom lazyeval interp
+#' @importFrom numDeriv jacobian
+#' @examples fit_mfgarch(data, df_mf_financial, y = "return", x = "return", low.freq = "date", K = 0)
 
-fit_mfgarch <- function(df, y, x, low.freq = "date",  K = NULL, var.ratio.freq = NULL) {
+fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.ratio.freq = NULL, gamma = TRUE) {
 
-  if (is.null(K) == TRUE) {
+  if (is.null(x) == TRUE || is.null(K) == TRUE) {
+    print("No x or K are specified - simple GARCH is estimated (K = 0).")
+    x = y
     K = 0
   }
-  if (y %in% colnames(df) == FALSE) {
+  if (K < 0 || K %% 1 != 0) {
+    stop("K can't be smaller than 0 and has to be an integer.")
+  }
+  if ((is.null(x) == TRUE && (is.null(K) == TRUE)) || K == 0) {
+    K <- 0
+  }
+  if (y %in% colnames(data) == FALSE) {
     stop(paste("There is no variable in your data frame with name ", y, "."))
   }
-  if (x %in% colnames(df) == FALSE) {
+  if (x %in% colnames(data) == FALSE && is.null(x) != FALSE) {
     stop(paste("There is no variable in your data frame with name ", x, "."))
   }
-  if (low.freq %in% colnames(df) == FALSE) {
+  if (low.freq %in% colnames(data) == FALSE) {
     stop(paste("There is no low freq. variable in your data frame with name ", low.freq, "."))
   }
-
-  if ("tau" %in% colnames(df) == TRUE) {
+  if ("tau" %in% colnames(data) == TRUE) {
     stop("There may not be a column named tau - it will be part of df.fitted")
   }
-
-  if ("g" %in% colnames(df) == TRUE) {
+  if ("g" %in% colnames(data) == TRUE) {
     stop("There may not be a column named g - it will be part of df.fitted")
   }
-
-  if (sum(is.na(select_(df, ~get(y))) == TRUE) > 0 | sum(is.na(select_(df, ~get(x))) == TRUE) > 0) {
+  if (sum(is.na(select_(data, ~get(y))) == TRUE) > 0 | sum(is.na(select_(data, ~get(x))) == TRUE) > 0) {
     stop("Either y or x include NAs")
   }
-
-  if ("date" %in% colnames(df) == FALSE) {
+  if ("date" %in% colnames(data) == FALSE) {
     stop("No date column.")
   }
-
-  if (length(unlist(distinct(select_(df, "date")))) != dim(df)[1]) {
+  if (length(unlist(distinct(select_(data, "date")))) != dim(data)[1]) {
     stop("There is more than one observation per high frequency (presumably date).")
   }
 
   # If this is not the case, we may order by low frequency variable
-  df <- df %>% dplyr::arrange_("date")
+  data <- data %>% dplyr::arrange_("date")
+
+  data["date"] <- as.numeric(unlist(data["date"]))
 
   if (is.null(var.ratio.freq) == TRUE) {
     var.ratio.freq <- low.freq
-    print("No frequency specified for calculating the variance ratio - default: low.freq")
+    print(paste0("No frequency specified for calculating the variance ratio - default: low.freq = ", low.freq))
+  }
+  mutate_call_low_freq <- lazyeval::interp(~ as.integer(a), a = as.name(low.freq))
+  df_llh <- data %>%
+    select_(., ~get(y), ~get(x), ~get(low.freq)) %>%
+    mutate_(., .dots = setNames(list(mutate_call_low_freq), low.freq))
+  rm(mutate_call_low_freq)
+
+  g_zero <- var(unlist(data[y]))
+  ret <- unlist(df_llh[y])
+
+  # Parameter estimation
+  if (K == 0) {
+    if (gamma == TRUE) {
+      lf <- function(p) {
+        sum(llh_simple(df = df_llh,
+                       y = ret,
+                       mu = p["mu"],
+                       omega = 1 - p["alpha"] - p["beta"] - p["gamma"]/2,
+                       alpha = p["alpha"],
+                       beta = p["beta"],
+                       gamma = p["gamma"],
+                       m = p["m"],
+                       g_zero = g_zero))
+      }
+      par.start <- c(mu = 0, alpha = 0.02, beta = 0.85, gamma = 0.04, m = 0)
+      ui.opt <- rbind(c(0, -1, -1, -1/2, 0), c(0, 1, 0, 0, 0), c(0, 0, 1, 0, 0))
+      ci.opt <- c(-0.99999, 0, 0)
+    } else {
+      lf <- function(p) {
+        sum(llh_simple(df = df_llh,
+                                 y = ret,
+                                 mu = p["mu"],
+                                 omega = 1 - p["alpha"] - p["beta"],
+                                 alpha = p["alpha"],
+                                 beta = p["beta"],
+                                 gamma = 0,
+                                 m = p["m"],
+                                 g_zero = g_zero))
+      }
+      par.start <- c(mu = 0, alpha = 0.02, beta = 0.85, m = 0)
+      ui.opt <- rbind(c(0, -1, -1, 0), c(0, 1, 0, 0), c(0, 0, 1, 0))
+      ci.opt <- c(-0.99999, 0, 0)
+    }
+    p.e.nlminb <- constrOptim(theta = par.start, f = lf, grad = NULL, ui = ui.opt, ci = ci.opt, hessian = FALSE)
+    par <- p.e.nlminb$par
+    returns <- data %>% select_(~get(y)) %>% unlist() %>% as.numeric()
+    tau <- rep(exp(par["m"]), times = length(returns))
+
+    if (gamma == TRUE) {
+      g <- c(rep(NA, times = sum(is.na((returns - par["mu"])/sqrt(tau)))),
+             calculate_g(omega = 1 - par["alpha"] - par["beta"] -  par["gamma"]/2,
+                         alpha = par["alpha"],
+                         beta = par["beta"],
+                         gamma = par["gamma"],
+                         as.numeric(na.exclude((returns - par["mu"])/sqrt(tau))),
+                         g0 = g_zero))
+
+    } else {
+      g<- c(rep(NA, times = sum(is.na((returns - par["mu"])/sqrt(tau)))),
+            calculate_g(omega = 1 - par["alpha"] - par["beta"],
+                        alpha = par["alpha"],
+                        beta = par["beta"],
+                        gamma = 0,
+                        as.numeric(na.exclude((returns - par["mu"])/sqrt(tau))),
+                        g0 = g_zero))
+    }
+
+    df.fitted <-
+      data_frame(returns = returns,
+                 g = g,
+                 tau = tau)
+    df.fitted$residuals <- (df.fitted$returns - par["mu"]) / sqrt(df.fitted$g * df.fitted$tau)
+  } else { # if K > 0 we get the covariate series
+    covariate <- data %>%
+      select_(., ~get(low.freq), ~get(x)) %>%
+      distinct() %>% select_(., ~get(x)) %>%
+      unlist()
   }
 
-  mutate_call <- lazyeval::interp(~ as.numeric(a), a = as.name(low.freq))
-  df_llh <- df %>% select_(., ~get(y), ~get(x), ~get(low.freq)) %>% mutate_(., .dots = setNames(list(mutate_call), low.freq))
-  rm(mutate_call)
-
-  g_zero <- var(df$return)
-
-    # Parameter estimation
-    if (K == 0) {
-        lf <- function(parameters) {
-            sum(likelihood_mg_simple(df = df_llh,
-                                     y = y,
-                                     mu = parameters["mu"],
-                                     omega = 1 - parameters["alpha"] - parameters["beta"] - parameters["gamma"]/2,
-                                     alpha = parameters["alpha"],
-                                     beta = parameters["beta"],
-                                     gamma = parameters["gamma"],
-                                     m = parameters["m"],
-                                     g_zero = g_zero))
-        }
-
-
-        parameters.start <- c(mu = 0, alpha = 0.02, beta = 0.85, gamma = 0.04, m = 0)
-
-        ui.opt <- rbind(c(0, -1, -1, -1/2, 0), c(0, 1, 0, 0, 0), c(0, 0, 1, 0, 0))
-        ci.opt <- c(-0.99999, 0, 0)
-
-
-        p.e.nlminb <- constrOptim(theta = parameters.start, f = lf, grad = NULL, ui = ui.opt, ci = ci.opt, hessian = FALSE)
-        returns <- df %>% select_(~get(y)) %>% unlist() %>% as.numeric()
-        tau.estimate <- rep(exp(p.e.nlminb$par["m"]), times = length(returns))
-        g.estimate.mg <- c(rep(NA, times = sum(is.na((returns - p.e.nlminb$par["mu"])/sqrt(tau.estimate)))),
-                           calculate_g(omega = 1 - p.e.nlminb$par["alpha"] - p.e.nlminb$par["beta"] -  p.e.nlminb$par["gamma"]/2,
-                                       alpha = p.e.nlminb$par["alpha"],
-                                       beta = p.e.nlminb$par["beta"],
-                                       gamma = p.e.nlminb$par["gamma"],
-                                       as.numeric(na.exclude((returns - p.e.nlminb$par["mu"])/sqrt(tau.estimate))),
-                                       g0 = g_zero))
-
-        df.fitted <- data_frame(returns = returns,
-                                g.mgarch = g.estimate.mg,
-                                tau.mgarch = tau.estimate) %>%
-          mutate(., residuals = (returns - p.e.nlminb$par["mu"])/sqrt(g.mgarch * tau.mgarch))
+  if (K == 1) {
+    lf <- function(p) {
+      sum(likelihood_mg_mf(df = df_llh, y = y, x = x, low.freq = low.freq,
+                           mu = p["mu"],
+                           omega = 1 - p["alpha"] - p["beta"] - p["gamma"]/2,
+                           alpha = p["alpha"],
+                           beta = p["beta"],
+                           gamma = p["gamma"],
+                           m = p["m"],
+                           theta = p["theta"],
+                           w1 = 1, w2 = 1, g_zero = g_zero, K = K))
     }
 
-    if (K == 1) {
-        lf <- function(parameters) {
-            sum(likelihood_mg_mf(df = df_llh, y = y, x = x, low.freq = low.freq, mu = parameters["mu"], omega = 1 - parameters["alpha"] - parameters["beta"] - parameters["gamma"]/2, alpha = parameters["alpha"],
-                beta = parameters["beta"], gamma = parameters["gamma"], m = parameters["m"], theta = parameters["theta"], w1 = 1, w2 = 1, g_zero = g_zero, K = K))
-        }
+    par.start <- c(mu = 0, alpha = 0.02, beta = 0.85, gamma = 0.04, m = 0, theta = 0)
 
-        parameters.start <- c(mu = 0, alpha = 0.02, beta = 0.85, gamma = 0.04, m = 0, theta = 0)
+    ui.opt <- rbind(c(0, -1, -1, -1/2, 0, 0), c(0, 1, 0, 0, 0, 0), c(0, 0, 1, 0, 0, 0))
+    ci.opt <- c(-0.99999, 0, 0)
 
-        ui.opt <- rbind(c(0, -1, -1, -1/2, 0, 0), c(0, 1, 0, 0, 0, 0), c(0, 0, 1, 0, 0, 0))
-        ci.opt <- c(-0.99999, 0, 0)
+    p.e.nlminb <- constrOptim(theta = par.start, f = lf, grad = NULL, ui = ui.opt, ci = ci.opt, hessian = FALSE)
+    par <- p.e.nlminb$par
 
-        p.e.nlminb <- constrOptim(theta = parameters.start, f = lf, grad = NULL, ui = ui.opt, ci = ci.opt, hessian = FALSE)
+    tau <- calculate_tau_mf(df = data, x = x,
+                                     low.freq = low.freq,
+                                     theta = par["theta"], m = par["m"], w1 = 1, w2 = 1,
+                                     K = K)$tau
 
-        tau.estimate <- calculate_tau_mf(df = df, x = x, low.freq = low.freq, w1 = 1, w2 = 1, theta = p.e.nlminb$par["theta"], m = p.e.nlminb$par["m"], K = K)$tau
+    returns <- unlist(data[y])
 
-        returns <- df$return
+    g <- c(rep(NA, times = sum(is.na((returns - par["mu"])/sqrt(tau)))),
+           calculate_g(omega = 1 - par["alpha"] - par["beta"] - par["gamma"]/2,
+                       alpha = par["alpha"], beta = par["beta"], gamma = par["gamma"],
+                       as.numeric(na.exclude((returns - par["mu"])/sqrt(tau))), g0 = g_zero))
 
-        g.estimate.mg <- c(rep(NA, times = sum(is.na((returns - p.e.nlminb$par["mu"])/sqrt(tau.estimate)))), calculate_g(omega = 1 - p.e.nlminb$par["alpha"] - p.e.nlminb$par["beta"] -
-            p.e.nlminb$par["gamma"]/2, alpha = p.e.nlminb$par["alpha"], beta = p.e.nlminb$par["beta"], gamma = p.e.nlminb$par["gamma"], as.numeric(na.exclude((returns - p.e.nlminb$par["mu"])/sqrt(tau.estimate))),
-            g0 = g_zero))
+    df.fitted <- data_frame(return = returns,
+                            g = g,
+                            tau = tau) %>%
+      mutate(., residuals = (return - par["mu"])/sqrt(g * tau))
 
-        df.fitted <- data_frame(returns = returns, g.mgarch = g.estimate.mg, tau.mgarch = tau.estimate) %>% mutate(., residuals = (returns - p.e.nlminb$par["mu"])/sqrt(g.mgarch *
-            tau.mgarch))
+  }
 
+  if (K > 1) {
+    lf <- function(p) {
+      sum(likelihood_mg_mf(df = df_llh,
+                           y = ret,
+                           x = covariate,
+                           low.freq = low.freq,
+                           mu = p["mu"], omega = 1 - p["alpha"] - p["beta"] - p["gamma"]/2,
+                           alpha = p["alpha"],
+                           beta = p["beta"],
+                           gamma = p["gamma"],
+                           m = p["m"],
+                           theta = p["theta"],
+                           w1 = 1,
+                           w2 = p["w2"],
+                           g_zero = g_zero,
+                           K = K))
     }
 
-    if (K > 1) {
-        lf <- function(parameters) {
-            sum(likelihood_mg_mf(df = df_llh, y = y, x = x, low.freq = low.freq, mu = parameters["mu"], omega = 1 - parameters["alpha"] - parameters["beta"] - parameters["gamma"]/2,
-                alpha = parameters["alpha"], beta = parameters["beta"], gamma = parameters["gamma"], m = parameters["m"], theta = parameters["theta"], w1 = 1, w2 = parameters["w2"],
-                g_zero = g_zero, K = K))
-        }
+    par.start <- c(mu = 0, alpha = 0.02, beta = 0.85, gamma = 0.04, m = 0, theta = 0, w2 = 3)
 
-        parameters.start <- c(mu = 0, alpha = 0.02, beta = 0.85, gamma = 0.04, m = 0, theta = 0, w2 = 3)
+    ui.opt <- rbind(c(0, -1, -1, -1/2, 0, 0, 0), c(0, 0, 0, 0, 0, 0, 1), c(0, 1, 0, 0, 0, 0, 0), c(0, 0, 1, 0, 0, 0, 0))
+    ci.opt <- c(-0.99999999, 1, 0, 0)
 
-        ui.opt <- rbind(c(0, -1, -1, -1/2, 0, 0, 0), c(0, 0, 0, 0, 0, 0, 1), c(0, 1, 0, 0, 0, 0, 0), c(0, 0, 1, 0, 0, 0, 0))
-        ci.opt <- c(-0.99999999, 1, 0, 0)
+    p.e.nlminb <- constrOptim(theta = par.start, f = lf, grad = NULL, ui = ui.opt, ci = ci.opt, hessian = FALSE)
+    par <- p.e.nlminb$par
 
-        p.e.nlminb <- constrOptim(theta = parameters.start, f = lf, grad = NULL, ui = ui.opt, ci = ci.opt, hessian = FALSE)
+    tau <- calculate_tau_mf(df = data, x = covariate, low.freq = low.freq,
+                                     w1 = 1, w2 = par["w2"],
+                                     theta = par["theta"],
+                                     m = par["m"], K = K)$tau
 
-        tau.estimate <- calculate_tau_mf(df = df, x = x, low.freq = low.freq, w1 = 1, w2 = p.e.nlminb$par["w2"], theta = p.e.nlminb$par["theta"], m = p.e.nlminb$par["m"], K = K)$tau
-
-        tau_forecast <-
-          exp(sum_tau(m = p.e.nlminb$par["m"],
+    tau_forecast <-
+      exp(sum_tau(m = par["m"],
                   i = K + 1,
-                  theta = p.e.nlminb$par["theta"],
-                  phivar = calculate_phi(w1 = 1, w2 = p.e.nlminb$par["w2"], K = K),
-                  covariate = c(df %>% select_(., ~get(x), ~get(low.freq)) %>%
-                    distinct() %>% select_(~get(x)) %>%
-                    unlist() %>%
-                    tail(K), NA),
+                  theta = par["theta"],
+                  phivar = calculate_phi(w1 = 1, w2 = par["w2"], K = K),
+                  covariate = c(data %>% select_(., ~get(x), ~get(low.freq)) %>%
+                                  distinct() %>% select_(~get(x)) %>%
+                                  unlist() %>%
+                                  tail(K), NA),
                   K = K))
 
-        returns <- df$return
+    returns <- unlist(data[y])
 
-        g.estimate.mg <- c(rep(NA, times = sum(is.na((returns - p.e.nlminb$par["mu"])/sqrt(tau.estimate)))), calculate_g(omega = 1 - p.e.nlminb$par["alpha"] - p.e.nlminb$par["beta"] -
-            p.e.nlminb$par["gamma"]/2, alpha = p.e.nlminb$par["alpha"], beta = p.e.nlminb$par["beta"], gamma = p.e.nlminb$par["gamma"], as.numeric(na.exclude((returns - p.e.nlminb$par["mu"])/sqrt(tau.estimate))),
-            g0 = g_zero))
+    g <- c(rep(NA, times = sum(is.na((returns - par["mu"])/sqrt(tau)))),
+                       calculate_g(omega = 1 - par["alpha"] - par["beta"] - par["gamma"]/2,
+                                   alpha = par["alpha"],
+                                   beta = par["beta"],
+                                   gamma = par["gamma"],
+                                   as.numeric(na.exclude((returns - par["mu"])/sqrt(tau))),
+                                   g0 = g_zero))
 
-        df.fitted <- df %>% cbind(g.mgarch = g.estimate.mg, tau.mgarch = tau.estimate) %>% mutate(., residuals = (returns - p.e.nlminb$par["mu"])/sqrt(g.mgarch * tau.mgarch))
-        # data_frame(returns = returns, g.mgarch = g.estimate.mg, tau.mgarch = tau.estimate) %>%
+    df.fitted <- data %>%
+      cbind(g = g, tau = tau) %>%
+      mutate(., residuals = (returns - par["mu"])/sqrt(g * tau))
 
+  }
+
+  if (K == 0) {
+    if (gamma == TRUE) {
+      lf_mgarch_score <- function(p) {
+        llh_simple(df = df_llh,
+                             y = ret,
+                             mu = p["mu"],
+                             omega = 1 - p["alpha"] - p["beta"] - p["gamma"]/2,
+                             alpha = p["alpha"],
+                             beta = p["beta"],
+                             gamma = p["gamma"],
+                             m = p["m"],
+                             g_zero = g_zero)
+      }
+    } else {
+      lf_mgarch_score <- function(p) {
+        llh_simple(df = df_llh,
+                             y = ret,
+                             mu = p["mu"],
+                             omega = 1 - p["alpha"] - p["beta"],
+                             alpha = p["alpha"],
+                             beta = p["beta"],
+                             gamma = 0,
+                             m = p["m"],
+                             g_zero = g_zero)
+      }
     }
+  }
 
-    p.e.nlminb.n.i.hess <- solve(-optimHess(par = p.e.nlminb$par, fn = lf))
-
-    if (K == 0) {
-        lf_mgarch_score <- function(parameters) {
-            likelihood_mg_simple(df = df_llh,
-                                 y = y,
-                                 mu = parameters["mu"],
-                                 omega = 1 - parameters["alpha"] - parameters["beta"] - parameters["gamma"]/2,
-                                 alpha = parameters["alpha"],
-                                 beta = parameters["beta"],
-                                 gamma = parameters["gamma"],
-                                 m = parameters["m"],
-                                 g_zero = g_zero)
-        }
+  if (K == 1) {
+    lf_mgarch_score <- function(p) {
+      likelihood_mg_mf(df = df_llh,
+                       y = y,
+                       x = x,
+                       low.freq = low.freq,
+                       mu = p["mu"], omega = 1 - p["alpha"] - p["beta"] - p["gamma"]/2,
+                       alpha = p["alpha"],
+                       beta = p["beta"],
+                       gamma = p["gamma"],
+                       m = p["m"],
+                       theta = p["theta"],
+                       w1 = 1, w2 = 1, g_zero = g_zero, K = K)
     }
+  }
 
-    if (K == 1) {
-        lf_mgarch_score <- function(parameters) {
-            likelihood_mg_mf(df = df_llh,
-                             y = y,
-                             x = x,
-                             low.freq = low.freq,
-                             mu = parameters["mu"], omega = 1 - parameters["alpha"] - parameters["beta"] - parameters["gamma"]/2,
-                             alpha = parameters["alpha"],
-                             beta = parameters["beta"],
-                             gamma = parameters["gamma"],
-                             m = parameters["m"],
-                             theta = parameters["theta"],
-                             w1 = 1, w2 = 1, g_zero = g_zero, K = K)
-        }
+  if (K > 1) {
+    lf_mgarch_score <- function(p) {
+      likelihood_mg_mf(df = df_llh,
+                       y = ret,
+                       x = covariate,
+                       low.freq = low.freq,
+                       mu = p["mu"],
+                       omega = 1 - p["alpha"] - p["beta"] - p["gamma"]/2,
+                       alpha = p["alpha"],
+                       beta = p["beta"],
+                       gamma = p["gamma"],
+                       m = p["m"],
+                       theta = p["theta"],
+                       w1 = 1, w2 = p["w2"],
+                       g_zero = g_zero, K = K)
     }
+  }
 
-    if (K > 1) {
-        lf_mgarch_score <- function(parameters) {
-            likelihood_mg_mf(df = df_llh, y = y, x = x, low.freq = low.freq, mu = parameters["mu"],
-                             omega = 1 - parameters["alpha"] - parameters["beta"] - parameters["gamma"]/2,
-                             alpha = parameters["alpha"],
-                             beta = parameters["beta"],
-                             gamma = parameters["gamma"],
-                             m = parameters["m"],
-                             theta = parameters["theta"],
-                             w1 = 1, w2 = parameters["w2"],
-                             g_zero = g_zero, K = K)
-        }
-    }
+  hessian <- solve(-optimHess(par = par, fn = lf))
+  G <- jacobian(func = lf_mgarch_score, x = par)
+  GGsum <- t(G) %*% G
+  rob.std.err <- sqrt(diag(hessian %*% GGsum %*% hessian))
 
-    G <- numDeriv::jacobian(func = lf_mgarch_score, x = p.e.nlminb$par)
-
-    GGsum <- t(G) %*% G
-
-    p.e.nlminb.robust.standard.errors <- (p.e.nlminb.n.i.hess %*% GGsum %*% p.e.nlminb.n.i.hess) %>% diag() %>% sqrt()
-
-    if (K == 0) {
+  if (K == 0) {
+    if (gamma == TRUE) {
       output <-
-        list(mgarch = p.e.nlminb,
-             par = p.e.nlminb$par,
-             std.err = p.e.nlminb.robust.standard.errors[1:5],
+        list(par = par,
+             std.err = rob.std.err[1:5],
              broom.mgarch = data_frame(term = c("mu", "alpha", "beta", "gamma", "m"),
-                                       estimate = c(p.e.nlminb$par[1:5]),
-                                       rob.std.err = c(p.e.nlminb.robust.standard.errors[1:5])),
-             mgarch.tau = tau.estimate,
-             tau = tau.estimate,
-             mgarch.g = g.estimate.mg,
-             g = g.estimate.mg,
+                                       estimate = c(par[1:5]),
+                                       rob.std.err = c(rob.std.err[1:5])),
+             g = g,
+             tau = tau,
              df.fitted = df.fitted,
              llh = -p.e.nlminb$value,
-             bic = log(sum(!is.na(tau.estimate))) * 5 - 2 * (-p.e.nlminb$value))
-      class(output) <- "mfGARCH"
-      return(output)
-    }
-
-    if (K == 1) {
+             bic = log(sum(!is.na(tau))) * 5 - 2 * (-p.e.nlminb$value),
+             optim = p.e.nlminb)
+    } else {
       output <-
-        list(mgarch = p.e.nlminb,
-             par = p.e.nlminb$par,
-             std.err = p.e.nlminb.robust.standard.errors[1:6],
-             broom.mgarch = data_frame(term = c("mu", "alpha", "beta", "gamma", "m", "theta"),
-                                       estimate = p.e.nlminb$par[1:6],
-                                       rob.std.err = p.e.nlminb.robust.standard.errors[1:6]),
-             mgarch.tau = tau.estimate,
-             tau = tau.estimate,
-             mgarch.g = g.estimate.mg,
-             g = g.estimate.mg,
+        list(par = par,
+             std.err = rob.std.err[1:4],
+             broom.mgarch = data_frame(term = c("mu", "alpha", "beta", "m"),
+                                       estimate = c(par[1:4]),
+                                       rob.std.err = c(rob.std.err[1:4])),
+             g = g,
+             tau = tau,
              df.fitted = df.fitted,
              llh = -p.e.nlminb$value,
-             bic = log(sum(!is.na(tau.estimate))) * 6 - 2 * (-p.e.nlminb$value))
-      class(output) <- "mfGARCH"
-      return(output)
+             bic = log(sum(!is.na(tau))) * 4 - 2 * (-p.e.nlminb$value),
+             optim = p.e.nlminb)
     }
+  }
 
-    if (K > 1) {
-      output <-
-        list(mgarch = p.e.nlminb,
-             broom.mgarch = data_frame(term = c("mu", "alpha", "beta", "gamma", "m", "theta", "w2"),
-                                       estimate = c(p.e.nlminb$par[1:7]),
-                                       rob.std.err = c(p.e.nlminb.robust.standard.errors[1:7])),
-             par = p.e.nlminb$par,
-             std.err = p.e.nlminb.robust.standard.errors[1:7],
-             mgarch.tau = tau.estimate,
-             tau = tau.estimate,
-             mgarch.g = g.estimate.mg,
-             g = g.estimate.mg,
-             df.fitted = df.fitted,
-             variance.ratio = 100 * (df.fitted %>%
-                                       group_by_(var.ratio.freq) %>% summarise(mean.tau = mean(tau.mgarch), mean.tau.g = mean(tau.mgarch * g.mgarch)) %>% ungroup() %>% summarise(var.ratio = var(log(mean.tau),
-                                                                                                                                                                                                  na.rm = TRUE)/var(log(mean.tau.g), na.rm = TRUE)) %>% unlist()),
-             tau_forecast = tau_forecast,
-             llh = -p.e.nlminb$value,
-             bic = log(sum(!is.na(tau.estimate))) * 7 - 2 * (-p.e.nlminb$value))
-      class(output) <- "mfGARCH"
-      return(output)
-    }
+  if (K == 1) {
+    output <-
+      list(mgarch = p.e.nlminb,
+           par = par,
+           std.err = rob.std.err[1:6],
+           broom.mgarch = data_frame(term = c("mu", "alpha", "beta", "gamma", "m", "theta"),
+                                     estimate = par[1:6],
+                                     rob.std.err = rob.std.err[1:6]),
+           tau = tau,
+           g = g,
+           df.fitted = df.fitted,
+           llh = -p.e.nlminb$value,
+           bic = log(sum(!is.na(tau))) * 6 - 2 * (-p.e.nlminb$value))
+  }
+
+  if (K > 1) {
+    output <-
+      list(mgarch = p.e.nlminb,
+           broom.mgarch = data_frame(term = c("mu", "alpha", "beta", "gamma", "m", "theta", "w2"),
+                                     estimate = c(par[1:7]),
+                                     rob.std.err = c(rob.std.err[1:7])),
+           par = par,
+           std.err = rob.std.err[1:7],
+           tau = tau,
+           g = g,
+           df.fitted = df.fitted,
+           variance.ratio = 100 * (df.fitted %>%
+                                     group_by_(var.ratio.freq) %>%
+                                     summarise(mean.tau = mean(tau), mean.tau.g = mean(tau * g)) %>%
+                                     ungroup() %>%
+                                     summarise(var.ratio = var(log(mean.tau), na.rm = TRUE)/var(log(mean.tau.g), na.rm = TRUE)) %>%
+                                     unlist()),
+           tau_forecast = tau_forecast,
+           llh = -p.e.nlminb$value,
+           bic = log(sum(!is.na(tau))) * 7 - 2 * (-p.e.nlminb$value))
+  }
+
+  class(output) <- "mfGARCH"
+  output
 }
 
-#' @export calculate_tau_mf
-#' @importFrom dplyr select_
-#' @importFrom dplyr full_join
-#' @importFrom dplyr tbl_df
+
+#' @keywords internal
 calculate_tau_mf <- function(df, x, low.freq, w1, w2, theta, m, K) {
-
-    phi.var <- calculate_phi(w1, w2, K)
-
-    covariate <- df %>% select_(., ~get(low.freq), ~get(x)) %>% distinct() %>% select_(., ~get(x)) %>% unlist()
-
-    covariate <- c(rep(NA, times = K), covariate)
-    tau <- exp(sapply(c((K + 1):length(covariate)),
-                      FUN = sum_tau,
-                      m = m, theta = theta,
-                      phivar = phi.var, covariate = covariate, K = K))
-    full_join(df, eval(parse(text = paste0("tbl_df(cbind(", low.freq, " = unlist(distinct(select_(df, ~get(low.freq)))), tau))"))), by = low.freq)
-
+  phi.var <- calculate_phi(w1, w2, K)
+  covariate <- c(rep(NA, times = K), x)
+  tau <- c(rep(NA, times = K), exp(sum_tau_zwei(m = m, theta = theta, phivar = phi.var, covariate = x, K = K)))
+  left_join(df, cbind(unique(df[low.freq]), tau), by = low.freq)
 }
 
 #' @keywords internal
 likelihood_mg_mf <- function(df, x, y, low.freq, mu, omega, alpha, beta, gamma, m, theta, w1 = 1, w2 = 1, g_zero, K = 2) {
 
-    tau <- calculate_tau_mf(df = df, x = x, low.freq = low.freq, w1 = w1, w2 = w2, theta = theta, m = m, K = K)$tau
+  tau <- calculate_tau_mf(df = df, x = x, low.freq = low.freq, w1 = w1, w2 = w2, theta = theta, m = m, K = K)$tau
+  ret <- y
+  ret <- ret[which.min(is.na(tau)):length(ret)]  # lags can't be used for likelihood
+  tau <- tau[which.min(is.na(tau)):length(tau)]
+  g <- calculate_g(omega = omega, alpha = alpha, beta = beta, gamma = gamma,
+                   returns = ((ret - mu)/sqrt(tau)), g0 = g_zero)
 
-    ret <- df %>% select_(., ~get(y)) %>% unlist()
-
-    ret <- ret[which.min(is.na(tau)):length(ret)]  # lags can't be used for likelihood
-    tau <- tau[which.min(is.na(tau)):length(tau)]
-    g <- calculate_g(omega = omega, alpha = alpha, beta = beta, gamma = gamma, returns = ((ret - mu)/sqrt(tau)), g0 = g_zero)
-
-    if (sum(g <= 0) > 0) {
-        rep(NA, times = length(y))
-    } else {
-        1/2 * log(2 * pi) + 1/2 * log(g * tau) + 1/2 * (ret - mu)^2/(g * tau)
-    }
+  if (sum(g <= 0) > 0) {
+    rep(NA, times = length(y))
+  } else {
+    1/2 * log(2 * pi) + 1/2 * log(g * tau) + 1/2 * (ret - mu)^2/(g * tau)
+  }
 }
 
 #' @keywords internal
-likelihood_mg_simple <- function(df, y, mu, omega, alpha, beta, gamma, m, g_zero) {
-    ret <- df %>% select_(., ~get(y)) %>% unlist()
-
-    tau <- rep(exp(m), times = length(ret))
-
-    g <- calculate_g(omega = omega, alpha = alpha, beta = beta, gamma = gamma, returns = ((ret - mu)/sqrt(exp(m))), g0 = g_zero)
-
-    1/2 * log(2 * pi) + 1/2 * log(g * tau) + 1/2 * (ret - mu)^2/(g * tau)
+llh_simple <- function(df, y, mu, omega, alpha, beta, gamma, m, g_zero) {
+  ret <- y
+  ret_std <- (ret - mu)/sqrt(exp(m))
+  g <- calculate_g(omega = omega, alpha = alpha, beta = beta, gamma = gamma,
+                   returns = ret_std, g0 = g_zero)
+  1/2 * log(2 * pi) + 1/2 * log(g * exp(m)) + 1/2 * (ret - mu)^2/(g * exp(m))
 }
-
-
-
-
-

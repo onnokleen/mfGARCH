@@ -37,4 +37,6 @@ vignettes/*.pdf
 
 .DS_Store
 
+package_loading.R
 spielwiese.R
+tests.R

@@ -1,11 +1,11 @@
 Package: mfGARCH
-Title: A tidyverse mixed-frequency GARCH package
-Version: 0.0.1
+Title: Estimating mixed-frequency GARCH models
+Version: 0.1.0
 Authors@R: person("Onno", "Kleen", email = "mail@onnokleen.de", role = c("aut", "cre"))
 Description: This is an R package accompanying the paper ‘‘Statistical Properties of Multiplicative GARCH Models’’ by Conrad, Christian and Kleen, Onno (2016). In this paper, we ...
 Depends:
     R (>= 3.3.0)
-License: MIT
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.0.1
@@ -16,7 +16,10 @@ Imports:
     Rcpp,
     stats,
     tibble,
-    numDeriv
+    numDeriv,
+    zoo,
+    lazyeval
 LinkingTo: Rcpp
+URL: https://github.com/onnokleen/mfGARCH/
 BugReports: https://github.com/onnokleen/mfGARCH/issues
 Suggests: testthat

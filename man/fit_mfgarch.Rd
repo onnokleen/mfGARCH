@@ -4,12 +4,28 @@
 \alias{fit_mfgarch}
 \title{This function estimates a multiplicative mixed-frequency GARCH model}
 \usage{
-fit_mfgarch(df, y, x, low.freq = "date", K = NULL, var.ratio.freq = NULL)
+fit_mfgarch(data, y, x = NULL, K = NULL, low.freq = "date",
+  var.ratio.freq = NULL, gamma = TRUE)
 }
 \arguments{
-\item{df, }{y, x, K , low.freq, var.ratio.freq.}
+\item{y}{name of high frequency dependent variable in df.}
+
+\item{x}{covariate employed in mfGARCH.}
+
+\item{K}{an integer specifying lag length K in the long-term component.}
+
+\item{low.freq}{a string of the low frequency variable in the df.}
+
+\item{var.ratio.freq}{specify a frequency column on which the variance ratio should be calculated.}
+
+\item{gamma}{if TRUE, an asymmetric GJR GARCH is used as the short-term component. If FALSE, a simple GARCH(1,1) is employed.}
+
+\item{df}{data frame, should contain date column}
 }
 \description{
 This function estimates a multiplicative mixed-frequency GARCH model
+}
+\examples{
+fit_mfgarch(data, df_mf_financial, y = "return", x = "return", low.freq = "date", K = 0)
 }
 \keyword{fit_mfgarch}

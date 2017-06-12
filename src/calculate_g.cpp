@@ -2,12 +2,6 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 
-
-//' @title
-//' calculate_g
-//' @description
-//' Calculates the short-term component
-//' @export calculate_g
 // [[Rcpp::export]]
 
 NumericVector calculate_g(double omega, double alpha, double beta, double gamma, NumericVector returns, double g0) {

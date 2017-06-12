@@ -13,6 +13,9 @@
 #' @importFrom dplyr ungroup
 #' @importFrom dplyr group_by
 #' @importFrom zoo rollapplyr
+#' @importFrom stats rnorm
+#' @importFrom stats setNames
+#' @importFrom stats rt
 simulate_mfgarch <- function(n.days, mu, alpha, beta, gamma, m, theta, w1 = 1, w2, K, psi, sigma.psi, low.freq = 1, student.t = NULL) {
   # Simulate a MG time series.
   #

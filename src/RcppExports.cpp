@@ -54,3 +54,31 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// sum_tau_zwei
+NumericVector sum_tau_zwei(double m, double theta, NumericVector phivar, NumericVector covariate, int K);
+RcppExport SEXP mfGARCH_sum_tau_zwei(SEXP mSEXP, SEXP thetaSEXP, SEXP phivarSEXP, SEXP covariateSEXP, SEXP KSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type m(mSEXP);
+    Rcpp::traits::input_parameter< double >::type theta(thetaSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type phivar(phivarSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type covariate(covariateSEXP);
+    Rcpp::traits::input_parameter< int >::type K(KSEXP);
+    rcpp_result_gen = Rcpp::wrap(sum_tau_zwei(m, theta, phivar, covariate, K));
+    return rcpp_result_gen;
+END_RCPP
+}
+
+static const R_CallMethodDef CallEntries[] = {
+    {"mfGARCH_calculate_g", (DL_FUNC) &mfGARCH_calculate_g, 6},
+    {"mfGARCH_simulate_r", (DL_FUNC) &mfGARCH_simulate_r, 7},
+    {"mfGARCH_sum_tau", (DL_FUNC) &mfGARCH_sum_tau, 6},
+    {"mfGARCH_sum_tau_zwei", (DL_FUNC) &mfGARCH_sum_tau_zwei, 5},
+    {NULL, NULL, 0}
+};
+
+RcppExport void R_init_mfGARCH(DllInfo *dll) {
+    R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
+    R_useDynamicSymbols(dll, FALSE);
+}

@@ -2,11 +2,6 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 
-//' @title
-//' simulate_r
-//' @description
-//' Calculates part of the long-term component
-//' @export simulate_r
 // [[Rcpp::export]]
 List simulate_r(double n_days, double n_intraday, double alpha, double beta, double gamma, NumericVector Z, double h0) {
 

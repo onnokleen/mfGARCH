@@ -1,9 +1,9 @@
 #' @export
-print.mfGARCH <- function(object) {
-    if (class(object) != "mfGARCH") {
+print.mfGARCH <- function(x, ...) {
+    if (class(x) != "mfGARCH") {
         stop("Obejct is not in class mfGARCH")
     } else {
-        print(object$broom.mgarch)
+        print(x$broom.mgarch)
     }
 }
 
@@ -12,7 +12,7 @@ print.mfGARCH <- function(object) {
 # }
 
 #' @export
-predict.mfGARCH <- function(object, horizon = c(1:10), fcts.tau = NULL, return = NULL, cond.var = NULL, cond.tau = NULL) {
+predict.mfGARCH <- function(object, horizon = c(1:10), fcts.tau = NULL, return = NULL, cond.var = NULL, cond.tau = NULL, ...) {
   if (class(object) != "mfGARCH") {
     stop("Obejct is not in class mfGARCH")
   }

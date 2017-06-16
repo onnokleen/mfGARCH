@@ -2,9 +2,9 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 
-// [[Rcpp::export(name = "sum_tau")]]
+// [[Rcpp::export(name = "sum_tau_fcts")]]
 
-double sum_tau(int i, double m, double theta, NumericVector phivar, NumericVector covariate, int K) {
+double sum_tau_fcts(int i, double m, double theta, NumericVector phivar, NumericVector covariate, int K) {
 
   double exponential = m;
 
@@ -18,9 +18,9 @@ double sum_tau(int i, double m, double theta, NumericVector phivar, NumericVecto
 #include <Rcpp.h>
 using namespace Rcpp;
 
-// [[Rcpp::export(name = "sum_tau_zwei")]]
+// [[Rcpp::export(name = "sum_tau")]]
 
-NumericVector sum_tau_zwei(double m, double theta, NumericVector phivar, NumericVector covariate, int K) {
+NumericVector sum_tau(double m, double theta, NumericVector phivar, NumericVector covariate, int K) {
 
   int n = covariate.size() - K;
   NumericVector exponential(n);

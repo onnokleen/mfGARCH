@@ -7,4 +7,4 @@
 ^spielwiese\.R
 ^cran-comments\.md
 ^test\.rds
-^functions/simulate_mfgarch\.R
+^R/simulate_mfgarch\.R

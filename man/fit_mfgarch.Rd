@@ -5,9 +5,11 @@
 \title{This function estimates a multiplicative mixed-frequency GARCH model}
 \usage{
 fit_mfgarch(data, y, x = NULL, K = NULL, low.freq = "date",
-  var.ratio.freq = NULL, gamma = TRUE)
+  var.ratio.freq = NULL, gamma = TRUE, weighting = "beta.one.sided")
 }
 \arguments{
+\item{data}{data frame, should contain date column}
+
 \item{y}{name of high frequency dependent variable in df.}
 
 \item{x}{covariate employed in mfGARCH.}
@@ -20,12 +22,13 @@ fit_mfgarch(data, y, x = NULL, K = NULL, low.freq = "date",
 
 \item{gamma}{if TRUE, an asymmetric GJR GARCH is used as the short-term component. If FALSE, a simple GARCH(1,1) is employed.}
 
-\item{df}{data frame, should contain date column}
+\item{weighting}{specifies the weighting scheme employed in the long-term component. Options are "beta.one.sided" (default)}
 }
 \description{
 This function estimates a multiplicative mixed-frequency GARCH model
 }
 \examples{
-fit_mfgarch(data, df_mf_financial, y = "return", x = "return", low.freq = "date", K = 0)
+fit_mfgarch(data = dplyr::filter(df_financial, date >="1973-01-01", is.na(nfci) == FALSE),
+y = "return", x = "nfci", low.freq = "year_week", K = 52)
 }
 \keyword{fit_mfgarch}

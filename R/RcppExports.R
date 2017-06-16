@@ -9,11 +9,11 @@ simulate_r <- function(n_days, n_intraday, alpha, beta, gamma, Z, h0) {
     .Call('mfGARCH_simulate_r', PACKAGE = 'mfGARCH', n_days, n_intraday, alpha, beta, gamma, Z, h0)
 }
 
-sum_tau <- function(i, m, theta, phivar, covariate, K) {
-    .Call('mfGARCH_sum_tau', PACKAGE = 'mfGARCH', i, m, theta, phivar, covariate, K)
+sum_tau_fcts <- function(i, m, theta, phivar, covariate, K) {
+    .Call('mfGARCH_sum_tau_fcts', PACKAGE = 'mfGARCH', i, m, theta, phivar, covariate, K)
 }
 
-sum_tau_zwei <- function(m, theta, phivar, covariate, K) {
-    .Call('mfGARCH_sum_tau_zwei', PACKAGE = 'mfGARCH', m, theta, phivar, covariate, K)
+sum_tau <- function(m, theta, phivar, covariate, K) {
+    .Call('mfGARCH_sum_tau', PACKAGE = 'mfGARCH', m, theta, phivar, covariate, K)
 }
 

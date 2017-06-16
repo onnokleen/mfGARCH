@@ -1,13 +1,15 @@
 devtools::load_all()
-
+library(mfGARCH)
+library(dplyr)
 
 simulate_mfgarch(n.days = 1000, mu = 0, alpha = 0.02, beta = 0.9, gamma = 0, m = 0, theta = 1, w2 = 2, K = 10, psi = 0.4, sigma.psi = 0.4)
 
 
-mgarch_52 <- fit_mfgarch(df = dplyr::filter(dplyr::mutate(df_mf_financial, date = Date), date >="1974-01-01"),
+mgarch_52 <- fit_mfgarch(data = filter(df_demo, date >="1973-01-01", is.na(nfci) == FALSE),
             y = "return",
-            x = "NFCI",
-            low.freq = "week_id",
+            x = "nfci",
+            low.freq = "year_week",
+            var.ratio.freq = "year_month",
             K = 52)
 profvis::profvis(
   mgarch_0 <- fit_mfgarch(data = filter(df_demo, date >="1974-01-01"),

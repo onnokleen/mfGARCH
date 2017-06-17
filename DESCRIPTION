@@ -22,4 +22,8 @@ Imports:
 LinkingTo: Rcpp
 URL: https://github.com/onnokleen/mfGARCH/
 BugReports: https://github.com/onnokleen/mfGARCH/issues
-Suggests: testthat
+Suggests: 
+    testthat,
+    covr,
+    rmarkdown,
+    ggplot2

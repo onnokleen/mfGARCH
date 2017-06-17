@@ -350,9 +350,9 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
 
   # Standard errors --------------------------------------------------------------------------------
   hessian <- solve(-optimHess(par = par, fn = function (theta) { sum(lf(theta)) }))
-  G <- jacobian(func = lf, x = par)
-  GGsum <- t(G) %*% G
-  rob.std.err <- sqrt(diag(hessian %*% GGsum %*% hessian))
+  #G <- jacobian(func = lf, x = par)
+  #GGsum <- crossprod(G) # t(G) %*% G
+  rob.std.err <- sqrt(diag(hessian %*% crossprod(jacobian(func = lf, x = par)) %*% hessian))
 
   # Output -----------------------------------------------------------------------------------------
   output <-

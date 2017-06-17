@@ -2,13 +2,14 @@
 [![Travis-CI Build Status](https://travis-ci.org/onnokleen/mfGARCH.svg?branch=master)](https://travis-ci.org/onnokleen/mfGARCH)
 [![Coverage Status](https://img.shields.io/coveralls/onnokleen/mfGARCH.svg)](https://coveralls.io/r/onnokleen/mfGARCH?branch=master)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-# mfGARCH - a tidyverse-garch package
+# mfGARCH - mixed-frequency GARCH models
 
-An R package to estimate multiplicative mixed-frequency GARCH models (GARCH-MIDAS) as proposed in Engle et al. (2013) and is currently under development.
+An R package for estimating multiplicative mixed-frequency GARCH models (GARCH-MIDAS) as proposed in Engle et al. (2013) which is currently under development.
 
 ## Highlights
-- A comprehensive method for estimating, plotting and forecasting using GARCH-MIDAS models
-- Easy to use due to similar syntax as in the regression-lm-command
+- A comprehensive toolbox for estimating, visualizing and forecasting when using GARCH-MIDAS models
+- Easy to use
+- Built for handling irregularly spaced mixed-frequency data
 
 ## Installation
 Right now, you need the Rcpp-package to compile it on your own computer.
@@ -21,20 +22,17 @@ install_github("onnokleen/mfGARCH")
 ## ToDo and Roadmap
 
 ToDo
-* Define class mfGARCH for generic functions, i.e. plot etc.
 * Introduce non-full sample estimation by introducting sample-begin/end variable for forecasting
 * Generate table function for list of mfGARCH models
-* Hide internal functions
 * Add examples in vignette and readme
 
 Roadmap
-* 2017-04 Feature-completeness, ToDo done
-* 2017-05 Submission to CRAN
+* 2017-06 Submission to CRAN
+* 2017-06 Feature-completeness, ToDo done
 
 Future
 * Introduce other weighting schemes
 * Employ more than one variable
-* Employ more than GJR-GARCH
 * Broom-package plug-in
 * Allow for different releases for improving real-time forecasting
 

@@ -5,13 +5,30 @@ test_that("Error testing", {
                             K = 0)$par
   )
 
+  expect_warning(
+    mgarch_0 <- fit_mfgarch(data = dplyr::filter(df_financial, date >="1974-01-01"),
+                            y = "return",
+                            gamma = FALSE,
+                            K = 0)$par
+  )
+
   expect_equal(
-    mgarch_52 <- fit_mfgarch(data = dplyr::filter(df_financial, date >="1974-01-01", is.na(nfci) == FALSE),
-                             y = "return",
-                             x = "nfci",
-                             low.freq = "year_week",
-                             K = 52)$variance.ratio,
+    fit_mfgarch(data = dplyr::filter(df_financial, date >="1974-01-01", is.na(nfci) == FALSE),
+                y = "return",
+                x = "nfci",
+                low.freq = "year_week",
+                K = 52)$variance.ratio,
     13.1500626717928
+  )
+
+  expect_equal(
+    fit_mfgarch(data = dplyr::filter(df_financial, date >="1974-01-01", is.na(nfci) == FALSE),
+                y = "return",
+                x = "nfci",
+                low.freq = "year_week",
+                gamma = FALSE,
+                K = 52)$variance.ratio,
+    10.4571948652477
   )
 
   expect_error( # K should not be smaller than 0 and should be an integer

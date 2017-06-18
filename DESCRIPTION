@@ -1,8 +1,8 @@
 Package: mfGARCH
-Title: Estimating mixed-frequency GARCH models
+Title: Estimating Mixed-Frequency GARCH Models
 Version: 0.1.0
 Authors@R: person("Onno", "Kleen", email = "r@onnokleen.de", role = c("aut", "cre"))
-Description: This is an R package accompanying the paper ‘‘Statistical Properties of Multiplicative GARCH Models’’ by Conrad, Christian and Kleen, Onno (2016). In this paper, we ...
+Description: This is an R package accompanying the paper ‘‘Forecasting Using Multiplicative Volatility Component Models’’ by Conrad, Christian and Kleen, Onno (2017). In this paper, we ...
 Depends:
     R (>= 3.4.0)
 License: MIT + file LICENSE
@@ -10,7 +10,7 @@ Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.0.1
 Imports:
-    dplyr (>= 0.7.0),
+    dplyr,
     ggplot2,
     magrittr,
     Rcpp,
@@ -25,5 +25,4 @@ BugReports: https://github.com/onnokleen/mfGARCH/issues
 Suggests: 
     testthat,
     covr,
-    rmarkdown,
-    ggplot2
+    rmarkdown

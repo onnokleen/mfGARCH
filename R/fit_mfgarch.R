@@ -1,5 +1,5 @@
 #' This function estimates a multiplicative mixed-frequency GARCH model
-#' @param data data frame, should contain date column
+#' @param data data frame containing a column named date of type 'Date'.
 #' @param y name of high frequency dependent variable in df.
 #' @param x covariate employed in mfGARCH.
 #' @param K an integer specifying lag length K in the long-term component.
@@ -39,6 +39,9 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
 
   if ("date" %in% colnames(data) == FALSE) {
     stop("No date column.")
+  }
+  if (inherits(data$date, 'Date') == FALSE) {
+    stop("Supplied date column is not of format 'Date'.")
   }
   if (is.null(x) == FALSE && K == 0) {
     warning("You specified an external covariate x but chose K = 0 - simple GARCH is estimated (K = 0).")
@@ -92,10 +95,10 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
       stop(paste0("There is no var.ratio.freq column with name ", var.ratio.freq, "."))
     }
   }
-
   # Order by high frequency variable
   data <- data %>% dplyr::arrange_("date")
-
+  # We store date in new variable because computation on integerized date seemed to be faster
+  date_backup <- data[["date"]]
   data["date"] <- as.numeric(unlist(data["date"]))
 
   if (is.null(var.ratio.freq) == TRUE) {
@@ -347,11 +350,9 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
     df.fitted$residuals <- unlist((df.fitted[y] - par["mu"]) / sqrt(df.fitted$g * df.fitted$tau))
 
   }
-
+  df.fitted$date <- as.Date(date_backup)
   # Standard errors --------------------------------------------------------------------------------
   hessian <- solve(-optimHess(par = par, fn = function (theta) { sum(lf(theta)) }))
-  #G <- jacobian(func = lf, x = par)
-  #GGsum <- crossprod(G) # t(G) %*% G
   rob.std.err <- sqrt(diag(hessian %*% crossprod(jacobian(func = lf, x = par)) %*% hessian))
 
   # Output -----------------------------------------------------------------------------------------
@@ -372,53 +373,16 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
   # Additional output if there is a long-term component (K > 0) -------------------------------------
   if (K > 0) {
     output$variance.ratio <- 100 *
-                     var(log(aggregate(df.fitted$tau, by = df.fitted[var.ratio.freq], FUN = mean)[,2]), na.rm = TRUE) /
-                     var(log(aggregate(df.fitted$tau * df.fitted$g, by = df.fitted[var.ratio.freq], FUN = mean)[,2]), na.rm = TRUE)
+                     var(log(aggregate(df.fitted$tau, by = df.fitted[var.ratio.freq],
+                                       FUN = mean)[,2]),
+                         na.rm = TRUE) /
+                     var(log(aggregate(df.fitted$tau * df.fitted$g, by = df.fitted[var.ratio.freq],
+                                       FUN = mean)[,2]),
+                         na.rm = TRUE)
     output$tau_forecast = tau_forecast
   }
 
   # Add class mfGARCH for employing generic functions
   class(output) <- "mfGARCH"
   output
-}
-
-
-
-#' @keywords internal
-calculate_tau_mf <- function(df, x, low.freq, w1, w2, theta, m, K) {
-  phi.var <- calculate_phi(w1, w2, K)
-  covariate <- c(rep(NA, times = K), x)
-  tau <- c(rep(NA, times = K), exp(sum_tau(m = m, theta = theta, phivar = phi.var, covariate = x, K = K)))
-  left_join(df, cbind(unique(df[low.freq]), tau), by = low.freq)
-}
-
-#' @keywords internal
-llh_mf <-
-  function(df, x, y, low.freq, mu, omega, alpha, beta, gamma,
-           m, theta, w1 = 1, w2 = 1, g_zero, K = 2) {
-
-  tau <- calculate_tau_mf(df = df, x = x, low.freq = low.freq,
-                          w1 = w1, w2 = w2, theta = theta, m = m, K = K)$tau
-  ret <- y
-  ret <- ret[which.min(is.na(tau)):length(ret)]  # lags can't be used for likelihood
-  tau <- tau[which.min(is.na(tau)):length(tau)]
-  g <- calculate_g(omega = omega, alpha = alpha, beta = beta, gamma = gamma,
-                   returns = ((ret - mu)/sqrt(tau)), g0 = g_zero)
-
-  if (sum(g <= 0) > 0) {
-    #rep(NA, times = length(y))
-    stop("g_t seems to be negative for at least one point in time?")
-  } else {
-    1/2 * log(2 * pi) + 1/2 * log(g * tau) + 1/2 * (ret - mu)^2/(g * tau)
-  }
-}
-
-#' @keywords internal
-llh_simple <- function(y, mu, alpha, beta, gamma, m, g_zero) {
-  omega <- 1 - alpha - beta - gamma / 2
-  ret <- y
-  ret_std <- (ret - mu)/sqrt(exp(m))
-  g <- calculate_g(omega = omega, alpha = alpha, beta = beta, gamma = gamma,
-                   returns = ret_std, g0 = g_zero)
-  1/2 * log(2 * pi) + 1/2 * log(g * exp(m)) + 1/2 * (ret - mu)^2/(g * exp(m))
 }

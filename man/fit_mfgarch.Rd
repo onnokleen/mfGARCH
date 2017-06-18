@@ -8,7 +8,7 @@ fit_mfgarch(data, y, x = NULL, K = NULL, low.freq = "date",
   var.ratio.freq = NULL, gamma = TRUE, weighting = "beta.one.sided")
 }
 \arguments{
-\item{data}{data frame, should contain date column}
+\item{data}{data frame containing a column named date of type 'Date'.}
 
 \item{y}{name of high frequency dependent variable in df.}
 

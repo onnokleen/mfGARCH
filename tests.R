@@ -5,11 +5,11 @@ library(dplyr)
 simulate_mfgarch(n.days = 1000, mu = 0, alpha = 0.02, beta = 0.9, gamma = 0, m = 0, theta = 1, w2 = 2, K = 10, psi = 0.4, sigma.psi = 0.4)
 
 
-mgarch_52 <- fit_mfgarch(data = filter(df_demo, date >="1973-01-01", is.na(nfci) == FALSE),
+mgarch_52 <- fit_mfgarch(data = filter(df_financial, date >="1973-01-01", is.na(nfci) == FALSE),
             y = "return",
             x = "nfci",
             low.freq = "year_week",
-            var.ratio.freq = "year_month",
+            var.ratio.freq = "year_week",
             K = 52)
 profvis::profvis(
   mgarch_0 <- fit_mfgarch(data = filter(df_demo, date >="1974-01-01"),

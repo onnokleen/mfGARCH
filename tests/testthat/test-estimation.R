@@ -1,4 +1,4 @@
-test_that("Error testing", {
+test_that("Estimation K = 0", {
   expect_warning(
     mgarch_0 <- fit_mfgarch(data = dplyr::filter(df_financial, date >="1974-01-01"),
                             y = "return",
@@ -11,7 +11,30 @@ test_that("Error testing", {
                             gamma = FALSE,
                             K = 0)$par
   )
+})
 
+test_that("Estimation K = 1",{
+  expect_equal(
+    fit_mfgarch(data = dplyr::filter(df_financial, date >="1974-01-01", is.na(nfci) == FALSE),
+                y = "return",
+                x = "nfci",
+                low.freq = "year_week",
+                K = 1)$variance.ratio,
+    12.384042900994
+  )
+
+  expect_equal(
+    fit_mfgarch(data = dplyr::filter(df_financial, date >="1974-01-01", is.na(nfci) == FALSE),
+                y = "return",
+                x = "nfci",
+                low.freq = "year_week",
+                gamma = FALSE,
+                K = 1)$variance.ratio,
+    16.6288714379619
+  )
+})
+
+test_that("Estimation K > 1", {
   expect_equal(
     fit_mfgarch(data = dplyr::filter(df_financial, date >="1974-01-01", is.na(nfci) == FALSE),
                 y = "return",
@@ -30,6 +53,9 @@ test_that("Error testing", {
                 K = 52)$variance.ratio,
     10.4571948652477
   )
+})
+
+test_that("Error testing", {
 
   expect_error( # K should not be smaller than 0 and should be an integer
     fit_mfgarch(data = dplyr::filter(df_financial, date >="1974-01-01"),

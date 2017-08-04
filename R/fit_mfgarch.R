@@ -38,9 +38,11 @@
 fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.ratio.freq = NULL, gamma = TRUE, weighting = "beta.one.sided") {
 
   if (weighting %in% c("beta.one.sided", "beta.two.sided") == FALSE) {
-    stop("Incorrect weighting scheme specified - options are beta.one.sided and beta.two.sided")
+    stop("Incorrect weighting scheme specified - options are \"beta.one.sided\" and \"beta.two.sided\".")
   }
-
+  if (gamma %in% c(TRUE, FALSE) == FALSE) {
+    stop("Gamma can't be anything different than TRUE or FALSE.")
+  }
   if ("date" %in% colnames(data) == FALSE) {
     stop("No date column.")
   }
@@ -282,7 +284,8 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
                  g_zero = g_zero,
                  K = K)
         }
-        par.start <- c(mu = 0, alpha = 0.02, beta = 0.85, gamma = 0.04, m = 0, theta = 0, w2 = 3)
+        par.start <- c(mu = 0, alpha = 0.02, beta = 0.85, gamma = 0.04,
+                       m = 0, theta = 0, w2 = 3)
         ui.opt <- rbind(c(0, -1, -1, -1/2, 0, 0, 0),
                         c(0,  0,  0,    0, 0, 0, 1),
                         c(0,  1,  0,    0, 0, 0, 0),
@@ -307,7 +310,8 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
                  g_zero = g_zero,
                  K = K)
         }
-        par.start <- c(mu = 0, alpha = 0.02, beta = 0.85, gamma = 0.04, m = 0, theta = 0, w1 = 1.0000001, w2 = 3)
+        par.start <- c(mu = 0, alpha = 0.02, beta = 0.85, gamma = 0.04,
+                       m = 0, theta = 0, w1 = 1.0000001, w2 = 3)
         ui.opt <- rbind(c(0, -1, -1, -1/2, 0, 0, 0, 0),
                         c(0,  0,  0,  0,   0, 0, 1, 0),
                         c(0,  0,  0,  0,   0, 0, 0, 1),

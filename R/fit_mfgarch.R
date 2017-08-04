@@ -6,7 +6,7 @@
 #' @param low.freq a string of the low frequency variable in the df.
 #' @param var.ratio.freq specify a frequency column on which the variance ratio should be calculated.
 #' @param gamma if TRUE, an asymmetric GJR GARCH is used as the short-term component. If FALSE, a simple GARCH(1,1) is employed.
-#' @param weighting specifies the weighting scheme employed in the long-term component. Options are "beta.one.sided" (default)
+#' @param weighting specifies the weighting scheme employed in the long-term component. Options are "beta.one.sided" (default) or "beta.two.sided"
 #' @keywords fit_mfgarch
 #' @export fit_mfgarch
 #' @importFrom magrittr %>%
@@ -36,6 +36,10 @@
 #' y = "return", x = "nfci", low.freq = "year_week", K = 52)
 
 fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.ratio.freq = NULL, gamma = TRUE, weighting = "beta.one.sided") {
+
+  if (weighting %in% c("beta.one.sided", "beta.two.sided") == FALSE) {
+    stop("Incorrect weighting scheme specified - options are beta.one.sided and beta.two.sided")
+  }
 
   if ("date" %in% colnames(data) == FALSE) {
     stop("No date column.")
@@ -260,68 +264,157 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
 
   if (K > 1) {
     if (gamma == TRUE) {
-      lf <- function(p) {
-        llh_mf(df = df_llh,
-               y = ret,
-               x = covariate,
-               low.freq = low.freq,
-               mu = p["mu"], omega = 1 - p["alpha"] - p["beta"] - p["gamma"]/2,
-               alpha = p["alpha"],
-               beta = p["beta"],
-               gamma = p["gamma"],
-               m = p["m"],
-               theta = p["theta"],
-               w1 = 1,
-               w2 = p["w2"],
-               g_zero = g_zero,
-               K = K)
+      if (weighting == "beta.one.sided") {
+        lf <- function(p) {
+          llh_mf(df = df_llh,
+                 y = ret,
+                 x = covariate,
+                 low.freq = low.freq,
+                 mu = p["mu"],
+                 omega = 1 - p["alpha"] - p["beta"] - p["gamma"]/2,
+                 alpha = p["alpha"],
+                 beta = p["beta"],
+                 gamma = p["gamma"],
+                 m = p["m"],
+                 theta = p["theta"],
+                 w1 = 1,
+                 w2 = p["w2"],
+                 g_zero = g_zero,
+                 K = K)
+        }
+        par.start <- c(mu = 0, alpha = 0.02, beta = 0.85, gamma = 0.04, m = 0, theta = 0, w2 = 3)
+        ui.opt <- rbind(c(0, -1, -1, -1/2, 0, 0, 0),
+                        c(0,  0,  0,    0, 0, 0, 1),
+                        c(0,  1,  0,    0, 0, 0, 0),
+                        c(0,  0,  1,    0, 0, 0, 0))
+        ci.opt <- c(-0.99999999, 1, 0, 0)
       }
-      par.start <- c(mu = 0, alpha = 0.02, beta = 0.85, gamma = 0.04, m = 0, theta = 0, w2 = 3)
-      ui.opt <- rbind(c(0, -1, -1, -1/2, 0, 0, 0), c(0, 0, 0, 0, 0, 0, 1), c(0, 1, 0, 0, 0, 0, 0), c(0, 0, 1, 0, 0, 0, 0))
-      ci.opt <- c(-0.99999999, 1, 0, 0)
+      if (weighting == "beta.two.sided") {
+        lf <- function(p) {
+          llh_mf(df = df_llh,
+                 y = ret,
+                 x = covariate,
+                 low.freq = low.freq,
+                 mu = p["mu"],
+                 omega = 1 - p["alpha"] - p["beta"] - p["gamma"]/2,
+                 alpha = p["alpha"],
+                 beta = p["beta"],
+                 gamma = p["gamma"],
+                 m = p["m"],
+                 theta = p["theta"],
+                 w1 = p["w1"],
+                 w2 = p["w2"],
+                 g_zero = g_zero,
+                 K = K)
+        }
+        par.start <- c(mu = 0, alpha = 0.02, beta = 0.85, gamma = 0.04, m = 0, theta = 0, w1 = 1.0000001, w2 = 3)
+        ui.opt <- rbind(c(0, -1, -1, -1/2, 0, 0, 0, 0),
+                        c(0,  0,  0,  0,   0, 0, 1, 0),
+                        c(0,  0,  0,  0,   0, 0, 0, 1),
+                        c(0,  1,  0,  0,   0, 0, 0, 0),
+                        c(0,  0,  1,  0,   0, 0, 0, 0))
+        ci.opt <- c(-0.99999999, 1, 1, 0, 0)
+      }
+
     } else {
-      lf <- function(p) {
-        llh_mf(df = df_llh,
-                             y = ret,
-                             x = covariate,
-                             low.freq = low.freq,
-                             mu = p["mu"], omega = 1 - p["alpha"] - p["beta"],
-                             alpha = p["alpha"],
-                             beta = p["beta"],
-                             gamma = 0,
-                             m = p["m"],
-                             theta = p["theta"],
-                             w1 = 1,
-                             w2 = p["w2"],
-                             g_zero = g_zero,
-                             K = K)
+
+      if (weighting == "beta.one.sided") {
+        lf <- function(p) {
+          llh_mf(df = df_llh,
+                 y = ret,
+                 x = covariate,
+                 low.freq = low.freq,
+                 mu = p["mu"], omega = 1 - p["alpha"] - p["beta"],
+                 alpha = p["alpha"],
+                 beta = p["beta"],
+                 gamma = 0,
+                 m = p["m"],
+                 theta = p["theta"],
+                 w1 = 1,
+                 w2 = p["w2"],
+                 g_zero = g_zero,
+                 K = K)
+        }
+        par.start <- c(mu = 0, alpha = 0.02, beta = 0.85, m = 0, theta = 0, w2 = 3)
+        ui.opt <- rbind(c(0, -1, -1, 0, 0, 0),
+                        c(0, 0, 0,  0, 0, 1),
+                        c(0, 1, 0, 0,  0, 0),
+                        c(0, 0, 1, 0, 0, 0))
+        ci.opt <- c(-0.99999999, 1, 0, 0)
       }
-      par.start <- c(mu = 0, alpha = 0.02, beta = 0.85, m = 0, theta = 0, w2 = 3)
-      ui.opt <- rbind(c(0, -1, -1, 0, 0, 0), c(0, 0, 0,  0, 0, 1), c(0, 1, 0, 0,  0, 0), c(0, 0, 1, 0, 0, 0))
-      ci.opt <- c(-0.99999999, 1, 0, 0)
+
+      if (weighting == "beta.two.sided") {
+        lf <- function(p) {
+          llh_mf(df = df_llh,
+                 y = ret,
+                 x = covariate,
+                 low.freq = low.freq,
+                 mu = p["mu"],
+                 omega = 1 - p["alpha"] - p["beta"],
+                 alpha = p["alpha"],
+                 beta = p["beta"],
+                 gamma = 0,
+                 m = p["m"],
+                 theta = p["theta"],
+                 w1 = p["w1"],
+                 w2 = p["w2"],
+                 g_zero = g_zero,
+                 K = K)
+        }
+        par.start <- c(mu = 0, alpha = 0.02, beta = 0.85, m = 0, theta = 0, w1 = 1.00000001, w2 = 3)
+        ui.opt <- rbind(c(0, -1, -1, 0, 0, 0, 0),
+                        c(0,  0,  0, 0, 0, 1, 0),
+                        c(0,  0,  0, 0, 0, 0, 1),
+                        c(0,  1,  0, 0, 0, 0, 0),
+                        c(0,  0,  1, 0, 0, 0, 0))
+        ci.opt <- c(-0.99999999, 1, 1, 0, 0)
+      }
+
     }
 
     p.e.nlminb <- constrOptim(theta = par.start, f = function(theta) { sum(lf(theta)) },
                               grad = NULL, ui = ui.opt, ci = ci.opt, hessian = FALSE)
     par <- p.e.nlminb$par
 
-    tau <- calculate_tau_mf(df = data, x = covariate, low.freq = low.freq,
-                                     w1 = 1, w2 = par["w2"],
-                                     theta = par["theta"],
-                                     m = par["m"], K = K)$tau
+    if (weighting == "beta.one.sided") {
+      tau <- calculate_tau_mf(df = data, x = covariate, low.freq = low.freq,
+                              w1 = 1, w2 = par["w2"],
+                              theta = par["theta"],
+                              m = par["m"], K = K)$tau
 
-    tau_forecast <-
-      exp(sum_tau_fcts(m = par["m"],
-                  i = K + 1,
-                  theta = par["theta"],
-                  phivar = calculate_phi(w1 = 1, w2 = par["w2"], K = K),
-                  covariate = c(data %>%
-                                  select_(quote(x), quote(low.freq)) %>%
-                                  distinct() %>%
-                                  select_(quote(x)) %>%
-                                  unlist() %>%
-                                  tail(K), NA),
-                  K = K))
+      tau_forecast <-
+        exp(sum_tau_fcts(m = par["m"],
+                         i = K + 1,
+                         theta = par["theta"],
+                         phivar = calculate_phi(w1 = 1, w2 = par["w2"], K = K),
+                         covariate = c(data %>%
+                                         select_(quote(x), quote(low.freq)) %>%
+                                         distinct() %>%
+                                         select_(quote(x)) %>%
+                                         unlist() %>%
+                                         tail(K), NA),
+                         K = K))
+    }
+    if (weighting == "beta.two.sided") {
+      tau <- calculate_tau_mf(df = data, x = covariate, low.freq = low.freq,
+                              w1 = par["w1"], w2 = par["w2"],
+                              theta = par["theta"],
+                              m = par["m"], K = K)$tau
+
+      tau_forecast <-
+        exp(sum_tau_fcts(m = par["m"],
+                         i = K + 1,
+                         theta = par["theta"],
+                         phivar = calculate_phi(w1 = par["w1"], w2 = par["w2"], K = K),
+                         covariate = c(data %>%
+                                         select_(quote(x), quote(low.freq)) %>%
+                                         distinct() %>%
+                                         select_(quote(x)) %>%
+                                         unlist() %>%
+                                         tail(K), NA),
+                         K = K))
+    }
+
 
     returns <- unlist(data[y])
 

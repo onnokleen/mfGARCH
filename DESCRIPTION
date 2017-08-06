@@ -4,7 +4,7 @@ Version: 0.1.0
 Authors@R: person("Onno", "Kleen", email = "r@onnokleen.de", role = c("aut", "cre"))
 Description: This is an R package accompanying the paper ‘‘Forecasting Using Multiplicative Volatility Component Models’’ by Conrad, Christian and Kleen, Onno (2017). In this paper, we ...
 Depends:
-    R (>= 3.4.0)
+    R (>= 3.3.0)
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true

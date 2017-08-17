@@ -463,6 +463,8 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
          tau = tau,
          g = g,
          df.fitted = df.fitted,
+         K = K,
+         weighting.scheme = weighting,
          llh = -p.e.nlminb$value,
          bic = log(sum(!is.na(tau))) * length(par) - 2 * (-p.e.nlminb$value),
          optim = p.e.nlminb)

@@ -18,11 +18,11 @@ predict.mfGARCH <- function(object, horizon = c(1:10), fcts.tau = NULL, return =
   }
 
   if (is.null(cond.var) == TRUE) {
-    cond.var <- tail(object$mgarch.g, 1)
+    cond.var <- tail(object$g, 1)
   }
 
   if (is.null(cond.tau) == TRUE) {
-    cond.tau <- tail(object$mgarch.tau, 1)
+    cond.tau <- tail(object$tau, 1)
   }
 
   if (is.null(fcts.tau) == TRUE) {
@@ -34,10 +34,34 @@ predict.mfGARCH <- function(object, horizon = c(1:10), fcts.tau = NULL, return =
   }
 
   fcts.tau * as.numeric(sapply(horizon, forecast_garch,
-                               omega = 1 - object$mgarch$par["alpha"] - object$mgarch$par["beta"] - object$mgarch$par["gamma"]/2,
-                               alpha = object$mgarch$par["alpha"],
-                               beta = object$mgarch$par["beta"],
-                               gamma = object$mgarch$par["gamma"],
+                               omega = 1 - object$par["alpha"] - object$par["beta"] - object$par["gamma"]/2,
+                               alpha = object$par["alpha"],
+                               beta = object$par["beta"],
+                               gamma = object$par["gamma"],
                                ret = (return - - object$par["mu"])/ sqrt(cond.tau),
                                g = cond.var))
+}
+
+#' @importFrom ggplot2 ggplot
+plot_weighting_scheme <- function(x) {
+  if (class(x) != "mfGARCH") {
+    stop("Obejct is not in class mfGARCH")
+  }
+
+  if (x$weighting.scheme == "beta.one.sided") {
+    df_weighting <-
+      data_frame(
+        k = c(1:x$K),
+        phi = calculate_phi(w1 = 1, w2 = x$par["w2"], K = x$K))
+  }
+
+  if (x$weighting.scheme == "beta.two.sided") {
+    df_weighting <-
+      data_frame(k = c(1:x$K),
+                 phi = calculate_phi(w1 = x$par["w1"], w2 = x$par["w2"], K = x$K))
+  }
+
+  ggplot() +
+    geom_line(data = df_weighting, aes(x = k, y = phi))
+
 }

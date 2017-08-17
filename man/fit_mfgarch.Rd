@@ -22,7 +22,7 @@ fit_mfgarch(data, y, x = NULL, K = NULL, low.freq = "date",
 
 \item{gamma}{if TRUE, an asymmetric GJR GARCH is used as the short-term component. If FALSE, a simple GARCH(1,1) is employed.}
 
-\item{weighting}{specifies the weighting scheme employed in the long-term component. Options are "beta.one.sided" (default)}
+\item{weighting}{specifies the weighting scheme employed in the long-term component. Options are "beta.one.sided" (default) or "beta.two.sided"}
 }
 \description{
 This function estimates a multiplicative mixed-frequency GARCH model

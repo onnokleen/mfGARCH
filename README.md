@@ -25,16 +25,15 @@ ToDo
 * Introduce non-full sample estimation by introducting sample-begin/end variable for forecasting
 * Generate table function for list of mfGARCH models
 * Add examples in vignette and readme
+* Improve plot function
 
 Roadmap
 * 2017-06 Submission to CRAN
 * 2017-06 Feature-completeness, ToDo done
 
 Future
-* Introduce other weighting schemes
-* Employ more than one variable
 * Broom-package plug-in
-* Allow for different releases for improving real-time forecasting
+* More model evaluation functions, e.g. QQ-Plot
 
 ## History
 - January 2017: Initial submit

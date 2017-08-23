@@ -33,13 +33,24 @@ predict.mfGARCH <- function(object, horizon = c(1:10), fcts.tau = NULL, return =
     return <- tail(object$df.fitted$return, 1)
   }
 
-  fcts.tau * as.numeric(sapply(horizon, forecast_garch,
-                               omega = 1 - object$par["alpha"] - object$par["beta"] - object$par["gamma"]/2,
-                               alpha = object$par["alpha"],
-                               beta = object$par["beta"],
-                               gamma = object$par["gamma"],
-                               ret = (return - - object$par["mu"])/ sqrt(cond.tau),
-                               g = cond.var))
+  if (is.na(mgarch_0$par["gamma"]) == TRUE) {
+    fcts.tau * as.numeric(sapply(horizon, forecast_garch,
+                                 omega = 1 - object$par["alpha"] - object$par["beta"] - 0/2,
+                                 alpha = object$par["alpha"],
+                                 beta = object$par["beta"],
+                                 gamma = 0,
+                                 ret = (return - - object$par["mu"])/ sqrt(cond.tau),
+                                 g = cond.var))
+  } else {
+    fcts.tau * as.numeric(sapply(horizon, forecast_garch,
+                                 omega = 1 - object$par["alpha"] - object$par["beta"] - object$par["gamma"]/2,
+                                 alpha = object$par["alpha"],
+                                 beta = object$par["beta"],
+                                 gamma = object$par["gamma"],
+                                 ret = (return - - object$par["mu"])/ sqrt(cond.tau),
+                                 g = cond.var))
+  }
+
 }
 
 #' @importFrom ggplot2 ggplot

@@ -7,6 +7,35 @@
 simulate_mfgarch(n.days, mu, alpha, beta, gamma, m, theta, w1 = 1, w2, K, psi,
   sigma.psi, low.freq = 1, student.t = NULL)
 }
+\arguments{
+\item{n.days}{number of days}
+
+\item{mu}{mu}
+
+\item{alpha}{alpha}
+
+\item{beta}{beta}
+
+\item{gamma}{gamma}
+
+\item{m}{m}
+
+\item{theta}{theta}
+
+\item{w1}{w1}
+
+\item{w2}{w2}
+
+\item{K}{K}
+
+\item{psi}{psi}
+
+\item{sigma.psi}{sigma.psi}
+
+\item{low.freq}{low.freq}
+
+\item{student.t}{student.t}
+}
 \description{
 This function estimates a multiplicative mixed-frequency GARCH model
 }

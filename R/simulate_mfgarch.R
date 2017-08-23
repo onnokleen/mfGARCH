@@ -1,18 +1,18 @@
 #' This function estimates a multiplicative mixed-frequency GARCH model
-#' @param n.days
-#' @param mu
-#' @param alpha
-#' @param beta
-#' @param gamma
-#' @param m
-#' @param theta
-#' @param w1
-#' @param w2
-#' @param K
-#' @param psi
-#' @param sigma.psi
-#' @param low.freq
-#' @param student.t
+#' @param n.days number of days
+#' @param mu mu
+#' @param alpha alpha
+#' @param beta beta
+#' @param gamma gamma
+#' @param m m
+#' @param theta theta
+#' @param w1 w1
+#' @param w2 w2
+#' @param K K
+#' @param psi psi
+#' @param sigma.psi sigma.psi
+#' @param low.freq low.freq
+#' @param student.t student.t
 #' @keywords simulate_mfgarch
 #' @importFrom magrittr %>%
 #' @importFrom dplyr select_

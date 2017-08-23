@@ -33,7 +33,7 @@ predict.mfGARCH <- function(object, horizon = c(1:10), fcts.tau = NULL, return =
     return <- tail(object$df.fitted$return, 1)
   }
 
-  if (is.na(mgarch_0$par["gamma"]) == TRUE) {
+  if (is.na(object$par["gamma"]) == TRUE) {
     fcts.tau * as.numeric(sapply(horizon, forecast_garch,
                                  omega = 1 - object$par["alpha"] - object$par["beta"] - 0/2,
                                  alpha = object$par["alpha"],

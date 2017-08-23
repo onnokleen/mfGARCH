@@ -1,7 +1,19 @@
 #' This function estimates a multiplicative mixed-frequency GARCH model
-#' @param n.days, mu, alpha, beta, gamma, m, theta, w1 = 1, w2, K, psi, sigma.psi, low.freq = 1
+#' @param n.days
+#' @param mu
+#' @param alpha
+#' @param beta
+#' @param gamma
+#' @param m
+#' @param theta
+#' @param w1
+#' @param w2
+#' @param K
+#' @param psi
+#' @param sigma.psi
+#' @param low.freq
+#' @param student.t
 #' @keywords simulate_mfgarch
-#' @export simulate_mfgarch
 #' @importFrom magrittr %>%
 #' @importFrom dplyr select_
 #' @importFrom dplyr full_join
@@ -16,6 +28,7 @@
 #' @importFrom stats rnorm
 #' @importFrom stats setNames
 #' @importFrom stats rt
+#' @export
 simulate_mfgarch <- function(n.days, mu, alpha, beta, gamma, m, theta, w1 = 1, w2, K, psi, sigma.psi, low.freq = 1, student.t = NULL) {
   # Simulate a MG time series.
   #
@@ -96,8 +109,8 @@ simulate_mfgarch <- function(n.days, mu, alpha, beta, gamma, m, theta, w1 = 1, w
                     g = sim$h_daily,
                     vol_half_hour = half.hour.vol$vol,
                     real_vol = five.vol$vol) %>%
-    mutate(real_vol_5_days = zoo::rollapplyr(.$real_vol, width = 5, FUN = mean, na.rm = TRUE, fill = NA)) %>%
-    mutate(real_vol_22_days = zoo::rollapplyr(.$real_vol, width = 22, FUN = mean, na.rm = TRUE, fill = NA))
+    mutate(real_vol_5_days = rollapplyr(.$real_vol, width = 5, FUN = mean, na.rm = TRUE, fill = NA)) %>%
+    mutate(real_vol_22_days = rollapplyr(.$real_vol, width = 22, FUN = mean, na.rm = TRUE, fill = NA))
 
   res [(low.freq * 1000 + 1):n.days, ]
 }

@@ -8,7 +8,7 @@
 #' @param gamma if TRUE, an asymmetric GJR GARCH is used as the short-term component. If FALSE, a simple GARCH(1,1) is employed.
 #' @param weighting specifies the weighting scheme employed in the long-term component. Options are "beta.one.sided" (default) or "beta.two.sided"
 #' @keywords fit_mfgarch
-#' @export fit_mfgarch
+#' @export
 #' @importFrom magrittr %>%
 #' @importFrom numDeriv jacobian
 #' @importFrom stats nlminb

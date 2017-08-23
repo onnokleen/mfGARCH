@@ -7,7 +7,7 @@ using namespace Rcpp;
 
 // calculate_g
 NumericVector calculate_g(double omega, double alpha, double beta, double gamma, NumericVector returns, double g0);
-RcppExport SEXP mfGARCH_calculate_g(SEXP omegaSEXP, SEXP alphaSEXP, SEXP betaSEXP, SEXP gammaSEXP, SEXP returnsSEXP, SEXP g0SEXP) {
+RcppExport SEXP _mfGARCH_calculate_g(SEXP omegaSEXP, SEXP alphaSEXP, SEXP betaSEXP, SEXP gammaSEXP, SEXP returnsSEXP, SEXP g0SEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -23,7 +23,7 @@ END_RCPP
 }
 // simulate_r
 List simulate_r(double n_days, double n_intraday, double alpha, double beta, double gamma, NumericVector Z, double h0);
-RcppExport SEXP mfGARCH_simulate_r(SEXP n_daysSEXP, SEXP n_intradaySEXP, SEXP alphaSEXP, SEXP betaSEXP, SEXP gammaSEXP, SEXP ZSEXP, SEXP h0SEXP) {
+RcppExport SEXP _mfGARCH_simulate_r(SEXP n_daysSEXP, SEXP n_intradaySEXP, SEXP alphaSEXP, SEXP betaSEXP, SEXP gammaSEXP, SEXP ZSEXP, SEXP h0SEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -40,7 +40,7 @@ END_RCPP
 }
 // sum_tau_fcts
 double sum_tau_fcts(int i, double m, double theta, NumericVector phivar, NumericVector covariate, int K);
-RcppExport SEXP mfGARCH_sum_tau_fcts(SEXP iSEXP, SEXP mSEXP, SEXP thetaSEXP, SEXP phivarSEXP, SEXP covariateSEXP, SEXP KSEXP) {
+RcppExport SEXP _mfGARCH_sum_tau_fcts(SEXP iSEXP, SEXP mSEXP, SEXP thetaSEXP, SEXP phivarSEXP, SEXP covariateSEXP, SEXP KSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -56,7 +56,7 @@ END_RCPP
 }
 // sum_tau
 NumericVector sum_tau(double m, double theta, NumericVector phivar, NumericVector covariate, int K);
-RcppExport SEXP mfGARCH_sum_tau(SEXP mSEXP, SEXP thetaSEXP, SEXP phivarSEXP, SEXP covariateSEXP, SEXP KSEXP) {
+RcppExport SEXP _mfGARCH_sum_tau(SEXP mSEXP, SEXP thetaSEXP, SEXP phivarSEXP, SEXP covariateSEXP, SEXP KSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -71,10 +71,10 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"mfGARCH_calculate_g", (DL_FUNC) &mfGARCH_calculate_g, 6},
-    {"mfGARCH_simulate_r", (DL_FUNC) &mfGARCH_simulate_r, 7},
-    {"mfGARCH_sum_tau_fcts", (DL_FUNC) &mfGARCH_sum_tau_fcts, 6},
-    {"mfGARCH_sum_tau", (DL_FUNC) &mfGARCH_sum_tau, 5},
+    {"_mfGARCH_calculate_g", (DL_FUNC) &_mfGARCH_calculate_g, 6},
+    {"_mfGARCH_simulate_r", (DL_FUNC) &_mfGARCH_simulate_r, 7},
+    {"_mfGARCH_sum_tau_fcts", (DL_FUNC) &_mfGARCH_sum_tau_fcts, 6},
+    {"_mfGARCH_sum_tau", (DL_FUNC) &_mfGARCH_sum_tau, 5},
     {NULL, NULL, 0}
 };
 

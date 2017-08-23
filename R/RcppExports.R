@@ -2,18 +2,18 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 calculate_g <- function(omega, alpha, beta, gamma, returns, g0) {
-    .Call('mfGARCH_calculate_g', PACKAGE = 'mfGARCH', omega, alpha, beta, gamma, returns, g0)
+    .Call('_mfGARCH_calculate_g', PACKAGE = 'mfGARCH', omega, alpha, beta, gamma, returns, g0)
 }
 
 simulate_r <- function(n_days, n_intraday, alpha, beta, gamma, Z, h0) {
-    .Call('mfGARCH_simulate_r', PACKAGE = 'mfGARCH', n_days, n_intraday, alpha, beta, gamma, Z, h0)
+    .Call('_mfGARCH_simulate_r', PACKAGE = 'mfGARCH', n_days, n_intraday, alpha, beta, gamma, Z, h0)
 }
 
 sum_tau_fcts <- function(i, m, theta, phivar, covariate, K) {
-    .Call('mfGARCH_sum_tau_fcts', PACKAGE = 'mfGARCH', i, m, theta, phivar, covariate, K)
+    .Call('_mfGARCH_sum_tau_fcts', PACKAGE = 'mfGARCH', i, m, theta, phivar, covariate, K)
 }
 
 sum_tau <- function(m, theta, phivar, covariate, K) {
-    .Call('mfGARCH_sum_tau', PACKAGE = 'mfGARCH', m, theta, phivar, covariate, K)
+    .Call('_mfGARCH_sum_tau', PACKAGE = 'mfGARCH', m, theta, phivar, covariate, K)
 }
 

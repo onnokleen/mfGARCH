@@ -7,6 +7,5 @@
 ^spielwiese\.R
 ^cran-comments\.md
 ^test\.rds
-^R/simulate_mfgarch\.R
 ^\.travis\.yml$
 ^README\.md$

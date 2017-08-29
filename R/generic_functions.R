@@ -53,6 +53,7 @@ predict.mfGARCH <- function(object, horizon = c(1:10), fcts.tau = NULL, return =
 
 }
 
+#' @importFrom ggplot2 geom_line
 #' @importFrom ggplot2 ggplot
 plot_weighting_scheme <- function(x) {
   if (class(x) != "mfGARCH") {

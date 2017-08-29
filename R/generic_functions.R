@@ -55,6 +55,7 @@ predict.mfGARCH <- function(object, horizon = c(1:10), fcts.tau = NULL, return =
 
 #' @importFrom ggplot2 geom_line
 #' @importFrom ggplot2 ggplot
+#' @importFrom ggplot2 aes
 plot_weighting_scheme <- function(x) {
   if (class(x) != "mfGARCH") {
     stop("Obejct is not in class mfGARCH")
@@ -65,15 +66,18 @@ plot_weighting_scheme <- function(x) {
       data_frame(
         k = c(1:x$K),
         phi = calculate_phi(w1 = 1, w2 = x$par["w2"], K = x$K))
+
+    ggplot() +
+      geom_line(data = df_weighting, aes(x = k, y = phi))
   }
 
   if (x$weighting.scheme == "beta.two.sided") {
     df_weighting <-
       data_frame(k = c(1:x$K),
                  phi = calculate_phi(w1 = x$par["w1"], w2 = x$par["w2"], K = x$K))
-  }
 
-  ggplot() +
-    geom_line(data = df_weighting, aes(x = k, y = phi))
+    ggplot() +
+      geom_line(data = df_weighting, aes(x = k, y = phi))
+  }
 
 }

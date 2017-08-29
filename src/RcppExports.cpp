@@ -21,6 +21,41 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// calculate_h_andersen
+NumericVector calculate_h_andersen(double ndays, double delta, double mu, double theta, double omega, double lambda, NumericVector Z, double pi, double h0);
+RcppExport SEXP _mfGARCH_calculate_h_andersen(SEXP ndaysSEXP, SEXP deltaSEXP, SEXP muSEXP, SEXP thetaSEXP, SEXP omegaSEXP, SEXP lambdaSEXP, SEXP ZSEXP, SEXP piSEXP, SEXP h0SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type ndays(ndaysSEXP);
+    Rcpp::traits::input_parameter< double >::type delta(deltaSEXP);
+    Rcpp::traits::input_parameter< double >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< double >::type theta(thetaSEXP);
+    Rcpp::traits::input_parameter< double >::type omega(omegaSEXP);
+    Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type Z(ZSEXP);
+    Rcpp::traits::input_parameter< double >::type pi(piSEXP);
+    Rcpp::traits::input_parameter< double >::type h0(h0SEXP);
+    rcpp_result_gen = Rcpp::wrap(calculate_h_andersen(ndays, delta, mu, theta, omega, lambda, Z, pi, h0));
+    return rcpp_result_gen;
+END_RCPP
+}
+// calculate_p
+NumericVector calculate_p(double ndays, double delta, double mu, NumericVector Zp, NumericVector h, double p0);
+RcppExport SEXP _mfGARCH_calculate_p(SEXP ndaysSEXP, SEXP deltaSEXP, SEXP muSEXP, SEXP ZpSEXP, SEXP hSEXP, SEXP p0SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type ndays(ndaysSEXP);
+    Rcpp::traits::input_parameter< double >::type delta(deltaSEXP);
+    Rcpp::traits::input_parameter< double >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type Zp(ZpSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type h(hSEXP);
+    Rcpp::traits::input_parameter< double >::type p0(p0SEXP);
+    rcpp_result_gen = Rcpp::wrap(calculate_p(ndays, delta, mu, Zp, h, p0));
+    return rcpp_result_gen;
+END_RCPP
+}
 // simulate_r
 List simulate_r(double n_days, double n_intraday, double alpha, double beta, double gamma, NumericVector Z, double h0);
 RcppExport SEXP _mfGARCH_simulate_r(SEXP n_daysSEXP, SEXP n_intradaySEXP, SEXP alphaSEXP, SEXP betaSEXP, SEXP gammaSEXP, SEXP ZSEXP, SEXP h0SEXP) {
@@ -72,6 +107,8 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_mfGARCH_calculate_g", (DL_FUNC) &_mfGARCH_calculate_g, 6},
+    {"_mfGARCH_calculate_h_andersen", (DL_FUNC) &_mfGARCH_calculate_h_andersen, 9},
+    {"_mfGARCH_calculate_p", (DL_FUNC) &_mfGARCH_calculate_p, 6},
     {"_mfGARCH_simulate_r", (DL_FUNC) &_mfGARCH_simulate_r, 7},
     {"_mfGARCH_sum_tau_fcts", (DL_FUNC) &_mfGARCH_sum_tau_fcts, 6},
     {"_mfGARCH_sum_tau", (DL_FUNC) &_mfGARCH_sum_tau, 5},

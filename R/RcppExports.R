@@ -6,6 +6,14 @@ calculate_g <- function(omega, alpha, beta, gamma, returns, g0) {
     .Call('_mfGARCH_calculate_g', PACKAGE = 'mfGARCH', omega, alpha, beta, gamma, returns, g0)
 }
 
+calculate_h_andersen <- function(ndays, delta, mu, theta, omega, lambda, Z, pi, h0) {
+    .Call('_mfGARCH_calculate_h_andersen', PACKAGE = 'mfGARCH', ndays, delta, mu, theta, omega, lambda, Z, pi, h0)
+}
+
+calculate_p <- function(ndays, delta, mu, Zp, h, p0) {
+    .Call('_mfGARCH_calculate_p', PACKAGE = 'mfGARCH', ndays, delta, mu, Zp, h, p0)
+}
+
 simulate_r <- function(n_days, n_intraday, alpha, beta, gamma, Z, h0) {
     .Call('_mfGARCH_simulate_r', PACKAGE = 'mfGARCH', n_days, n_intraday, alpha, beta, gamma, Z, h0)
 }

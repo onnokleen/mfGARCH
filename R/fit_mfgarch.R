@@ -168,7 +168,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
                          g0 = g_zero))
 
     } else {
-      g<- c(rep(NA, times = sum(is.na((returns - par["mu"])/sqrt(tau)))),
+      g <- c(rep(NA, times = sum(is.na((returns - par["mu"])/sqrt(tau)))),
             calculate_g(omega = 1 - par["alpha"] - par["beta"],
                         alpha = par["alpha"],
                         beta = par["beta"],

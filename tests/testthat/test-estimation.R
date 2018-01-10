@@ -24,6 +24,16 @@ test_that("Estimation K = 1",{
   )
 
   expect_equal(
+    fit_mfgarch(data = dplyr::filter(df_financial, date >="1974-01-01", is.na(nfci) == FALSE)[1:3000, ],
+                y = "return",
+                x = "nfci",
+                gamma = TRUE,
+                low.freq = "year_week",
+                K = 1)$variance.ratio,
+    36.71830351675942694101
+  )
+
+  expect_equal(
     fit_mfgarch(data = dplyr::filter(df_financial, date >="1974-01-01", is.na(nfci) == FALSE),
                 y = "return",
                 x = "nfci",
@@ -52,6 +62,16 @@ test_that("Estimation K > 1", {
                 gamma = FALSE,
                 K = 52)$variance.ratio,
     10.4571948652477
+  )
+
+  expect_equal(
+    fit_mfgarch(data = dplyr::filter(df_financial, date >="1974-01-01", is.na(nfci) == FALSE)[1:3000, ],
+                y = "return",
+                x = "nfci",
+                low.freq = "year_week",
+                gamma = TRUE,
+                K = 52)$variance.ratio,
+    76.75095573782186875178
   )
 })
 

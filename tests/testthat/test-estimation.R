@@ -81,6 +81,12 @@ test_that("Error testing", {
                 x = "nfci",
                 K = 52)
   )
+
+  expect_equal(
+      calculate_tau(c(1:100), w1 = 1, w2 = 2, theta = 0.2, m = 0.5, K = 12)[-c(1:12)],
+      calculate_tau_mf(df = data.frame(x = c(1:100)), x = c(1:100), low.freq = "x", w1 = 1, w2 = 2, theta = 0.2, m = 0.5, K = 12)$tau
+    )
+
   # expect_equal(
   #   get_alfred_series("INDPRO", "test",
   #                     observation_start = "2013-03-01", observation_end = "2013-03-01",

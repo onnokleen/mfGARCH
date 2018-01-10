@@ -57,31 +57,32 @@ llh_simple <- function(y, mu, alpha, beta, gamma, m, g_zero) {
   1/2 * log(2 * pi) + 1/2 * log(g * exp(m)) + 1/2 * (ret - mu)^2/(g * exp(m))
 }
 
-#' @keywords internal
-loss_simple <- function(y, mu, alpha, beta, gamma, m, g_zero) {
-  omega <- 1 - alpha - beta - gamma / 2
-  ret <- y
-  ret_std <- (ret - mu)/sqrt(exp(m))
-  g <- calculate_g(omega = omega, alpha = alpha, beta = beta, gamma = gamma,
-                   returns = ret_std, g0 = g_zero)
-
-  fcts <- mapply(FUN = forecast_garch, (ret - mu)/sqrt(exp(m)), g, MoreArgs = list(omega = omega, alpha = alpha, beta = beta, gamma = gamma, steps.ahead = 1))
-
-
-  ratio <- ret[-1]^2/fcts[1:(length(fcts) - 1)]
-
-  log(ratio) - ratio - 1
-
-  debugonce(forecast_garch)
-
-  forecast_garch(omega = omega, alpha = alpha, beta = beta, gamma = gamma, g = g[1], ret = (ret[1] - mu)/sqrt(exp(m)), steps.ahead = 1)
-
-
-  #forecast_garch(omega = omega, alpha = alpha, beta = beta, gamma = gamma, g = g[1], ret = (ret[1] - mu)/sqrt(exp(m)), steps.ahead = 1)
-
-  #omega / (1 - alpha - gamma/2 - beta) + (alpha + beta + gamma/2)^(steps.ahead - 1) * (omega + (alpha + gamma/2 * as.numeric(ret < 0)) * ret^2 + beta * g - omega / (1 - alpha - gamma/2 - beta))
-
-  #1/2 * log(2 * pi) + 1/2 * log(g * exp(m)) + 1/2 * (ret - mu)^2/(g * exp(m))
-}
+# Deprecated
+# #' @keywords internal
+#' loss_simple <- function(y, mu, alpha, beta, gamma, m, g_zero) {
+#'   omega <- 1 - alpha - beta - gamma / 2
+#'   ret <- y
+#'   ret_std <- (ret - mu)/sqrt(exp(m))
+#'   g <- calculate_g(omega = omega, alpha = alpha, beta = beta, gamma = gamma,
+#'                    returns = ret_std, g0 = g_zero)
+#'
+#'   fcts <- mapply(FUN = forecast_garch, (ret - mu)/sqrt(exp(m)), g, MoreArgs = list(omega = omega, alpha = alpha, beta = beta, gamma = gamma, steps.ahead = 1))
+#'
+#'
+#'   ratio <- ret[-1]^2/fcts[1:(length(fcts) - 1)]
+#'
+#'   log(ratio) - ratio - 1
+#'
+#'   debugonce(forecast_garch)
+#'
+#'   forecast_garch(omega = omega, alpha = alpha, beta = beta, gamma = gamma, g = g[1], ret = (ret[1] - mu)/sqrt(exp(m)), steps.ahead = 1)
+#'
+#'
+#'   #forecast_garch(omega = omega, alpha = alpha, beta = beta, gamma = gamma, g = g[1], ret = (ret[1] - mu)/sqrt(exp(m)), steps.ahead = 1)
+#'
+#'   #omega / (1 - alpha - gamma/2 - beta) + (alpha + beta + gamma/2)^(steps.ahead - 1) * (omega + (alpha + gamma/2 * as.numeric(ret < 0)) * ret^2 + beta * g - omega / (1 - alpha - gamma/2 - beta))
+#'
+#   #1/2 * log(2 * pi) + 1/2 * log(g * exp(m)) + 1/2 * (ret - mu)^2/(g * exp(m))
+#' }
 
 

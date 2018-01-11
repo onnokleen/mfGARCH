@@ -13,7 +13,6 @@
 #' @importFrom numDeriv jacobian
 #' @importFrom stats nlminb
 #' @importFrom stats optimHess
-#' @importFrom dplyr select_
 #' @importFrom dplyr full_join
 #' @importFrom dplyr left_join
 #' @importFrom dplyr tbl_df
@@ -118,8 +117,8 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
     rm(mutate_call_low_freq)
   }
 
-  g_zero <- var(unlist(data[y]))
-  ret <- data[[y]] %>% unlist() %>% as.numeric() #unlist(df_llh[y])
+  g_zero <- var(unlist(data[[y]]))
+  ret <- data[[y]]
 
   # Parameter estimation
   if (K == 0) {
@@ -231,12 +230,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
                   i = K + 1,
                   theta = par["theta"],
                   phivar = calculate_phi(w1 = 1, w2 = 1, K = K),
-                  covariate = c(data %>%
-                                  select_(quote(x), quote(low.freq)) %>%
-                                  distinct() %>%
-                                  select_(quote(x)) %>%
-                                  unlist() %>%
-                                  tail(K), NA),
+                  covariate = covariate = c(tail(unlist(distinct(data[c(x, low.freq)])[x]), K), NA),
                   K = K))
 
     returns <- unlist(data[y])
@@ -387,12 +381,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
                          i = K + 1,
                          theta = par["theta"],
                          phivar = calculate_phi(w1 = 1, w2 = par["w2"], K = K),
-                         covariate = c(data %>%
-                                         select_(quote(x), quote(low.freq)) %>%
-                                         distinct() %>%
-                                         select_(quote(x)) %>%
-                                         unlist() %>%
-                                         tail(K), NA),
+                         covariate = c(tail(unlist(distinct(data[c(x, low.freq)])[x]), K), NA),
                          K = K))
     }
     if (weighting == "beta.two.sided") {
@@ -406,12 +395,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
                          i = K + 1,
                          theta = par["theta"],
                          phivar = calculate_phi(w1 = par["w1"], w2 = par["w2"], K = K),
-                         covariate = c(data %>%
-                                         select_(quote(x), quote(low.freq)) %>%
-                                         distinct() %>%
-                                         select_(quote(x)) %>%
-                                         unlist() %>%
-                                         tail(K), NA),
+                         covariate = c(tail(unlist(distinct(data[c(x, low.freq)])[x]), K), NA),
                          K = K))
     }
 

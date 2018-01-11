@@ -230,7 +230,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
                   i = K + 1,
                   theta = par["theta"],
                   phivar = calculate_phi(w1 = 1, w2 = 1, K = K),
-                  covariate = covariate = c(tail(unlist(distinct(data[c(x, low.freq)])[x]), K), NA),
+                  covariate = c(tail(unlist(distinct(data[c(x, low.freq)])[x]), K), NA),
                   K = K))
 
     returns <- unlist(data[y])

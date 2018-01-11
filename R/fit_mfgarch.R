@@ -459,6 +459,14 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
                                        FUN = mean)[,2]),
                          na.rm = TRUE)
     output$tau_forecast = tau_forecast
+
+    if (weighting == "beta.one.sided") {
+      output$est.weighting <- calculate_phi(1, w2 = par["w2"], K = K)
+    }
+    if (weighting == "beta.two.sided") {
+      output$est.weighting <- calculate_phi(w1 = par["w1"], w2 = par["w2"], K = K)
+    }
+
   }
 
   # Add class mfGARCH for employing generic functions

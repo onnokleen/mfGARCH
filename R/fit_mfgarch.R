@@ -183,11 +183,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
                  tau = tau)
     df.fitted$residuals <- unlist((df.fitted$returns - par["mu"]) / sqrt(df.fitted$g * df.fitted$tau))
   } else { # if K > 0 we get the covariate series
-    covariate <- data %>%
-      select_(quote(low.freq), quote(x)) %>%
-      distinct() %>%
-      select_(quote(x)) %>%
-      unlist()
+    covariate <- unlist(distinct(data[c(low.freq, x)])[x])
   }
 
   if (K == 1) {

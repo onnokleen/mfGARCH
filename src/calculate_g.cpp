@@ -4,7 +4,6 @@ using namespace Rcpp;
 
 //' @export
 // [[Rcpp::export]]
-
 NumericVector calculate_g(double omega, double alpha, double beta, double gamma, NumericVector returns, double g0) {
   int n = returns.size();
 

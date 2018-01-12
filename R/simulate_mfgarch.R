@@ -16,8 +16,6 @@
 #' @keywords simulate_mfgarch
 #' @importFrom magrittr %>%
 #' @importFrom dplyr select_
-#' @importFrom dplyr full_join
-#' @importFrom dplyr tbl_df
 #' @importFrom dplyr mutate
 #' @importFrom dplyr data_frame
 #' @importFrom dplyr group_by_
@@ -26,7 +24,6 @@
 #' @importFrom dplyr group_by
 #' @importFrom zoo rollapplyr
 #' @importFrom stats rnorm
-#' @importFrom stats setNames
 #' @importFrom stats rt
 #' @export
 simulate_mfgarch <- function(n.days, mu, alpha, beta, gamma, m, theta, w1 = 1, w2, K, psi, sigma.psi, low.freq = 1, student.t = NULL) {
@@ -53,8 +50,8 @@ simulate_mfgarch <- function(n.days, mu, alpha, beta, gamma, m, theta, w1 = 1, w
   }
 
   length_x <- n.days/low.freq
-
   x.innov <- rnorm(length_x, 0, sigma.psi)
+
   x <- rep(0, times = length_x)
   for (ii in 2:(length_x)) {
     x[ii] <- psi * x[ii-1] + x.innov[ii]
@@ -99,7 +96,8 @@ simulate_mfgarch <- function(n.days, mu, alpha, beta, gamma, m, theta, w1 = 1, w
     df.ret %>%
     group_by(days) %>%
     summarise(vol = sum(ret^2),
-              ret = sum(ret))
+              ret = sum(ret)) %>%
+    ungroup()
 
   res <- data_frame(date = c(1:n.days),
                     return = five.vol$ret,

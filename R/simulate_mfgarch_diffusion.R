@@ -16,8 +16,6 @@
 #' @keywords simulate_mfgarch
 #' @importFrom magrittr %>%
 #' @importFrom dplyr select_
-#' @importFrom dplyr full_join
-#' @importFrom dplyr tbl_df
 #' @importFrom dplyr mutate
 #' @importFrom dplyr data_frame
 #' @importFrom dplyr group_by_
@@ -44,12 +42,20 @@ simulate_mfgarch_diffusion <- function(n.days, mu, alpha, beta, gamma, m, theta,
   #  A series of realized volatilities based on intraday returns, length = length(covariate).
   #
   # browser()
+
+  if ((n.days %% low.freq) != 0) {
+    stop("n.days is no multiple of low.freq")
+  }
+
   n.intraday <- 288
 
   n.days <- n.days + low.freq * 1000
 
   n.sampling = 20 # 20 trades per 5 minutes
   delta <- n.intraday * n.sampling
+
+  length_x <- n.days/low.freq
+  x.innov <- rnorm(length_x, 0, sigma.psi)
 
   Z.p <- rnorm(n.days * delta)
   Z.sigma <- rnorm(n.days * delta)
@@ -67,19 +73,14 @@ simulate_mfgarch_diffusion <- function(n.days, mu, alpha, beta, gamma, m, theta,
 
   h <- calculate_h_andersen(ndays = n.days, delta = delta, mu = 0,
                             omega = omega, lambda = lambda, theta = theta,
-                            Z = Z.sigma, pi = pi, h0 = 1)
+                            Z = Z.sigma, pi = pi, h0 = 0.1)
   p <- calculate_p(ndays = n.days, delta = delta, mu = 0, Zp = Z.p, h = h, p0 = 0)
 
   p.intraday <- p[1:n.sampling == n.sampling]
   r.intraday <- p.intraday - dplyr::lag(p.intraday)
 
-  if ((n.days %% low.freq) != 0) {
-    stop("n.days is no multiple of low.freq")
-  }
 
-  length_x <- n.days/low.freq
 
-  x.innov <- rnorm(length_x, 0, sigma.psi)
   x <- rep(0, times = length_x)
   for (ii in 2:(length_x)) {
     x[ii] <- psi * x[ii-1] + x.innov[ii]
@@ -90,7 +91,7 @@ simulate_mfgarch_diffusion <- function(n.days, mu, alpha, beta, gamma, m, theta,
 
   tau <- rep(tau, each = low.freq)
 
-  ret <- r.intraday * sqrt(rep(tau, each = n.intraday)) + mu /n.intraday
+  ret <- r.intraday * sqrt(rep(tau, each = n.intraday)) + mu / n.intraday
 
   df.ret <- data_frame(days = rep(c(1:n.days), each = n.intraday),
                        #half.hour = rep(c(1:(n.days * 48)), each = 6),
@@ -107,7 +108,8 @@ simulate_mfgarch_diffusion <- function(n.days, mu, alpha, beta, gamma, m, theta,
     df.ret %>%
     group_by(days) %>%
     summarise(vol = sum(ret^2),
-              ret = sum(ret))
+              ret = sum(ret)) %>%
+    ungroup()
 
   res <- data_frame(date = c(1:n.days),
                     return = five.vol$ret,

@@ -458,7 +458,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
                      var(log(aggregate(df.fitted$tau * df.fitted$g, by = df.fitted[var.ratio.freq],
                                        FUN = mean)[,2]),
                          na.rm = TRUE)
-    output$tau_forecast = tau_forecast
+    output$tau.forecast = tau_forecast
 
     if (weighting == "beta.one.sided") {
       output$est.weighting <- calculate_phi(1, w2 = par["w2"], K = K)

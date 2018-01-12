@@ -78,19 +78,18 @@ simulate_mfgarch <- function(n.days, mu, alpha, beta, gamma, m, theta, w1 = 1, w
                       h0 = 0.1)
   }
 
-
   ret <- sim$ret_intraday * sqrt(rep(tau, each = n.intraday)) + mu /n.intraday
 
   df.ret <- data_frame(days = rep(c(1:n.days), each = n.intraday),
                        half.hour = rep(c(1:(n.days * 48)), each = 6),
                        ret = ret)
 
-  # half.hour.vol <-
-  #   df.ret %>%
-  #   group_by_(~get("half.hour"), ~get("days")) %>%
-  #   summarise(ret = sum(ret)) %>%
-  #   group_by_(~get("")) %>%
-  #   summarise(vol = sum(ret^2))
+  half.hour.vol <-
+    df.ret %>%
+    group_by(half.hour, days) %>%
+    summarise(ret = sum(ret)) %>%
+    group_by(days) %>%
+    summarise(vol = sum(ret^2))
 
   five.vol <-
     df.ret %>%
@@ -106,9 +105,10 @@ simulate_mfgarch <- function(n.days, mu, alpha, beta, gamma, m, theta, w1 = 1, w
                     tau = tau,
                     g = sim$h_daily,
                     #vol_half_hour = half.hour.vol$vol,
-                    real_vol = five.vol$vol) %>%
+                    real_vol = five.vol$vol,
+                    real_vol_half_hour = half.hour.vol$vol) %>%
     mutate(real_vol_5_days = rollapplyr(.$real_vol, width = 5, FUN = mean, na.rm = TRUE, fill = NA)) %>%
     mutate(real_vol_22_days = rollapplyr(.$real_vol, width = 22, FUN = mean, na.rm = TRUE, fill = NA))
 
-  res [(low.freq * K * 2 + 1):n.days, ]
+  res[(low.freq * K * 2 + 1):n.days, ]
 }

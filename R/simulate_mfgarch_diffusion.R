@@ -49,6 +49,8 @@ simulate_mfgarch_diffusion <- function(n.days, mu, alpha, beta, gamma, m, theta,
 
   n.intraday <- 288
 
+  theta_longterm <- theta
+
   n.days <- n.days + low.freq * K * 2
 
   n.sampling = 20 # 20 trades per 5 minutes
@@ -87,7 +89,7 @@ simulate_mfgarch_diffusion <- function(n.days, mu, alpha, beta, gamma, m, theta,
   }
   rm(ii)
 
-  tau <- calculate_tau(covariate = x, m = m, theta = theta, w1 = w1, w2 = w2, K = K)[-c(1:K)]
+  tau <- calculate_tau(covariate = x, m = m, theta = theta_longterm, w1 = w1, w2 = w2, K = K)[-c(1:K)]
 
   tau <- rep(tau, each = low.freq)
 

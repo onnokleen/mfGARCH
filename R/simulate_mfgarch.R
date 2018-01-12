@@ -110,5 +110,5 @@ simulate_mfgarch <- function(n.days, mu, alpha, beta, gamma, m, theta, w1 = 1, w
     mutate(real_vol_5_days = rollapplyr(.$real_vol, width = 5, FUN = mean, na.rm = TRUE, fill = NA)) %>%
     mutate(real_vol_22_days = rollapplyr(.$real_vol, width = 22, FUN = mean, na.rm = TRUE, fill = NA))
 
-  res [(low.freq * 1000 + 1):n.days, ]
+  res [(low.freq * K * 2 + 1):n.days, ]
 }

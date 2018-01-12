@@ -107,8 +107,10 @@ simulate_mfgarch <- function(n.days, mu, alpha, beta, gamma, m, theta, w1 = 1, w
                     #vol_half_hour = half.hour.vol$vol,
                     real_vol = five.vol$vol,
                     real_vol_half_hour = half.hour.vol$vol) %>%
-    mutate(real_vol_5_days = rollapplyr(.$real_vol, width = 5, FUN = mean, na.rm = TRUE, fill = NA)) %>%
-    mutate(real_vol_22_days = rollapplyr(.$real_vol, width = 22, FUN = mean, na.rm = TRUE, fill = NA))
+    mutate(real_vol_5_days = rollapplyr(.$real_vol, width = 5, FUN = mean, na.rm = TRUE, fill = NA),
+           real_vol_22_days = rollapplyr(.$real_vol, width = 22, FUN = mean, na.rm = TRUE, fill = NA),
+           real_vol_half_hour_5_days = rollapplyr(.$real_vol_half_hour, width = 5, FUN = mean, na.rm = TRUE, fill = NA),
+           real_vol_half_hour_22_days = rollapplyr(.$real_vol_half_hour, width = 22, FUN = mean, na.rm = TRUE, fill = NA))
 
   res[(low.freq * K * 2 + 1):n.days, ]
 }

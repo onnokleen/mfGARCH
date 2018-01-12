@@ -43,7 +43,7 @@ simulate_mfgarch <- function(n.days, mu, alpha, beta, gamma, m, theta, w1 = 1, w
   # browser()
   n.intraday <- 288
 
-  n.days <- n.days + low.freq * 100
+  n.days <- n.days + low.freq * 300
 
   if ((n.days %% low.freq) != 0) {
     stop("n.days is no multiple of low.freq")

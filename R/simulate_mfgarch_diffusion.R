@@ -49,7 +49,7 @@ simulate_mfgarch_diffusion <- function(n.days, mu, alpha, beta, gamma, m, theta,
 
   n.intraday <- 288
 
-  n.days <- n.days + low.freq * 1000
+  n.days <- n.days + low.freq * 300
 
   n.sampling = 20 # 20 trades per 5 minutes
   delta <- n.intraday * n.sampling

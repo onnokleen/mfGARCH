@@ -118,7 +118,6 @@ simulate_mfgarch_diffusion <- function(n.days, mu, alpha, beta, gamma, m, theta,
                     covariate = rep(x, each = low.freq),
                     low_freq = rep(c(1:(n.days/low.freq)), each = low.freq),
                     tau = tau,
-                    g = sim$h_daily,
                     #vol_half_hour = half.hour.vol$vol,
                     real_vol = five.vol$vol,
                     real_vol_half_hour = half.hour.vol$vol)  %>%

@@ -39,7 +39,7 @@ predict.mfGARCH <- function(object, horizon = c(1:10), fcts.tau = NULL, return =
                                  alpha = object$par["alpha"],
                                  beta = object$par["beta"],
                                  gamma = 0,
-                                 ret = (return - - object$par["mu"])/ sqrt(cond.tau),
+                                 ret = (return - object$par["mu"])/ sqrt(cond.tau),
                                  g = cond.var))
   } else {
     fcts.tau * as.numeric(sapply(horizon, forecast_garch,
@@ -47,7 +47,7 @@ predict.mfGARCH <- function(object, horizon = c(1:10), fcts.tau = NULL, return =
                                  alpha = object$par["alpha"],
                                  beta = object$par["beta"],
                                  gamma = object$par["gamma"],
-                                 ret = (return - - object$par["mu"])/ sqrt(cond.tau),
+                                 ret = (return - object$par["mu"])/ sqrt(cond.tau),
                                  g = cond.var))
   }
 

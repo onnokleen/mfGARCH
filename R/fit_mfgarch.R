@@ -6,7 +6,7 @@
 #' @param low.freq a string of the low frequency variable in the df.
 #' @param var.ratio.freq specify a frequency column on which the variance ratio should be calculated.
 #' @param gamma if TRUE, an asymmetric GJR GARCH is used as the short-term component. If FALSE, a simple GARCH(1,1) is employed.
-#' @param weighting specifies the weighting scheme employed in the long-term component. Options are "beta.one.sided" (default) or "beta.two.sided"
+#' @param weighting specifies the weighting scheme employed in the long-term component. Options are "beta.restricted" (default) or "beta.unrestricted"
 #' @keywords fit_mfgarch
 #' @export
 #' @importFrom magrittr %>%
@@ -34,10 +34,10 @@
 #' @examples fit_mfgarch(data = dplyr::filter(df_financial, date >="1973-01-01", is.na(nfci) == FALSE),
 #' y = "return", x = "nfci", low.freq = "year_week", K = 52)
 
-fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.ratio.freq = NULL, gamma = TRUE, weighting = "beta.one.sided") {
+fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.ratio.freq = NULL, gamma = TRUE, weighting = "beta.restricted") {
 
-  if (weighting %in% c("beta.one.sided", "beta.two.sided") == FALSE) {
-    stop("Incorrect weighting scheme specified - options are \"beta.one.sided\" and \"beta.two.sided\".")
+  if (weighting %in% c("beta.restricted", "beta.unrestricted") == FALSE) {
+    stop("Incorrect weighting scheme specified - options are \"beta.restricted\" and \"beta.unrestricted\".")
   }
   if (gamma %in% c(TRUE, FALSE) == FALSE) {
     stop("Gamma can't be anything different than TRUE or FALSE.")
@@ -256,7 +256,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
 
   if (K > 1) {
     if (gamma == TRUE) {
-      if (weighting == "beta.one.sided") {
+      if (weighting == "beta.restricted") {
         lf <- function(p) {
           llh_mf(df = df_llh,
                  y = ret,
@@ -282,7 +282,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
                         c(0,  0,  1,    0, 0, 0, 0))
         ci.opt <- c(-0.99999999, 1, 0, 0)
       }
-      if (weighting == "beta.two.sided") {
+      if (weighting == "beta.unrestricted") {
         lf <- function(p) {
           llh_mf(df = df_llh,
                  y = ret,
@@ -312,7 +312,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
 
     } else {
 
-      if (weighting == "beta.one.sided") {
+      if (weighting == "beta.restricted") {
         lf <- function(p) {
           llh_mf(df = df_llh,
                  y = ret,
@@ -337,7 +337,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
         ci.opt <- c(-0.99999999, 1, 0, 0)
       }
 
-      if (weighting == "beta.two.sided") {
+      if (weighting == "beta.unrestricted") {
         lf <- function(p) {
           llh_mf(df = df_llh,
                  y = ret,
@@ -370,7 +370,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
                               grad = NULL, ui = ui.opt, ci = ci.opt, hessian = FALSE)
     par <- p.e.nlminb$par
 
-    if (weighting == "beta.one.sided") {
+    if (weighting == "beta.restricted") {
       tau <- calculate_tau_mf(df = data, x = covariate, low.freq = low.freq,
                               w1 = 1, w2 = par["w2"],
                               theta = par["theta"],
@@ -384,7 +384,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
                          covariate = c(tail(unlist(distinct(data[c(x, low.freq)])[x]), K), NA),
                          K = K))
     }
-    if (weighting == "beta.two.sided") {
+    if (weighting == "beta.unrestricted") {
       tau <- calculate_tau_mf(df = data, x = covariate, low.freq = low.freq,
                               w1 = par["w1"], w2 = par["w2"],
                               theta = par["theta"],
@@ -460,10 +460,10 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
                          na.rm = TRUE)
     output$tau.forecast = tau_forecast
 
-    if (weighting == "beta.one.sided") {
+    if (weighting == "beta.restricted") {
       output$est.weighting <- calculate_phi(1, w2 = par["w2"], K = K)
     }
-    if (weighting == "beta.two.sided") {
+    if (weighting == "beta.unrestricted") {
       output$est.weighting <- calculate_phi(w1 = par["w1"], w2 = par["w2"], K = K)
     }
 

@@ -1,1 +1,0 @@
-- 06.06.2017 Initial submission to CRAN

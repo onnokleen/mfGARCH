@@ -18,18 +18,22 @@ Development version (GitHub):
 # install.packages("devtools")
 library(devtools)
 install_github("onnokleen/mfGARCH")
+
+# example
+library(mfGARCH)
+# df_financial
+fit_mfgarch(data = df_financial, y = "return", x = "nfci", low.freq = "week", K = 52)
 ```
 ## ToDo and Roadmap
 
 ToDo
-* Introduce non-full sample estimation by introducting sample-begin/end variable for forecasting
+* Introduce non-full sample estimation by introducing sample-begin/end variable for forecasting
 * Generate table function for list of mfGARCH models
 * Add examples in vignette and readme
 * Improve plot function
 
 Roadmap
 * 2018-02 Submission to CRAN
-* 2017-06 Feature-completeness, ToDo done
 
 Future
 * Broom-package plug-in

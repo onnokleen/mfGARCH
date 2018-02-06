@@ -1,13 +1,10 @@
-## Resubmission
-This is a resubmission. In this version I have:
-
-* Phrasing in description 
-* Added URLs to data bases mentioned in description.
+## First submission
+This is my first submission. 
 
 ### Test environments
 * local OS X install, R 3.4.0
-* Windows Server 2016 Datacenter, R 3.4.0
 * Windows via devtools::build_win() - x86_64-w64-mingw32
+* Linux via travis-ci
 
 ## R CMD check results
 There were no ERRORs, WARNINGs or NOTES. 

@@ -17,7 +17,6 @@ double sum_tau_fcts(int i, double m, double theta, NumericVector phivar, Numeric
 #include <Rcpp.h>
 using namespace Rcpp;
 
-//' @export
 // [[Rcpp::export(name = "sum_tau")]]
 NumericVector sum_tau(double m, double theta, NumericVector phivar, NumericVector covariate, int K) {
 

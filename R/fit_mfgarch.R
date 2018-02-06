@@ -9,7 +9,6 @@
 #' @param weighting specifies the weighting scheme employed in the long-term component. Options are "beta.restricted" (default) or "beta.unrestricted"
 #' @keywords fit_mfgarch
 #' @export
-#' @importFrom magrittr %>%
 #' @importFrom numDeriv jacobian
 #' @importFrom stats nlminb
 #' @importFrom stats optimHess
@@ -100,7 +99,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
     }
   }
   # Order by high frequency variable
-  data <- data %>% dplyr::arrange_("date")
+  data <- dplyr::arrange_(data, "date")
   # We store date in new variable because computation on integerized date seemed to be faster
   date_backup <- data[["date"]]
   data["date"] <- as.numeric(unlist(data["date"]))
@@ -111,8 +110,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
   }
   mutate_call_low_freq <- lazyeval::interp(~ as.integer(a), a = as.name(low.freq))
   if (x != "date") {
-    df_llh <- data[,c(y, x, low.freq)] %>%
-      mutate_(.dots = setNames(list(mutate_call_low_freq), low.freq))
+    df_llh <- mutate_(data[, c(y, x, low.freq)], .dots = setNames(list(mutate_call_low_freq), low.freq))
     rm(mutate_call_low_freq)
   }
 
@@ -153,7 +151,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
                               f = function(theta) { sum(lf(theta)) },
                               grad = NULL, ui = ui.opt, ci = ci.opt, hessian = FALSE)
     par <- p.e.nlminb$par
-    returns <- data[[y]] %>% unlist() %>% as.numeric()
+    returns <- as.numeric(unlist(data[[y]]))
     tau <- rep(exp(par["m"]), times = length(returns))
 
     if (gamma == TRUE) {
@@ -247,8 +245,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
     }
 
 
-    df.fitted <- data %>%
-      cbind(g = g, tau = tau)
+    df.fitted <- cbind(data, g = g, tau = tau)
     df.fitted$residuals <- unlist((df.fitted[y] - par["mu"]) / sqrt(df.fitted$g * df.fitted$tau))
 
   }
@@ -420,8 +417,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
     }
 
 
-    df.fitted <- data %>%
-      cbind(g = g, tau = tau)
+    df.fitted <- cbind(data, g = g, tau = tau)
 
     df.fitted$residuals <- unlist((df.fitted[y] - par["mu"]) / sqrt(df.fitted$g * df.fitted$tau))
 

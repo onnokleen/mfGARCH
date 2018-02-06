@@ -12,22 +12,11 @@
 #' @importFrom numDeriv jacobian
 #' @importFrom stats nlminb
 #' @importFrom stats optimHess
-#' @importFrom dplyr full_join
-#' @importFrom dplyr left_join
-#' @importFrom dplyr tbl_df
-#' @importFrom dplyr mutate_
-#' @importFrom dplyr data_frame
-#' @importFrom dplyr group_by_
-#' @importFrom dplyr summarise_
-#' @importFrom dplyr ungroup
-#' @importFrom dplyr distinct
 #' @importFrom stats constrOptim
 #' @importFrom stats na.exclude
 #' @importFrom stats pnorm
 #' @importFrom stats var
-#' @importFrom stats setNames
 #' @importFrom stats aggregate
-#' @importFrom lazyeval interp
 #' @importFrom numDeriv jacobian
 #' @importFrom utils tail
 #' @examples fit_mfgarch(data = df_financial, y = "return", x = "nfci", low.freq = "week", K = 52)
@@ -98,8 +87,11 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
       stop(paste0("There is no var.ratio.freq column with name ", var.ratio.freq, "."))
     }
   }
+
   # Order by high frequency variable
-  data <- dplyr::arrange_(data, "date")
+  data <- data[order(data$date), ]
+  # Deprecated dplyr version
+  #data <- dplyr::arrange_(data, "date")
   # We store date in new variable because computation on integerized date seemed to be faster
   date_backup <- data[["date"]]
   data["date"] <- as.numeric(unlist(data["date"]))
@@ -108,10 +100,11 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
     var.ratio.freq <- low.freq
     print(paste0("No frequency specified for calculating the variance ratio - default: low.freq = ", low.freq))
   }
-  mutate_call_low_freq <- lazyeval::interp(~ as.integer(a), a = as.name(low.freq))
+
+  low_freq_backup <- data[, low.freq]
   if (x != "date") {
-    df_llh <- mutate_(data[, c(y, x, low.freq)], .dots = setNames(list(mutate_call_low_freq), low.freq))
-    rm(mutate_call_low_freq)
+    df_llh <- data[, c(y, x, low.freq)]
+    df_llh[, low.freq] <- as.integer(unlist(df_llh[ , low.freq]))
   }
 
   g_zero <- var(unlist(data[[y]]))
@@ -162,6 +155,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
                          gamma = par["gamma"],
                          as.numeric(na.exclude((returns - par["mu"])/sqrt(tau))),
                          g0 = g_zero))
+      tau <- rep(exp(par["m"]), times = length(g))
 
     } else {
       g <- c(rep(NA, times = sum(is.na((returns - par["mu"])/sqrt(tau)))),
@@ -171,15 +165,13 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
                         gamma = 0,
                         as.numeric(na.exclude((returns - par["mu"])/sqrt(tau))),
                         g0 = g_zero))
+      tau <- rep(exp(par["m"]), times = length(g))
     }
 
-    df.fitted <-
-      data_frame(returns = returns,
-                 g = g,
-                 tau = tau)
-    df.fitted$residuals <- unlist((df.fitted$returns - par["mu"]) / sqrt(df.fitted$g * df.fitted$tau))
+    df.fitted <- cbind(data, g = g, tau = tau)
+    df.fitted$residuals <- unlist((df.fitted[y] - par["mu"]) / sqrt(df.fitted$g * df.fitted$tau))
   } else { # if K > 0 we get the covariate series
-    covariate <- unlist(distinct(data[c(low.freq, x)])[x])
+    covariate <- unlist(unique(data[c(low.freq, x)])[x])
   }
 
   if (K == 1) {
@@ -227,7 +219,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
                   i = K + 1,
                   theta = par["theta"],
                   phivar = calculate_phi(w1 = 1, w2 = 1, K = K),
-                  covariate = c(tail(unlist(distinct(data[c(x, low.freq)])[x]), K), NA),
+                  covariate = c(tail(unlist(unique(data[c(x, low.freq)])[x]), K), NA),
                   K = K))
 
     returns <- unlist(data[y])
@@ -377,7 +369,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
                          i = K + 1,
                          theta = par["theta"],
                          phivar = calculate_phi(w1 = 1, w2 = par["w2"], K = K),
-                         covariate = c(tail(unlist(distinct(data[c(x, low.freq)])[x]), K), NA),
+                         covariate = c(tail(unlist(unique(data[c(x, low.freq)])[x]), K), NA),
                          K = K))
     }
     if (weighting == "beta.unrestricted") {
@@ -391,7 +383,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
                          i = K + 1,
                          theta = par["theta"],
                          phivar = calculate_phi(w1 = par["w1"], w2 = par["w2"], K = K),
-                         covariate = c(tail(unlist(distinct(data[c(x, low.freq)])[x]), K), NA),
+                         covariate = c(tail(unlist(unique(data[c(x, low.freq)])[x]), K), NA),
                          K = K))
     }
 
@@ -431,7 +423,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
   output <-
     list(par = par,
          std.err = rob.std.err,
-         broom.mgarch = data_frame(term = names(par),
+         broom.mgarch = data.frame(term = names(par),
                                    estimate = par,
                                    rob.std.err = rob.std.err,
                                    p.value = 2 * (1 - pnorm(unlist(abs(par/rob.std.err))))),

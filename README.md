@@ -15,11 +15,12 @@ An R package for estimating multiplicative mixed-frequency GARCH models (GARCH-M
 Right now, you need the Rcpp-package to compile it on your own computer.
 Development version (GitHub):
 ```r
+# Install package via devtools
 # install.packages("devtools")
 library(devtools)
 install_github("onnokleen/mfGARCH")
 
-# example
+# Example
 library(mfGARCH)
 # df_financial
 fit_mfgarch(data = df_financial, y = "return", x = "nfci", low.freq = "week", K = 52)

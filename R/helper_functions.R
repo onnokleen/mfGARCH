@@ -1,3 +1,9 @@
+#' @keywords internal
+forecast_garch <- function(omega, alpha, beta, gamma, g, ret, steps.ahead) {
+  omega / (1 - alpha - gamma/2 - beta) + (alpha + beta + gamma/2)^(steps.ahead - 1) * (omega + (alpha + gamma/2 * as.numeric(ret < 0)) * ret^2 + beta * g - omega / (1 - alpha - gamma/2 - beta))
+}
+
+
 # Calculates the phi weighting scheme
 #' @keywords internal
 calculate_phi <- function(w1, w2, K) {
@@ -23,7 +29,11 @@ calculate_tau_mf <- function(df, x, low.freq, w1, w2, theta, m, K) {
   covariate <- c(rep(NA, times = K), x)
   tau <- c(rep(NA, times = K),
            exp(sum_tau(m = m, theta = theta, phivar = phi.var, covariate = x, K = K)))
-  left_join(df, cbind(unique(df[low.freq]), tau), by = low.freq)
+
+  merge(df, cbind(unique(df[low.freq]), tau), by = low.freq)
+
+  # Deprecated dplyr version
+  #test <- left_join(df, cbind(unique(df[low.freq]), tau), by = low.freq)
 }
 
 #' @keywords internal

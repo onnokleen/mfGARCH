@@ -1,12 +1,12 @@
 test_that("Estimation K = 0", {
   expect_warning(
-    mgarch_0 <- fit_mfgarch(data = dplyr::filter(df_financial, date >="1974-01-01"),
+    mgarch_0 <- fit_mfgarch(data = df_financial,
                             y = "return",
                             K = 0)$par
   )
 
   expect_warning(
-    mgarch_0 <- fit_mfgarch(data = dplyr::filter(df_financial, date >="1974-01-01"),
+    mgarch_0 <- fit_mfgarch(data = df_financial,
                             y = "return",
                             gamma = FALSE,
                             K = 0)$par

@@ -53,6 +53,10 @@ predict.mfGARCH <- function(object, horizon = c(1:10), fcts.tau = NULL, return =
 
 }
 
+#' This function plots the weighting scheme of an esimated GARCH-MIDAS model
+#' @param x mfGARCH object obtained by fit_mfgarch
+#' @importFrom graphics plot
+#' @export
 plot_weighting_scheme <- function(x) {
   if (class(x) != "mfGARCH") {
     stop("Obejct is not in class mfGARCH")

@@ -61,13 +61,13 @@ df_realized <-
 df_daily <-
   df_returns %>%
   left_join(df_realized, by = "date") %>%
-  filter(date < "1990-01-01" | is.na(rv) == FALSE) %>%
+  filter(date < "2000-01-01" | is.na(rv) == FALSE) %>%
   arrange(date) %>%
   mutate(return = (log(adj_close) - log(lag(adj_close))) * 100) %>%
   mutate(rv_sq_smooth = rollapplyr(return^2, width = 22, FUN = sum, fill = NA)) %>%
   ungroup() %>%
   mutate(year = year(date), month = month(date), day = day(date)) %>%
-  mutate(week = floor_date(date, unit = "weeks", week_start = 5))
+  mutate(week = ceiling_date(date, unit = "weeks", week_start = 5))
 
 
 df_nfci <-
@@ -94,6 +94,6 @@ df_mf_financial <-
 rm(df_vix, df_nfci, df_daily, df_returns, df_realized, GSPC)
 
 
-write_csv(df_mf_financial, "data-raw/df_mf_financial.csv")
-devtools::use_data(df_mf_financial, overwrite = TRUE)
+write_csv(df_mf_financial, "data-raw/df_financial.csv")
+devtools::use_data(df_financial, overwrite = TRUE)
 

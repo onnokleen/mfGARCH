@@ -31,8 +31,7 @@
 #' @importFrom lazyeval interp
 #' @importFrom numDeriv jacobian
 #' @importFrom utils tail
-#' @examples fit_mfgarch(data = dplyr::filter(df_financial, date >="1973-01-01", is.na(nfci) == FALSE),
-#' y = "return", x = "nfci", low.freq = "year_week", K = 52)
+#' @examples fit_mfgarch(data = df_financial, y = "return", x = "nfci", low.freq = "week", K = 52)
 
 fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.ratio.freq = NULL, gamma = TRUE, weighting = "beta.restricted") {
 

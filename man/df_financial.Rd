@@ -3,23 +3,28 @@
 \docType{data}
 \name{df_financial}
 \alias{df_financial}
-\title{Prices of 50,000 round cut diamonds.}
-\format{A data frame with 11,644 rows and 21 variables:
+\title{Stock returns and financial conditions.}
+\format{A data frame with 11,306 rows and 5 variables:
 \describe{
   \item{date}{date}
   \item{return}{daily S&P 500 log returns times 100}
-  \item{nfci}{daily S&P 500 log returns times 100}
-  \item{vix_sqrt_252}{de-annualized VIX}
-  \item{year_week}{a dummy for each year/week combination}
+  \item{rv}{5-minute realized variances}
+  \item{week}{a dummy for each year/week combination}
+  \item{nfci}{National Financial Conditions Index}
 }}
 \source{
 \url{https://github.com/onnokleen/mfGARCH/}
+
+\url{https://de.finance.yahoo.com/}
+
+\url{https://fred.stlouisfed.org/series/NFCI}
+
+\url{https://realized.oxford-man.ox.ac.uk}
 }
 \usage{
 df_financial
 }
 \description{
-A dataset containing the prices and other attributes of almost 54,000
-diamonds.
+A dataset containing the S&P 500 stock returns and the NFCI
 }
 \keyword{datasets}

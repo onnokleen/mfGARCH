@@ -75,7 +75,7 @@ df_nfci <-
   mutate(week = ceiling_date(date, unit = "weeks", week_start = 5)) %>%
   select(-date)
 
-df_mf_financial <-
+df_financial <-
   df_daily %>%
   left_join(df_nfci, by = c("week")) %>%
   left_join(df_vix, by = "date") %>%
@@ -94,6 +94,6 @@ df_mf_financial <-
 rm(df_vix, df_nfci, df_daily, df_returns, df_realized, GSPC)
 
 
-write_csv(df_mf_financial, "data-raw/df_financial.csv")
+write_csv(df_financial, "data-raw/df_financial.csv")
 devtools::use_data(df_financial, overwrite = TRUE)
 

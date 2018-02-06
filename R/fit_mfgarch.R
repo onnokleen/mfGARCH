@@ -5,7 +5,7 @@
 #' @param K an integer specifying lag length K in the long-term component.
 #' @param low.freq a string of the low frequency variable in the df.
 #' @param var.ratio.freq specify a frequency column on which the variance ratio should be calculated.
-#' @param gamma if TRUE, an asymmetric GJR GARCH is used as the short-term component. If FALSE, a simple GARCH(1,1) is employed.
+#' @param gamma if TRUE, an asymmetric GJR-GARCH is used as the short-term component. If FALSE, a simple GARCH(1,1) is employed.
 #' @param weighting specifies the weighting scheme employed in the long-term component. Options are "beta.restricted" (default) or "beta.unrestricted"
 #' @keywords fit_mfgarch
 #' @export

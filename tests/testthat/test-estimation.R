@@ -14,98 +14,87 @@ test_that("Estimation K = 0", {
 })
 
 test_that("Estimation K = 1",{
-  expect_equal(
-    fit_mfgarch(data = dplyr::filter(df_financial, date >="1974-01-01", is.na(nfci) == FALSE),
-                y = "return",
-                x = "nfci",
-                low.freq = "year_week",
-                K = 1)$variance.ratio,
-    12.384042900994
-  )
 
   expect_equal(
-    fit_mfgarch(data = dplyr::filter(df_financial, date >="1974-01-01", is.na(nfci) == FALSE)[1:3000, ],
+    fit_mfgarch(data = df_financial[1:3000, ],
                 y = "return",
                 x = "nfci",
                 gamma = TRUE,
-                low.freq = "year_week",
+                low.freq = "week",
                 K = 1)$variance.ratio,
-    36.71830351675942694101
+    30.830933045276875504
   )
 
   expect_equal(
-    fit_mfgarch(data = dplyr::filter(df_financial, date >="1974-01-01", is.na(nfci) == FALSE),
+    fit_mfgarch(data = df_financial[1:3000, ],
                 y = "return",
                 x = "nfci",
-                low.freq = "year_week",
+                low.freq = "week",
                 gamma = FALSE,
                 K = 1)$variance.ratio,
-    16.6288714379619
+    53.461662482177914058
   )
 })
 
 test_that("Estimation K > 1", {
   expect_equal(
-    fit_mfgarch(data = dplyr::filter(df_financial, date >="1974-01-01", is.na(nfci) == FALSE),
+    fit_mfgarch(data = df_financial[1:3000, ],
                 y = "return",
                 x = "nfci",
-                low.freq = "year_week",
+                low.freq = "week",
                 K = 52)$variance.ratio,
-    13.1500626717928
+    54.052884655522021262
   )
 
   expect_equal(
-    fit_mfgarch(data = dplyr::filter(df_financial, date >="1974-01-01", is.na(nfci) == FALSE),
+    fit_mfgarch(data = df_financial[1:3000, ],
                 y = "return",
                 x = "nfci",
-                low.freq = "year_week",
+                low.freq = "week",
                 gamma = FALSE,
                 K = 52)$variance.ratio,
-    10.4571948652477
+    59.96264020017222407
   )
 
   expect_equal(
-    fit_mfgarch(data = dplyr::filter(df_financial, date >="1974-01-01", is.na(nfci) == FALSE)[1:3000, ],
+    fit_mfgarch(data = df_financial[1:3000, ],
                 y = "return",
                 x = "nfci",
-                low.freq = "year_week",
-                gamma = TRUE,
-                K = 52)$variance.ratio,
-    76.75095573782186875178
+                low.freq = "week",
+                gamma = FALSE,
+                K = 52,
+                weighting = "beta.unrestricted")$variance.ratio,
+    58.795726277274134475
   )
+
 })
 
 test_that("Error testing", {
 
   expect_error( # K should not be smaller than 0 and should be an integer
-    fit_mfgarch(data = dplyr::filter(df_financial, date >="1974-01-01"),
+    fit_mfgarch(data = df_financial,
                 y = "return",
                 x = "nfci",
                 K = -10)
   )
   expect_error( # K should not be smaller than 0 and should be an integer
-    fit_mfgarch(data = dplyr::filter(df_financial, date >="1974-01-01"),
+    fit_mfgarch(data = df_financial,
                 y = "return",
                 x = "nfci",
                 K = 0.22)
   )
   expect_error( # nfci includes NAs
-    fit_mfgarch(data = df_financial,
+    fit_mfgarch(data = (df_financial$nfci[1:2] <- NA),
                 y = "return",
                 x = "nfci",
                 K = 52)
   )
   expect_error(
-    fit_mfgarch(data = df_financial,
+    fit_mfgarch(data = (df_financial$return[1:2] <- NA),
                 y = "return",
                 x = "nfci",
                 K = 52)
   )
-
-  expect_equal(
-      calculate_tau(c(1:100), w1 = 1, w2 = 2, theta = 0.2, m = 0.5, K = 12)[-c(1:12)],
-      calculate_tau_mf(df = data.frame(x = c(1:100)), x = c(1:100), low.freq = "x", w1 = 1, w2 = 2, theta = 0.2, m = 0.5, K = 12)$tau
-    )
 
   # expect_equal(
   #   get_alfred_series("INDPRO", "test",

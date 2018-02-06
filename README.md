@@ -28,7 +28,7 @@ ToDo
 * Improve plot function
 
 Roadmap
-* 2017-06 Submission to CRAN
+* 2018-02 Submission to CRAN
 * 2017-06 Feature-completeness, ToDo done
 
 Future

@@ -4,10 +4,10 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 # mfGARCH - mixed-frequency GARCH models
 
-An R package for estimating multiplicative mixed-frequency GARCH models (GARCH-MIDAS) as proposed in Engle et al. (2013) which is currently under development.
+An R package for estimating multiplicative mixed-frequency GARCH models (GARCH-MIDAS) as proposed in Engle et al. (2013).
 
 ## Highlights
-- A comprehensive toolbox for estimating, visualizing and forecasting when using GARCH-MIDAS models
+- A comprehensive toolbox for estimating and forecasting using GARCH-MIDAS models
 - Easy to use
 - Built for handling irregularly spaced mixed-frequency data
 
@@ -28,17 +28,14 @@ fit_mfgarch(data = df_financial, y = "return", x = "nfci", low.freq = "week", K 
 ## ToDo and Roadmap
 
 ToDo
-* Introduce non-full sample estimation by introducing sample-begin/end variable for forecasting
-* Generate table function for list of mfGARCH models
 * Add examples in vignette and readme
-* Improve plot function
+* Add generic plot function
 
 Roadmap
 * 2018-02 Submission to CRAN
 
 Future
 * Broom-package plug-in
-* More model evaluation functions, e.g. QQ-Plot
 
 ## History
 - January 2017: Initial submit

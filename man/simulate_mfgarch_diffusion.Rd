@@ -2,10 +2,10 @@
 % Please edit documentation in R/simulate_mfgarch_diffusion.R
 \name{simulate_mfgarch_diffusion}
 \alias{simulate_mfgarch_diffusion}
-\title{This function estimates a multiplicative mixed-frequency GARCH model}
+\title{This function simulates a GARCH-MIDAS model where the short-term GARCH component is replaced by its diffusion limit, see Andersen (1998)}
 \usage{
 simulate_mfgarch_diffusion(n.days, mu, alpha, beta, gamma, m, theta, w1 = 1,
-  w2, K, psi, sigma.psi, low.freq = 1, student.t = NULL)
+  w2, K, psi, sigma.psi, low.freq = 1)
 }
 \arguments{
 \item{n.days}{number of days}
@@ -33,10 +33,8 @@ simulate_mfgarch_diffusion(n.days, mu, alpha, beta, gamma, m, theta, w1 = 1,
 \item{sigma.psi}{sigma.psi}
 
 \item{low.freq}{low.freq}
-
-\item{student.t}{student.t}
 }
 \description{
-This function estimates a multiplicative mixed-frequency GARCH model
+This function simulates a GARCH-MIDAS model where the short-term GARCH component is replaced by its diffusion limit, see Andersen (1998)
 }
 \keyword{simulate_mfgarch}

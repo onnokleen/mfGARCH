@@ -2,7 +2,7 @@
 % Please edit documentation in R/simulate_mfgarch.R
 \name{simulate_mfgarch}
 \alias{simulate_mfgarch}
-\title{This function estimates a multiplicative mixed-frequency GARCH model}
+\title{This function simulates a GARCH-MIDAS model}
 \usage{
 simulate_mfgarch(n.days, mu, alpha, beta, gamma, m, theta, w1 = 1, w2, K, psi,
   sigma.psi, low.freq = 1, student.t = NULL)
@@ -32,11 +32,11 @@ simulate_mfgarch(n.days, mu, alpha, beta, gamma, m, theta, w1 = 1, w2, K, psi,
 
 \item{sigma.psi}{sigma.psi}
 
-\item{low.freq}{low.freq}
+\item{low.freq}{number of days per low-frequency period}
 
 \item{student.t}{student.t}
 }
 \description{
-This function estimates a multiplicative mixed-frequency GARCH model
+This function simulates a GARCH-MIDAS model
 }
 \keyword{simulate_mfgarch}

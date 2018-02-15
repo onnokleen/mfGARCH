@@ -28,6 +28,6 @@ fit_mfgarch(data, y, x = NULL, K = NULL, low.freq = "date",
 This function estimates a multiplicative mixed-frequency GARCH model
 }
 \examples{
-fit_mfgarch(data = df_financial, y = "return", x = "nfci", low.freq = "week", K = 52)
+\dontrun{fit_mfgarch(data = df_financial, y = "return", x = "nfci", low.freq = "week", K = 52)}
 }
 \keyword{fit_mfgarch}

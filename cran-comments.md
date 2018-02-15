@@ -1,5 +1,5 @@
 ## First submission
-This is my first submission. 
+Initial submission 
 
 ### Test environments
 * local OS X install, R 3.4.3
@@ -7,4 +7,5 @@ This is my first submission.
 * Linux via travis-ci
 
 ## R CMD check results
-There were no ERRORs, WARNINGs or NOTES. 
+There were no ERRORs or WARNINGS.
+1 NOTE but I think that is because of my weird name :)

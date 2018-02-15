@@ -1,4 +1,4 @@
-#' This function estimates a multiplicative mixed-frequency GARCH model
+#' This function simulates a GARCH-MIDAS model where the short-term GARCH component is replaced by its diffusion limit, see Andersen (1998)
 #' @param n.days number of days
 #' @param mu mu
 #' @param alpha alpha
@@ -12,28 +12,14 @@
 #' @param psi psi
 #' @param sigma.psi sigma.psi
 #' @param low.freq low.freq
-#' @param student.t student.t
 #' @keywords simulate_mfgarch
 #' @importFrom zoo rollapplyr
 #' @importFrom stats rnorm
 #' @importFrom stats setNames
-#' @importFrom stats rt
+#' @example simulate_mfgarch_diffusion(n.days = 200, mu = 0, alpha = 0.06, beta = 0.92, gamma = 0, m = 0,
+#' theta = 0.1, w1 = 1, w2 = 3, K = 12, psi = 0.98, sigma.psi = 0.1, low.freq = 10)
 #' @export
-simulate_mfgarch_diffusion <- function(n.days, mu, alpha, beta, gamma, m, theta, w1 = 1, w2, K, psi, sigma.psi, low.freq = 1, student.t = NULL) {
-  # Simulate a MG time series.
-  #
-  # Args:
-  #  garch.parameters: a vector of the GARCH component parameters, i.e. mu, omega, alpha, beta, gamma.
-  #  midas.parameters: .
-  #  n.intraday: number of intraday returns.
-  #  covariate:
-  #  innovations:
-  #
-  # Returns:
-  #  A simulated series of a MG returns, length = length(tau.innov).
-  #  A series of realized volatilities based on intraday returns, length = length(covariate).
-  #
-  # browser()
+simulate_mfgarch_diffusion <- function(n.days, mu, alpha, beta, gamma, m, theta, w1 = 1, w2, K, psi, sigma.psi, low.freq = 1) {
 
   if ((n.days %% low.freq) != 0) {
     stop("n.days is no multiple of low.freq")

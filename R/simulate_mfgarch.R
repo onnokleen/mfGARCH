@@ -1,4 +1,4 @@
-#' This function estimates a multiplicative mixed-frequency GARCH model
+#' This function simulates a GARCH-MIDAS model
 #' @param n.days number of days
 #' @param mu mu
 #' @param alpha alpha
@@ -11,30 +11,17 @@
 #' @param K K
 #' @param psi psi
 #' @param sigma.psi sigma.psi
-#' @param low.freq low.freq
+#' @param low.freq number of days per low-frequency period
 #' @param student.t student.t
 #' @keywords simulate_mfgarch
 #' @importFrom zoo rollapplyr
 #' @importFrom stats rnorm
 #' @importFrom stats rt
-#' @example simulate_mfgarch(n.days = 2000, mu = 0, alpha = 0.06, beta = 0.92, gamma = 0, m = 0,
+#' @example simulate_mfgarch(n.days = 200, mu = 0, alpha = 0.06, beta = 0.92, gamma = 0, m = 0,
 #' theta = 0.1, w1 = 1, w2 = 3, K = 12, psi = 0.98, sigma.psi = 0.1, low.freq = 100, student.t = NULL)
 #' @export
 simulate_mfgarch <- function(n.days, mu, alpha, beta, gamma, m, theta, w1 = 1, w2, K, psi, sigma.psi, low.freq = 1, student.t = NULL) {
-  # Simulate a MG time series.
-  #
-  # Args:
-  #  garch.parameters: a vector of the GARCH component parameters, i.e. mu, omega, alpha, beta, gamma.
-  #  midas.parameters: .
-  #  n.intraday: number of intraday returns.
-  #  covariate:
-  #  innovations:
-  #
-  # Returns:
-  #  A simulated series of a MG returns, length = length(tau.innov).
-  #  A series of realized volatilities based on intraday returns, length = length(covariate).
-  #
-  # browser()
+
   n.intraday <- 288
 
   n.days <- n.days + low.freq * K * 2
@@ -83,15 +70,6 @@ simulate_mfgarch <- function(n.days, mu, alpha, beta, gamma, m, theta, w1 = 1, w
   rm(half.hour.help)
 
   colnames(half.hour.vol) <- c("days", "vol")
-  #sum(half.hour.vol != half.hour.vol.2, na.rm = TRUE)
-
-  # deprecated
-  # half.hour.vol <-
-  #   df.ret %>%
-  #   group_by(half.hour, days) %>%
-  #   summarise(ret = sum(ret)) %>%
-  #   group_by(days) %>%
-  #   summarise(vol = sum(ret^2))
 
   five.vol.vol <- aggregate(df.ret[c("ret")], by = list(days = df.ret$days), FUN = function(x) sum(x^2))
   daily.ret    <- aggregate(df.ret[c("ret")], by = list(days = df.ret$days), FUN = sum)

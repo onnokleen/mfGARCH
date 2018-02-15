@@ -7,8 +7,11 @@ print.mfGARCH <- function(x, ...) {
     }
 }
 
-# predict.mfGARCH <- function(x) {
-#
+# plot.mfGARCH <- function(x, ...) {
+#   if (class(x) != "mfGARCH") {
+#     stop("Obejct is not in class mfGARCH")
+#   }
+#   plot(x$df.fitted)
 # }
 
 #' @export

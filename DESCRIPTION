@@ -2,7 +2,7 @@ Package: mfGARCH
 Title: Estimating Mixed-Frequency GARCH Models
 Version: 0.1.2
 Authors@R: person("Onno", "Kleen", email = "r@onnokleen.de", role = c("aut", "cre"))
-Description: This is an R package accompanying the paper ‘‘Two are better than one: volatility forecasting using multiplicative GARCH models’’ by Conrad, Christian and Kleen, Onno (2018). In this paper, we ...
+Description: This is an R package for estimating GARCH-MIDAS models (Engle, Ghysels, Sohn, 2013, <doi:10.1162/REST_a_00300>) and related statistical inference, accompanying the paper "Two are better than one: volatility forecasting using multiplicative component GARCH models" by Conrad, Kleen (2018, Working Paper).
 Depends:
     R (>= 3.3.0)
 License: MIT + file LICENSE

@@ -12,8 +12,11 @@ An R package for estimating multiplicative mixed-frequency GARCH models (GARCH-M
 - Built for handling irregularly spaced mixed-frequency data
 
 ## Installation
-Right now, you need the Rcpp-package to compile it on your own computer.
-Development version (GitHub):
+CRAN:
+```r
+install.packages("mfGARCH")
+```
+Development version:
 ```r
 # Install package via devtools
 # install.packages("devtools")
@@ -28,14 +31,11 @@ fit_mfgarch(data = df_financial, y = "return", x = "nfci", low.freq = "week", K 
 ## ToDo and Roadmap
 
 ToDo
-* Add examples in vignette and readme
+* Add vignette
 * Add generic plot function
-
-Roadmap
-* 2018-02 Submission to CRAN
 
 Future
 * Broom-package plug-in
 
 ## History
-- January 2017: Initial submit
+- 2018.02.19 First release on CRAN

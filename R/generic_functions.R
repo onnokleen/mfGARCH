@@ -74,7 +74,7 @@ predict.mfGARCH <- function(object, horizon = c(1:10), fcts.tau = NULL, return =
 
 }
 
-#' This function plots the weighting scheme of an esimated GARCH-MIDAS model
+#' This function plots the weighting scheme of an estimated GARCH-MIDAS model
 #' @param x mfGARCH object obtained by fit_mfgarch
 #' @importFrom graphics plot
 #' @export

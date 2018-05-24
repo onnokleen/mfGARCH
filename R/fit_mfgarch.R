@@ -168,7 +168,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
       tau <- rep(exp(par["m"]), times = length(g))
     }
 
-    df.fitted <- cbind(data, g = g, tau = tau)
+    df.fitted <- cbind(data[c("date", y)], g = g, tau = tau)
     df.fitted$residuals <- unlist((df.fitted[y] - par["mu"]) / sqrt(df.fitted$g * df.fitted$tau))
   } else { # if K > 0 we get the covariate series
     covariate <- unlist(unique(data[c(low.freq, x)])[x])
@@ -237,7 +237,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
     }
 
 
-    df.fitted <- cbind(data, g = g, tau = tau)
+    df.fitted <- cbind(data[c("date", y, low.freq, x)], g = g, tau = tau)
     df.fitted$residuals <- unlist((df.fitted[y] - par["mu"]) / sqrt(df.fitted$g * df.fitted$tau))
 
   }
@@ -408,16 +408,20 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
                          g0 = g_zero))
     }
 
-
-    df.fitted <- cbind(data, g = g, tau = tau)
+    df.fitted <- cbind(data[c("date", y, low.freq, x)], g = g, tau = tau)
 
     df.fitted$residuals <- unlist((df.fitted[y] - par["mu"]) / sqrt(df.fitted$g * df.fitted$tau))
 
   }
   df.fitted$date <- as.Date(date_backup)
   # Standard errors --------------------------------------------------------------------------------
-  hessian <- solve(-optimHess(par = par, fn = function (theta) { sum(lf(theta)) }))
-  rob.std.err <- sqrt(diag(hessian %*% crossprod(jacobian(func = lf, x = par)) %*% hessian))
+  inv_hessian <- try({
+    solve(-optimHess(par = par, fn = function (theta) { sum(lf(theta)) }))
+  }, silent = TRUE)
+  if (class(inv_hessian) == "try-error") {
+    stop("Inverting the Hessian matrix failed. Possible workaround: Multiply returns by 100.")
+  }
+  rob.std.err <- sqrt(diag(inv_hessian %*% crossprod(jacobian(func = lf, x = par)) %*% inv_hessian))
 
   # Output -----------------------------------------------------------------------------------------
   output <-

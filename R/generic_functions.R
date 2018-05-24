@@ -7,12 +7,30 @@ print.mfGARCH <- function(x, ...) {
     }
 }
 
-# plot.mfGARCH <- function(x, ...) {
-#   if (class(x) != "mfGARCH") {
-#     stop("Obejct is not in class mfGARCH")
-#   }
-#   plot(x$df.fitted)
-# }
+#' @importFrom graphics lines
+#' @export
+plot.mfGARCH <- function(x, ...) {
+  if (class(x) != "mfGARCH") {
+    stop("Obejct is not in class mfGARCH")
+  }
+
+  if (x$K == 0) {
+    plot(x = x$df.fitted["date"], y = sqrt(x$df.fitted$g),
+         type = "l",
+         xlab = colnames(x$df.fitted)[3], ylab = "vol",
+         main = "sqrt(g)", sub = "")
+  } else {
+
+    df_plot <- aggregate(x$df.fitted, by = list(x$df.fitted[, 3]), FUN = mean)
+    plot(x = df_plot[, 1], y = sqrt(df_plot$g),
+         type = "l",
+         xlab = colnames(x$df.fitted)[3], ylab = "vol",
+         main = "sqrt(tau * g) and sqrt(tau) in red", sub = "")
+    lines(x = df_plot[, 1],
+          y = sqrt(df_plot$tau),
+          col = "red")
+  }
+}
 
 #' @export
 predict.mfGARCH <- function(object, horizon = c(1:10), fcts.tau = NULL, return = NULL, cond.var = NULL, cond.tau = NULL, ...) {

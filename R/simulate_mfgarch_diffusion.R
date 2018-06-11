@@ -72,7 +72,7 @@ simulate_mfgarch_diffusion <- function(n.days, mu, alpha, beta, gamma, m, theta,
   ret <- r.intraday * sqrt(rep(tau, each = n.intraday)) + mu / n.intraday
 
   df.ret <- data.frame(days = rep(c(1:n.days), each = n.intraday),
-                       half.hour = rep(c(1:(n.days * 48)), each = 6),
+                       half.hour = rep(c(1:(n.days * n.intraday / 6)), each = 6),
                        ret = ret)
 
   half.hour.help <- aggregate(df.ret[c("ret")], by = list(half.hour = df.ret$half.hour, days = df.ret$days), FUN = sum)

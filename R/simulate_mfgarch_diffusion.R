@@ -19,13 +19,11 @@
 #' @example \dontrun{simulate_mfgarch_diffusion(n.days = 200, mu = 0, alpha = 0.06, beta = 0.92, gamma = 0, m = 0,
 #' theta = 0.1, w1 = 1, w2 = 3, K = 12, psi = 0.98, sigma.psi = 0.1, low.freq = 10)}
 #' @export
-simulate_mfgarch_diffusion <- function(n.days, mu, alpha, beta, gamma, m, theta, w1 = 1, w2, K, psi, sigma.psi, low.freq = 1) {
+simulate_mfgarch_diffusion <- function(n.days, mu, alpha, beta, gamma, m, theta, w1 = 1, w2, K, psi, sigma.psi, low.freq = 1, n.intraday = 288) {
 
   if ((n.days %% low.freq) != 0) {
     stop("n.days is no multiple of low.freq")
   }
-
-  n.intraday <- 288
 
   theta_longterm <- theta
 

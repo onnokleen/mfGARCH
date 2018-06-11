@@ -2,7 +2,7 @@
 % Please edit documentation in R/generic_functions.R
 \name{plot_weighting_scheme}
 \alias{plot_weighting_scheme}
-\title{This function plots the weighting scheme of an esimated GARCH-MIDAS model}
+\title{This function plots the weighting scheme of an estimated GARCH-MIDAS model}
 \usage{
 plot_weighting_scheme(x)
 }
@@ -10,5 +10,5 @@ plot_weighting_scheme(x)
 \item{x}{mfGARCH object obtained by fit_mfgarch}
 }
 \description{
-This function plots the weighting scheme of an esimated GARCH-MIDAS model
+This function plots the weighting scheme of an estimated GARCH-MIDAS model
 }

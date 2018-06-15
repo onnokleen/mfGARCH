@@ -12,6 +12,7 @@
 #' @param psi psi
 #' @param sigma.psi sigma.psi
 #' @param low.freq low.freq
+#' @param n.intraday n.intraday
 #' @keywords simulate_mfgarch
 #' @importFrom zoo rollapplyr
 #' @importFrom stats rnorm

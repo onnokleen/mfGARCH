@@ -168,7 +168,12 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
       tau <- rep(exp(par["m"]), times = length(g))
     }
 
-    df.fitted <- cbind(data[c("date", y)], g = g, tau = tau)
+    if ((var.ratio.freq %in% c("date", "low.freq")) == FALSE) {
+      df.fitted <- cbind(data[c("date", y, var.ratio.freq)], g = g, tau = tau)
+    } else {
+      df.fitted <- cbind(data[c("date", y)], g = g, tau = tau)
+    }
+
     df.fitted$residuals <- unlist((df.fitted[y] - par["mu"]) / sqrt(df.fitted$g * df.fitted$tau))
   } else { # if K > 0 we get the covariate series
     covariate <- unlist(unique(data[c(low.freq, x)])[x])
@@ -236,8 +241,12 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
                          as.numeric(na.exclude((returns - par["mu"])/sqrt(tau))), g0 = g_zero))
     }
 
+    if ((var.ratio.freq %in% c("date", "low.freq")) == FALSE) {
+      df.fitted <- cbind(data[c("date", y, low.freq, x, var.ratio.freq)], g = g, tau = tau)
+    } else {
+      df.fitted <- cbind(data[c("date", y, low.freq, x)], g = g, tau = tau)
+    }
 
-    df.fitted <- cbind(data[c("date", y, low.freq, x)], g = g, tau = tau)
     df.fitted$residuals <- unlist((df.fitted[y] - par["mu"]) / sqrt(df.fitted$g * df.fitted$tau))
 
   }
@@ -408,7 +417,11 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
                          g0 = g_zero))
     }
 
-    df.fitted <- cbind(data[c("date", y, low.freq, x)], g = g, tau = tau)
+    if ((var.ratio.freq %in% c("date", "low.freq")) == FALSE) {
+      df.fitted <- cbind(data[c("date", y, low.freq, x, var.ratio.freq)], g = g, tau = tau)
+    } else {
+      df.fitted <- cbind(data[c("date", y, low.freq, x)], g = g, tau = tau)
+    }
 
     df.fitted$residuals <- unlist((df.fitted[y] - par["mu"]) / sqrt(df.fitted$g * df.fitted$tau))
 

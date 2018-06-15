@@ -1,4 +1,4 @@
-#' This function estimates a multiplicative mixed-frequency GARCH model
+#' This function estimates a multiplicative mixed-frequency GARCH model. For the sake of numerical stability, it is best to multiply log returns by 100.
 #' @param data data frame containing a column named date of type 'Date'.
 #' @param y name of high frequency dependent variable in df.
 #' @param x covariate employed in mfGARCH.
@@ -22,6 +22,8 @@
 #' @examples \dontrun{fit_mfgarch(data = df_financial, y = "return", x = "nfci", low.freq = "week", K = 52)}
 
 fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.ratio.freq = NULL, gamma = TRUE, weighting = "beta.restricted") {
+
+  warning("For ensuring numerical stability of the parameter optimization and inversion of the Hessian, it is best to multiply log returns by 100.")
 
   if (weighting %in% c("beta.restricted", "beta.unrestricted") == FALSE) {
     stop("Incorrect weighting scheme specified - options are \"beta.restricted\" and \"beta.unrestricted\".")

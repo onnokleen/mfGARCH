@@ -28,14 +28,3 @@ library(mfGARCH)
 # df_financial
 fit_mfgarch(data = df_financial, y = "return", x = "nfci", low.freq = "week", K = 52)
 ```
-## ToDo and Roadmap
-
-ToDo
-* Add vignette
-* Add generic plot function
-
-Future
-* Broom-package plug-in
-
-## History
-- 2018.02.19 First release on CRAN

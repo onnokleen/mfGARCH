@@ -5,7 +5,7 @@
 \title{This function simulates a GARCH-MIDAS model where the short-term GARCH component is replaced by its diffusion limit, see Andersen (1998)}
 \usage{
 simulate_mfgarch_diffusion(n.days, mu, alpha, beta, gamma, m, theta, w1 = 1,
-  w2, K, psi, sigma.psi, low.freq = 1)
+  w2, K, psi, sigma.psi, low.freq = 1, n.intraday = 288)
 }
 \arguments{
 \item{n.days}{number of days}
@@ -33,6 +33,8 @@ simulate_mfgarch_diffusion(n.days, mu, alpha, beta, gamma, m, theta, w1 = 1,
 \item{sigma.psi}{sigma.psi}
 
 \item{low.freq}{low.freq}
+
+\item{n.intraday}{n.intraday}
 }
 \description{
 This function simulates a GARCH-MIDAS model where the short-term GARCH component is replaced by its diffusion limit, see Andersen (1998)

@@ -2,7 +2,7 @@
 % Please edit documentation in R/fit_mfgarch.R
 \name{fit_mfgarch}
 \alias{fit_mfgarch}
-\title{This function estimates a multiplicative mixed-frequency GARCH model}
+\title{This function estimates a multiplicative mixed-frequency GARCH model. For the sake of numerical stability, it is best to multiply log returns by 100.}
 \usage{
 fit_mfgarch(data, y, x = NULL, K = NULL, low.freq = "date",
   var.ratio.freq = NULL, gamma = TRUE, weighting = "beta.restricted")
@@ -25,7 +25,7 @@ fit_mfgarch(data, y, x = NULL, K = NULL, low.freq = "date",
 \item{weighting}{specifies the weighting scheme employed in the long-term component. Options are "beta.restricted" (default) or "beta.unrestricted"}
 }
 \description{
-This function estimates a multiplicative mixed-frequency GARCH model
+This function estimates a multiplicative mixed-frequency GARCH model. For the sake of numerical stability, it is best to multiply log returns by 100.
 }
 \examples{
 \dontrun{fit_mfgarch(data = df_financial, y = "return", x = "nfci", low.freq = "week", K = 52)}

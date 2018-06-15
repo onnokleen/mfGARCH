@@ -8,6 +8,5 @@
 ## R CMD check results
 There were no ERRORs or WARNINGS.
 
-Better error handling for cases where optimum is near allowed parameter space
-Added generic plot function for obejct of type mfGARCH
-Added DOI for Conrad and Kleen (2018)
+Better error messages
+Bug-fix for calculating the variance ratio

@@ -7,6 +7,3 @@
 
 ## R CMD check results
 There were no ERRORs or WARNINGS.
-
-Better error messages
-Bug-fix for calculating the variance ratio

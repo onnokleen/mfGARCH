@@ -47,7 +47,7 @@ predict.mfGARCH <- function(object, horizon = c(1:10), fcts.tau = NULL, return =
   }
 
   if (is.null(fcts.tau) == TRUE) {
-    fcts.tau <- object$tau_forecast
+    fcts.tau <- object$tau.forecast
   }
 
   if (is.null(return) == TRUE) {

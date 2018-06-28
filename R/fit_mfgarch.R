@@ -31,8 +31,10 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
 
   print("For ensuring numerical stability of the parameter optimization and inversion of the Hessian, it is best to multiply log returns by 100.")
 
-  if (is.null(weighting.two) == FALSE & weighting.two != "beta.restricted") {
-    stop("Right now, only beta.restricted weighting scheme is employed for the second covariate.")
+  if (is.null(weighting.two) == FALSE) {
+    if (weighting.two != "beta.restricted") {
+      stop("Right now, only beta.restricted weighting scheme is employed for the second covariate.")
+    }
   }
 
   if (is.null(x.two) == FALSE) {

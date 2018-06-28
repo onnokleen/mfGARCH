@@ -24,8 +24,12 @@
 #' @importFrom stats aggregate
 #' @importFrom numDeriv jacobian
 #' @importFrom utils tail
-#' @examples \dontrun{fit_mfgarch(data = df_financial, y = "return", x = "nfci", low.freq = "week", K = 52)}
-#' @examples \dontrun{fit_mfgarch(data = df_mfgarch, y = "return", x = "nfci", low.freq = "year_week", K = 52, x.two = "dindpro", K.two = 12, low.freq.two = "year_month", weighting.two = "beta.restricted")}
+#' @examples
+#' \dontrun{
+#' fit_mfgarch(data = df_financial, y = "return", x = "nfci", low.freq = "week", K = 52)
+#' fit_mfgarch(data = df_mfgarch, y = "return", x = "nfci", low.freq = "year_week", K = 52,
+#' x.two = "dindpro", K.two = 12, low.freq.two = "year_month", weighting.two = "beta.restricted")
+#' }
 
 fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.ratio.freq = NULL, gamma = TRUE, weighting = "beta.restricted", x.two = NULL, K.two = NULL, low.freq.two = NULL, weighting.two = NULL, multi.start = FALSE) {
 

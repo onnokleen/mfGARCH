@@ -6,7 +6,7 @@
 \usage{
 fit_mfgarch(data, y, x = NULL, K = NULL, low.freq = "date",
   var.ratio.freq = NULL, gamma = TRUE, weighting = "beta.restricted",
-  x.two = NULL, K.two = NUlL, low.freq.two = NULL, weighting.two = NULL,
+  x.two = NULL, K.two = NULL, low.freq.two = NULL, weighting.two = NULL,
   multi.start = FALSE)
 }
 \arguments{
@@ -40,6 +40,10 @@ fit_mfgarch(data, y, x = NULL, K = NULL, low.freq = "date",
 This function estimates a multiplicative mixed-frequency GARCH model. For the sake of numerical stability, it is best to multiply log returns by 100.
 }
 \examples{
-\dontrun{fit_mfgarch(data = df_financial, y = "return", x = "nfci", low.freq = "week", K = 52)}
+\dontrun{
+fit_mfgarch(data = df_financial, y = "return", x = "nfci", low.freq = "week", K = 52)
+fit_mfgarch(data = df_mfgarch, y = "return", x = "nfci", low.freq = "year_week", K = 52,
+x.two = "dindpro", K.two = 12, low.freq.two = "year_month", weighting.two = "beta.restricted")
+}
 }
 \keyword{fit_mfgarch}

@@ -10,7 +10,8 @@
 #' @param x.two optional second covariate
 #' @param K.two lag lgenth of optional second covariate
 #' @param low.freq.two low frequency of optional second covariate
-#' @param multi.start if TRUE, optimization is carried out with multiple sta
+#' @param weighting.two specifies the weighting scheme employed in the optional second long-term component. Currently, the only option is "beta.restricted"
+#' @param multi.start if TRUE, optimization is carried out with multiple starting values
 #' @keywords fit_mfgarch
 #' @export
 #' @importFrom numDeriv jacobian
@@ -26,11 +27,13 @@
 #' @examples \dontrun{fit_mfgarch(data = df_financial, y = "return", x = "nfci", low.freq = "week", K = 52)}
 # fit_mfgarch(data = df_mfgarch, y = "return", x = "nfci", low.freq = "year_week", K = 52, x.two = "dindpro", K.two = 12, low.freq.two = "year_month", weighting.two = "beta.restricted")
 
-fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.ratio.freq = NULL, gamma = TRUE, weighting = "beta.restricted", x.two = NULL, K.two = NUlL, low.freq.two = NULL, multi.start = FALSE) {
+fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.ratio.freq = NULL, gamma = TRUE, weighting = "beta.restricted", x.two = NULL, K.two = NUlL, low.freq.two = NULL, weighting.two = NULL, multi.start = FALSE) {
 
   print("For ensuring numerical stability of the parameter optimization and inversion of the Hessian, it is best to multiply log returns by 100.")
 
-  weighting.two <- as.null(3) # For future expandability as a null-element in the function arguments
+  if (is.null(weighting.two) == FALSE & weighting.two != "beta.restricted") {
+    stop("Right now, only beta.restricted weighting scheme is employed for the second covariate.")
+  }
 
   if (is.null(x.two) == FALSE) {
     weighting.two <- "beta.restricted"

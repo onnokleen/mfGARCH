@@ -69,6 +69,15 @@ test_that("Estimation K > 1", {
 
 })
 
+test_that("Esimtation two covariates", {
+  expect_equal(
+    fit_mfgarch(data = dplyr::filter(df_mfgarch, is.na(vix) == FALSE),
+                y = "return", x = "vix", low.freq = "date", K = 12,
+                x.two = "nai", K.two = 36, low.freq.two = "year_month")$variance.ratio,
+    71.736241116258895545
+  )
+})
+
 test_that("Error testing", {
 
   expect_error( # K should not be smaller than 0 and should be an integer

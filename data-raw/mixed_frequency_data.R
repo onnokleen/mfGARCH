@@ -33,67 +33,81 @@ rm(df_vix_1990_2003, df_vix_2004_current)
 
 # Download return data from yahoo finance -----------------------
 
-getSymbols.yahoo("^GSPC", env = .GlobalEnv, from = "1971-01-01")
-df_returns <- as_data_frame(GSPC)
-colnames(df_returns) <- c("open", "high", "low", "close", "volume", "adj_close")
-df_returns$date <- as.Date(rownames(df_returns))
-
+getSymbols("^GSPC", from = "1970-01-01")
 df_returns <-
-  df_returns %>%
-  dplyr::select(date, adj_close) %>%
-  tbl_df()
+  data_frame(date = index(GSPC),
+             open = as.numeric(GSPC$GSPC.Open[, 1]),
+             close = as.numeric(GSPC$GSPC.Close[, 1])) %>%
+  arrange(date) %>%
+  mutate(return = (log(close) - log(lag(close))) * 100,
+         open_close = 100 * (log(close) - log(open))) %>%
+  select(-open, -close)
+rm(GSPC)
 
 # Download realized measures of volatility -----------------------
 download.file("https://realized.oxford-man.ox.ac.uk/images/oxfordmanrealizedvolatilityindices.zip",
-              destfile = "data-raw/OxfordManRealizedVolatilityIndices.zip")
+              destfile = "data/OxfordManRealizedVolatilityIndices.zip")
 
 df_realized <-
-  read_csv("data-raw/OxfordManRealizedVolatilityIndices.zip") %>%
+  read_csv("data/OxfordManRealizedVolatilityIndices.zip") %>%
   filter(Symbol == ".SPX") %>%
-  dplyr::select(X1 , rv5) %>%
-  na.omit %>%
-  mutate(date = as.Date(X1)) %>%
+  mutate(date = as_date(X1)) %>%
+  filter(Symbol == ".SPX") %>%
+  dplyr::select(date , rv5) %>%
   rename(rv = rv5) %>%
   mutate(rv = rv * 10000) %>%
   select(date, rv)
 
 # Join daily data -----------------------
+
 df_daily <-
   df_returns %>%
   left_join(df_realized, by = "date") %>%
-  filter(date < "2000-01-01" | is.na(rv) == FALSE) %>%
-  arrange(date) %>%
-  mutate(return = (log(adj_close) - log(lag(adj_close))) * 100) %>%
-  mutate(rv_sq_smooth = rollapplyr(return^2, width = 22, FUN = sum, fill = NA)) %>%
+  left_join(df_vix, by = "date") %>%
   ungroup() %>%
-  mutate(year = year(date), month = month(date), day = day(date)) %>%
-  mutate(week = ceiling_date(date, unit = "weeks", week_start = 5))
+  mutate(year_month = floor_date(date, unit = "months"),
+         year_week  = floor_date(date, unit = "weeks"))
+rm(df_realized, df_returns, df_vix)
+saveRDS(df_daily,   file = "data-raw/df_daily.rds")
 
-
+df_nai <-
+  get_fred_series("CFNAI", "nai") %>%
+  mutate(year_month = floor_date(date, "months")) %>%
+  select(-date)
+df_housing <-
+  get_fred_series("HOUST", "housing") %>%
+  mutate(housing = as.numeric(housing)) %>%
+  mutate(dhousing = 100 * (log(housing) - lag(log(housing)))) %>%
+  mutate(year_month = floor_date(date, "months")) %>%
+  select(-date, -housing)
+df_indpro <-
+  get_fred_series("INDPRO", "indpro") %>%
+  mutate(indpro = as.numeric(indpro)) %>%
+  mutate(dindpro = 100 * (log(indpro) - lag(log(indpro)))) %>%
+  mutate(year_month = floor_date(date, "months")) %>%
+  select(-date, -indpro)
 df_nfci <-
-  alfred::get_fred_series("NFCI", "nfci") %>%
-  mutate(week = ceiling_date(date, unit = "weeks", week_start = 5)) %>%
+  get_fred_series("NFCI", "nfci") %>%
+  mutate(year_month = floor_date(date, "months")) %>%
+  mutate(year_week = floor_date(date, "weeks")) %>%
   select(-date)
 
-df_financial <-
-  df_daily %>%
-  left_join(df_nfci, by = c("week")) %>%
-  left_join(df_vix, by = "date") %>%
-  mutate(year_month = floor_date(date, unit = "months")) %>%
-  group_by(year_month) %>%
-  mutate(rv_month = sum(return^2)) %>%
-  ungroup() %>%
-  mutate(quarter = quarter(date)) %>%
-  mutate(year_quarter = floor_date(date, unit = "quarter")) %>%
-  group_by(year_quarter) %>%
-  mutate(rv_quarter = sum(return^2)) %>%
-  ungroup() %>%
-  filter(is.na(nfci) == FALSE) %>%
-  select(date, return, rv, week, nfci)
-
-rm(df_vix, df_nfci, df_daily, df_returns, df_realized, GSPC)
+df_macro <-
+  list(df_housing, df_indpro, df_nai) %>%
+  Reduce(function(dtf1,dtf2) full_join(dtf1,dtf2, by = "year_month"), .) %>%
+  arrange(year_month) %>%
+  filter(year_month >= "1971-01-01")
 
 
-write_csv(df_financial, "data-raw/df_financial.csv")
-devtools::use_data(df_financial, overwrite = TRUE)
+df_mfgarch <- readRDS("data-raw/df_daily.rds") %>%
+  left_join(., df_macro, by = "year_month") %>%
+  select(-year_month) %>%
+  left_join(., df_nfci, by = "year_week") %>%
+  select(-year_month) %>%
+  filter(date >= "1971-01-01") %>%
+  mutate(year_month = floor_date(date, "months")) %>%
+  filter(year_month <= "2018-04-01")
+
+write_csv(df_mfgarch, "data-raw/df_mfgarch.csv")
+devtools::use_data(df_mfgarch, overwrite = TRUE)
 

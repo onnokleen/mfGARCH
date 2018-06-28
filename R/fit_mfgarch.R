@@ -7,6 +7,10 @@
 #' @param var.ratio.freq specify a frequency column on which the variance ratio should be calculated.
 #' @param gamma if TRUE, an asymmetric GJR-GARCH is used as the short-term component. If FALSE, a simple GARCH(1,1) is employed.
 #' @param weighting specifies the weighting scheme employed in the long-term component. Options are "beta.restricted" (default) or "beta.unrestricted"
+#' @param x.two optional second covariate
+#' @param K.two lag lgenth of optional second covariate
+#' @param low.freq.two low frequency of optional second covariate
+#' @param multi.start if TRUE, optimization is carried out with multiple sta
 #' @keywords fit_mfgarch
 #' @export
 #' @importFrom numDeriv jacobian
@@ -20,10 +24,29 @@
 #' @importFrom numDeriv jacobian
 #' @importFrom utils tail
 #' @examples \dontrun{fit_mfgarch(data = df_financial, y = "return", x = "nfci", low.freq = "week", K = 52)}
+# fit_mfgarch(data = df_mfgarch, y = "return", x = "nfci", low.freq = "year_week", K = 52, x.two = "dindpro", K.two = 12, low.freq.two = "year_month", weighting.two = "beta.restricted")
 
-fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.ratio.freq = NULL, gamma = TRUE, weighting = "beta.restricted") {
+fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.ratio.freq = NULL, gamma = TRUE, weighting = "beta.restricted", x.two = NULL, K.two = NUlL, low.freq.two = NULL, multi.start = FALSE) {
 
   print("For ensuring numerical stability of the parameter optimization and inversion of the Hessian, it is best to multiply log returns by 100.")
+
+  weighting.two <- as.null(3) # For future expandability as a null-element in the function arguments
+
+  if (is.null(x.two) == FALSE) {
+    weighting.two <- "beta.restricted"
+  }
+
+  if (is.null(x.two) == FALSE && gamma == FALSE) {
+    stop("Regarding two covariates, only asymmetric GJR-GARCH component is implemented.")
+  }
+
+  if (is.null(x.two) == FALSE && K == 1) {
+    stop("Regarding two covariates, only K > 1 is implemented.")
+  }
+
+  if (is.null(x.two) == FALSE) {
+    print("Specifying two covariates may lead to long estimation times.")
+  }
 
   if (weighting %in% c("beta.restricted", "beta.unrestricted") == FALSE) {
     stop("Incorrect weighting scheme specified - options are \"beta.restricted\" and \"beta.unrestricted\".")
@@ -105,8 +128,20 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
 
   low_freq_backup <- data[, low.freq]
   if (x != "date") {
-    df_llh <- data[, c(y, x, low.freq)]
-    df_llh[, low.freq] <- as.integer(unlist(df_llh[ , low.freq]))
+    if (is.null(x.two) == TRUE) {
+      df_llh <- data[, c(y, x, low.freq)]
+      df_llh[, low.freq] <- as.integer(unlist(df_llh[ , low.freq]))
+    } else {
+      low_freq.two_backup <- data[, low.freq.two]
+      if (low.freq != low.freq.two) { # if they are different, both have to be included in df_llh
+        df_llh <- data[, c(y, x, low.freq, x.two, low.freq.two)]
+        df_llh[, low.freq] <- as.integer(unlist(df_llh[ , low.freq]))
+        df_llh[, low.freq.two] <- as.integer(unlist(df_llh[ , low.freq.two]))
+      } else { # else, the low.freq column is needed only once
+        df_llh <- data[, c(y, x, low.freq, x.two)]
+        df_llh[, low.freq] <- as.integer(unlist(df_llh[ , low.freq]))
+      }
+    }
   }
 
   g_zero <- var(unlist(data[[y]]))
@@ -179,6 +214,10 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
     df.fitted$residuals <- unlist((df.fitted[y] - par["mu"]) / sqrt(df.fitted$g * df.fitted$tau))
   } else { # if K > 0 we get the covariate series
     covariate <- unlist(unique(data[c(low.freq, x)])[x])
+
+    if (is.null(x.two) == FALSE) {
+      covariate.two <- unlist(unique(data[c(low.freq.two, x.two)])[x.two])
+    }
   }
 
   if (K == 1) {
@@ -256,57 +295,110 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
   if (K > 1) {
     if (gamma == TRUE) {
       if (weighting == "beta.restricted") {
-        lf <- function(p) {
-          llh_mf(df = df_llh,
-                 y = ret,
-                 x = covariate,
-                 low.freq = low.freq,
-                 mu = p["mu"],
-                 omega = 1 - p["alpha"] - p["beta"] - p["gamma"]/2,
-                 alpha = p["alpha"],
-                 beta = p["beta"],
-                 gamma = p["gamma"],
-                 m = p["m"],
-                 theta = p["theta"],
-                 w1 = 1,
-                 w2 = p["w2"],
-                 g_zero = g_zero,
-                 K = K)
+        if (is.null(weighting.two) == FALSE) {
+          if (weighting.two == "beta.restricted") {
+            lf <- function(p) {
+              llh_mf(df = df_llh,
+                     y = ret,
+                     x = covariate,
+                     low.freq = low.freq,
+                     mu = p["mu"],
+                     omega = 1 - p["alpha"] - p["beta"] - p["gamma"]/2,
+                     alpha = p["alpha"], beta = p["beta"], gamma = p["gamma"],
+                     m = p["m"], theta = p["theta"],
+                     w1 = 1, w2 = p["w2"], g_zero = g_zero, K = K,
+                     x.two = covariate.two,
+                     K.two = K.two, low.freq.two = low.freq.two,
+                     theta.two = p["theta.two"], w1.two = 1, w2.two = p["w2.two"])
+            }
+            par.start <- c(mu = 0, alpha = 0.02, beta = 0.85, gamma = 0.04,
+                           m = 0, theta = 0, w2 = 3, theta.two = 0, w2.two = 3)
+            ui.opt <- rbind(c(0, -1, -1, -1/2, 0, 0, 0, 0, 0),
+                            c(0,  0,  0,    0, 0, 0, 1, 0, 0),
+                            c(0,  1,  0,    0, 0, 0, 0, 0, 0),
+                            c(0,  0,  1,    0, 0, 0, 0, 0, 0),
+                            c(0,  0,  0,    0, 0, 0, 0, 0, 1))
+            ci.opt <- c(-0.99999999, 1, 0, 0, 1)
+          }
+
+        } else {
+          lf <- function(p) {
+            llh_mf(df = df_llh,
+                   y = ret,
+                   x = covariate,
+                   low.freq = low.freq,
+                   mu = p["mu"],
+                   omega = 1 - p["alpha"] - p["beta"] - p["gamma"]/2,
+                   alpha = p["alpha"],
+                   beta = p["beta"],
+                   gamma = p["gamma"],
+                   m = p["m"],
+                   theta = p["theta"],
+                   w1 = 1,
+                   w2 = p["w2"],
+                   g_zero = g_zero,
+                   K = K)
+          }
+          par.start <- c(mu = 0, alpha = 0.02, beta = 0.85, gamma = 0.04,
+                         m = 0, theta = 0, w2 = 3)
+          ui.opt <- rbind(c(0, -1, -1, -1/2, 0, 0, 0),
+                          c(0,  0,  0,    0, 0, 0, 1),
+                          c(0,  1,  0,    0, 0, 0, 0),
+                          c(0,  0,  1,    0, 0, 0, 0))
+          ci.opt <- c(-0.99999999, 1, 0, 0)
         }
-        par.start <- c(mu = 0, alpha = 0.02, beta = 0.85, gamma = 0.04,
-                       m = 0, theta = 0, w2 = 3)
-        ui.opt <- rbind(c(0, -1, -1, -1/2, 0, 0, 0),
-                        c(0,  0,  0,    0, 0, 0, 1),
-                        c(0,  1,  0,    0, 0, 0, 0),
-                        c(0,  0,  1,    0, 0, 0, 0))
-        ci.opt <- c(-0.99999999, 1, 0, 0)
+
       }
       if (weighting == "beta.unrestricted") {
-        lf <- function(p) {
-          llh_mf(df = df_llh,
-                 y = ret,
-                 x = covariate,
-                 low.freq = low.freq,
-                 mu = p["mu"],
-                 omega = 1 - p["alpha"] - p["beta"] - p["gamma"]/2,
-                 alpha = p["alpha"],
-                 beta = p["beta"],
-                 gamma = p["gamma"],
-                 m = p["m"],
-                 theta = p["theta"],
-                 w1 = p["w1"],
-                 w2 = p["w2"],
-                 g_zero = g_zero,
-                 K = K)
+        if (is.null(weighting.two) == FALSE) {
+          if (weighting.two == "beta.restricted") {
+            lf <- function(p) {
+              llh_mf(df = df_llh,
+                     y = ret,
+                     x = covariate,
+                     low.freq = low.freq,
+                     mu = p["mu"],
+                     omega = 1 - p["alpha"] - p["beta"] - p["gamma"]/2,
+                     alpha = p["alpha"], beta = p["beta"], gamma = p["gamma"],
+                     m = p["m"], theta = p["theta"],
+                     w1 = p["w1"], w2 = p["w2"], g_zero = g_zero, K = K,
+                     x.two = covariate.two,
+                     K.two = K.two, low.freq.two = low.freq.two,
+                     theta.two = p["theta.two"], w1.two = 1, w2.two = p["w2.two"])
+            }
+            par.start <- c(mu = 0, alpha = 0.02, beta = 0.85, gamma = 0.04,
+                           m = 0, theta = 0, w1 = 1.00000001, w2 = 3, theta.two = 0, w2.two = 3)
+            ui.opt <- rbind(c(0, -1, -1, -1/2, 0, 0, 0, 0, 0, 0),
+                            c(0,  0,  0,    0, 0, 0, 1, 0, 0, 0),
+                            c(0,  0,  0,    0, 0, 0, 0, 1, 0, 0),
+                            c(0,  1,  0,    0, 0, 0, 0, 0, 0, 0),
+                            c(0,  0,  1,    0, 0, 0, 0, 0, 0, 0),
+                            c(0,  0,  0,    0, 0, 0, 0, 0, 0, 1))
+            ci.opt <- c(-0.99999999, 1, 1, 0, 0, 1)
+          }
+
+        } else {
+          lf <- function(p) {
+            llh_mf(df = df_llh,
+                   y = ret,
+                   x = covariate,
+                   low.freq = low.freq,
+                   mu = p["mu"],
+                   omega = 1 - p["alpha"] - p["beta"] - p["gamma"]/2,
+                   alpha = p["alpha"], beta = p["beta"], gamma = p["gamma"],
+                   m = p["m"], theta = p["theta"], w1 = p["w1"], w2 = p["w2"],
+                   g_zero = g_zero,
+                   K = K)
+          }
+          par.start <- c(mu = 0, alpha = 0.02, beta = 0.85, gamma = 0.04,
+                         m = 0, theta = 0, w1 = 1.0000001, w2 = 3)
+          ui.opt <- rbind(c(0, -1, -1, -1/2, 0, 0, 0, 0),
+                          c(0,  0,  0,  0,   0, 0, 1, 0),
+                          c(0,  0,  0,  0,   0, 0, 0, 1),
+                          c(0,  1,  0,  0,   0, 0, 0, 0),
+                          c(0,  0,  1,  0,   0, 0, 0, 0))
+          ci.opt <- c(-0.99999999, 1, 1, 0, 0)
         }
-        par.start <- c(mu = 0, alpha = 0.02, beta = 0.85, gamma = 0.04,
-                       m = 0, theta = 0, w1 = 1.0000001, w2 = 3)
-        ui.opt <- rbind(c(0, -1, -1, -1/2, 0, 0, 0, 0),
-                        c(0,  0,  0,  0,   0, 0, 1, 0),
-                        c(0,  0,  0,  0,   0, 0, 0, 1),
-                        c(0,  1,  0,  0,   0, 0, 0, 0),
-                        c(0,  0,  1,  0,   0, 0, 0, 0))
-        ci.opt <- c(-0.99999999, 1, 1, 0, 0)
       }
 
     } else {
@@ -318,13 +410,8 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
                  x = covariate,
                  low.freq = low.freq,
                  mu = p["mu"], omega = 1 - p["alpha"] - p["beta"],
-                 alpha = p["alpha"],
-                 beta = p["beta"],
-                 gamma = 0,
-                 m = p["m"],
-                 theta = p["theta"],
-                 w1 = 1,
-                 w2 = p["w2"],
+                 alpha = p["alpha"], beta = p["beta"], gamma = 0,
+                 m = p["m"], theta = p["theta"], w1 = 1, w2 = p["w2"],
                  g_zero = g_zero,
                  K = K)
         }
@@ -367,13 +454,30 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
 
     p.e.nlminb <- constrOptim(theta = par.start, f = function(theta) { sum(lf(theta)) },
                               grad = NULL, ui = ui.opt, ci = ci.opt, hessian = FALSE)
+
+    if (multi.start == TRUE && gamma == TRUE) {
+      par.start["gamma"] <- 0
+      p.e.nlminb.two <- constrOptim(theta = par.start, f = function(theta) { sum(lf(theta)) },
+                                    grad = NULL, ui = ui.opt, ci = ci.opt, hessian = FALSE)
+      if (p.e.nlminb.two$value < p.e.nlminb$value) {
+        p.e.nlminb <- p.e.nlminb.two
+      }
+    }
     par <- p.e.nlminb$par
 
     if (weighting == "beta.restricted") {
-      tau <- calculate_tau_mf(df = data, x = covariate, low.freq = low.freq,
-                              w1 = 1, w2 = par["w2"],
-                              theta = par["theta"],
-                              m = par["m"], K = K)$tau
+      if (is.null(x.two) == FALSE) {
+        tau <- calculate_tau_mf(df = data, x = covariate, low.freq = low.freq,
+                                w1 = 1, w2 = par["w2"], theta = par["theta"], m = par["m"], K = K,
+                                x.two = covariate.two, K.two = K.two, theta.two = par["theta.two"],
+                                low.freq.two = low.freq.two,
+                                w1.two = 1, w2.two = par["w2.two"])$tau
+      } else {
+        tau <- calculate_tau_mf(df = data, x = covariate, low.freq = low.freq,
+                                w1 = 1, w2 = par["w2"],
+                                theta = par["theta"],
+                                m = par["m"], K = K)$tau
+      }
 
       tau_forecast <-
         exp(sum_tau_fcts(m = par["m"],
@@ -382,12 +486,33 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
                          phivar = calculate_phi(w1 = 1, w2 = par["w2"], K = K),
                          covariate = c(tail(unlist(unique(data[c(x, low.freq)])[x]), K), NA),
                          K = K))
+
+      if (is.null(x.two) == FALSE) {
+        tau_forecast <-
+          tau_forecast *
+          exp(sum_tau_fcts(m = 0,
+                           i = K.two + 1,
+                           theta = par["theta,two"],
+                           phivar = calculate_phi(w1 = 1, w2 = par["w2.two"], K = K.two),
+                           covariate = c(tail(unlist(unique(data[c(x.two, low.freq.two)])[x.two]), K), NA),
+                           K = K))
+      }
     }
+
     if (weighting == "beta.unrestricted") {
-      tau <- calculate_tau_mf(df = data, x = covariate, low.freq = low.freq,
-                              w1 = par["w1"], w2 = par["w2"],
-                              theta = par["theta"],
-                              m = par["m"], K = K)$tau
+      if (is.null(x.two) == FALSE) {
+        tau <- calculate_tau_mf(df = data, x = covariate, low.freq = low.freq,
+                                w1 = par["w1"], w2 = par["w2"], theta = par["theta"], m = par["m"], K = K,
+                                x.two = covariate.two, K.two = K.two, theta.two = par["theta.two"],
+                                low.freq.two = low.freq.two,
+                                w1.two = 1, w2.two = par["w2.two"])$tau
+      } else {
+        tau <- calculate_tau_mf(df = data, x = covariate, low.freq = low.freq,
+                                w1 = par["w1"], w2 = par["w2"],
+                                theta = par["theta"],
+                                m = par["m"], K = K)$tau
+      }
+
 
       tau_forecast <-
         exp(sum_tau_fcts(m = par["m"],
@@ -396,6 +521,17 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
                          phivar = calculate_phi(w1 = par["w1"], w2 = par["w2"], K = K),
                          covariate = c(tail(unlist(unique(data[c(x, low.freq)])[x]), K), NA),
                          K = K))
+      if (is.null(x.two) == FALSE) {
+        tau_forecast <-
+          tau_forecast *
+          exp(sum_tau_fcts(m = 0,
+                           i = K.two + 1,
+                           theta = par["theta,two"],
+                           phivar = calculate_phi(w1 = 1, w2 = par["w2.two"], K = K.two),
+                           covariate = c(tail(unlist(unique(data[c(x.two, low.freq.two)])[x.two]), K), NA),
+                           K = K))
+      }
+
     }
 
 
@@ -420,9 +556,19 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
     }
 
     if ((var.ratio.freq %in% c("date", "low.freq")) == FALSE) {
-      df.fitted <- cbind(data[c("date", y, low.freq, x, var.ratio.freq)], g = g, tau = tau)
+      if (is.null(x.two) == TRUE) {
+        df.fitted <- cbind(data[c("date", y, low.freq, x, var.ratio.freq)], g = g, tau = tau)
+      } else {
+        df.fitted <- cbind(data[c("date", y, low.freq, x, low.freq.two, x.two, var.ratio.freq)], g = g, tau = tau)
+      }
+
     } else {
-      df.fitted <- cbind(data[c("date", y, low.freq, x)], g = g, tau = tau)
+      if (is.null(x.two) == TRUE) {
+        df.fitted <- cbind(data[c("date", y, low.freq, x)], g = g, tau = tau)
+      } else {
+        df.fitted <- cbind(data[c("date", y, low.freq, x, low.freq.two, x.two)], g = g, tau = tau)
+      }
+
     }
 
     df.fitted$residuals <- unlist((df.fitted[y] - par["mu"]) / sqrt(df.fitted$g * df.fitted$tau))
@@ -431,8 +577,14 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
   df.fitted$date <- as.Date(date_backup)
   # Standard errors --------------------------------------------------------------------------------
   inv_hessian <- try({
-    solve(-optimHess(par = par, fn = function (theta) { sum(lf(theta)) }))
-  }, silent = TRUE)
+    solve(-optimHess(par = par, fn = function (theta) {
+        if( is.na(sum(lf(theta))) == TRUE) {
+          10000000
+        } else {
+          sum(lf(theta))
+        }
+      }))
+    }, silent = TRUE)
   if (class(inv_hessian) == "try-error") {
     stop("Inverting the Hessian matrix failed. Possible workaround: Multiply returns by 100.")
   }
@@ -455,6 +607,15 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
          bic = log(sum(!is.na(tau))) * length(par) - 2 * (-p.e.nlminb$value),
          optim = p.e.nlminb)
 
+  if (is.null(x.two) == FALSE) {
+    output$K.two <- K.two
+    output$weighting.scheme.two <- weighting.two
+  }
+  if (K == 0) {
+    output$tau.forecast <- exp(par["m"])
+  }
+
+
   # Additional output if there is a long-term component (K > 0) -------------------------------------
   if (K > 0) {
     output$variance.ratio <- 100 *
@@ -464,13 +625,16 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
                      var(log(aggregate(df.fitted$tau * df.fitted$g, by = df.fitted[var.ratio.freq],
                                        FUN = mean)[,2]),
                          na.rm = TRUE)
-    output$tau.forecast = tau_forecast
+    output$tau.forecast <- tau_forecast
 
     if (weighting == "beta.restricted") {
       output$est.weighting <- calculate_phi(1, w2 = par["w2"], K = K)
     }
     if (weighting == "beta.unrestricted") {
       output$est.weighting <- calculate_phi(w1 = par["w1"], w2 = par["w2"], K = K)
+    }
+    if (is.null(x.two) == FALSE) {
+      output$est.weighting.two <- calculate_phi(w1 = 1, w2 = par["w2.two"], K = K.two)
     }
 
   }

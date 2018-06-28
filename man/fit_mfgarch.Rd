@@ -5,7 +5,8 @@
 \title{This function estimates a multiplicative mixed-frequency GARCH model. For the sake of numerical stability, it is best to multiply log returns by 100.}
 \usage{
 fit_mfgarch(data, y, x = NULL, K = NULL, low.freq = "date",
-  var.ratio.freq = NULL, gamma = TRUE, weighting = "beta.restricted")
+  var.ratio.freq = NULL, gamma = TRUE, weighting = "beta.restricted",
+  x.two = NULL, K.two = NUlL, low.freq.two = NULL, multi.start = FALSE)
 }
 \arguments{
 \item{data}{data frame containing a column named date of type 'Date'.}
@@ -23,6 +24,14 @@ fit_mfgarch(data, y, x = NULL, K = NULL, low.freq = "date",
 \item{gamma}{if TRUE, an asymmetric GJR-GARCH is used as the short-term component. If FALSE, a simple GARCH(1,1) is employed.}
 
 \item{weighting}{specifies the weighting scheme employed in the long-term component. Options are "beta.restricted" (default) or "beta.unrestricted"}
+
+\item{x.two}{optional second covariate}
+
+\item{K.two}{lag lgenth of optional second covariate}
+
+\item{low.freq.two}{low frequency of optional second covariate}
+
+\item{multi.start}{if TRUE, optimization is carried out with multiple sta}
 }
 \description{
 This function estimates a multiplicative mixed-frequency GARCH model. For the sake of numerical stability, it is best to multiply log returns by 100.

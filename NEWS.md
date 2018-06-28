@@ -1,3 +1,6 @@
+v0.1.5
+- Support for two covariates
+
 v0.1.4
 - Predict function bugfix
 - Better error messages

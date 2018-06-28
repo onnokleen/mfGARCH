@@ -32,7 +32,9 @@ fit_mfgarch(data, y, x = NULL, K = NULL, low.freq = "date",
 
 \item{low.freq.two}{low frequency of optional second covariate}
 
-\item{multi.start}{if TRUE, optimization is carried out with multiple sta}
+\item{weighting.two}{specifies the weighting scheme employed in the optional second long-term component. Currently, the only option is "beta.restricted"}
+
+\item{multi.start}{if TRUE, optimization is carried out with multiple starting values}
 }
 \description{
 This function estimates a multiplicative mixed-frequency GARCH model. For the sake of numerical stability, it is best to multiply log returns by 100.

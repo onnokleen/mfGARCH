@@ -46,14 +46,15 @@ rm(GSPC)
 
 # Download realized measures of volatility -----------------------
 download.file("https://realized.oxford-man.ox.ac.uk/images/oxfordmanrealizedvolatilityindices.zip",
-              destfile = "data/OxfordManRealizedVolatilityIndices.zip")
+              destfile = "data-raw/OxfordManRealizedVolatilityIndices.zip")
+system("unzip -o data-raw/OxfordManRealizedVolatilityIndices.zip -d data-raw/")
 
 df_realized <-
-  read_csv("data/OxfordManRealizedVolatilityIndices.zip") %>%
+  read.csv("data-raw/oxfordmanrealizedvolatilityindices.csv") %>%
   filter(Symbol == ".SPX") %>%
-  mutate(date = as_date(X1)) %>%
-  filter(Symbol == ".SPX") %>%
+  mutate(date = as.Date(substring(X, 1, 10))) %>%
   dplyr::select(date , rv5) %>%
+  mutate(rv5 = as.numeric(rv5)) %>%
   rename(rv = rv5) %>%
   mutate(rv = rv * 10000) %>%
   select(date, rv)
@@ -97,7 +98,6 @@ df_macro <-
   Reduce(function(dtf1,dtf2) full_join(dtf1,dtf2, by = "year_month"), .) %>%
   arrange(year_month) %>%
   filter(year_month >= "1971-01-01")
-
 
 df_mfgarch <- readRDS("data-raw/df_daily.rds") %>%
   left_join(., df_macro, by = "year_month") %>%

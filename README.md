@@ -27,8 +27,11 @@ Development version:
 # install.packages("devtools")
 library(devtools)
 install_github("onnokleen/mfGARCH")
+```
 
-# Example
+
+## Example
+```r
 library(mfGARCH)
 # df_financial
 fit_mfgarch(data = df_financial, y = "return", x = "nfci", low.freq = "week", K = 52)

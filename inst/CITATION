@@ -1,0 +1,23 @@
+citHeader("To cite the 'mfGARCH' package in publications use:")
+
+year = sub('.*(2[[:digit:]]{3})-.*', '\\1', meta$Date, perl = TRUE)
+vers = paste('R package version', meta$Version)
+
+citEntry(
+  entry = 'manual',
+  title = paste('mfGARCH:', meta$Title),
+  author = Filter(function(p) 'aut' %in% p$role, as.person(meta$Author)),
+  year = year,
+  note = vers,
+  url = meta$URL,
+  textVersion = paste('Kleen, Onno (', year, '). mfGARCH: ', meta$Title, '. ', vers, '.', sep = '')
+)
+
+citEntry(
+  entry = 'unpublished',
+  title = 'Two Are Better Than One: Volatility Forecasting Using Multiplicative Component GARCH Models',
+  author = personList(person("Christian", "Conrad"), person("Onno", "Kleen")),
+  year = '2018',
+  note = 'Available at SSRN: https://doi.org/10.2139/ssrn.2752354',
+  textVersion = paste0('Conrad, Christian and Kleen, Onno (2018). Two Are Better Than One: Volatility Forecasting Using Multiplicative Component GARCH Models. Available at SSRN: https://doi.org/10.2139/ssrn.2752354','.')
+)

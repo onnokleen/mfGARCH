@@ -22,6 +22,7 @@
 #' @importFrom stats pnorm
 #' @importFrom stats var
 #' @importFrom stats aggregate
+#' @importFrom stats optim
 #' @importFrom numDeriv jacobian
 #' @importFrom utils tail
 #' @examples

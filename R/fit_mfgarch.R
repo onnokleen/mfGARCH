@@ -464,10 +464,13 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
     p.e.nlminb <- constrOptim(theta = par.start, f = function(theta) { sum(lf(theta)) },
                               grad = NULL, ui = ui.opt, ci = ci.opt, hessian = FALSE)
 
+    # p.e.nlminb <- optim(par = par.start, fn = function(theta) { sum(lf(theta)) }, method = "BFGS")
+
+    #optimx(par = theta, fn = function(theta) { sum(lf(theta)) }, method = "BFGS")
+
     if (multi.start == TRUE && gamma == TRUE) {
-      par.start["gamma"] <- 0
-      p.e.nlminb.two <- constrOptim(theta = par.start, f = function(theta) { sum(lf(theta)) },
-                                    grad = NULL, ui = ui.opt, ci = ci.opt, hessian = FALSE)
+      # par.start["gamma"] <- 0
+      p.e.nlminb.two <-  optim(par = par.start, fn = function(theta) { sum(lf(theta)) }, method = "BFGS")
       if (p.e.nlminb.two$value < p.e.nlminb$value) {
         p.e.nlminb <- p.e.nlminb.two
       }

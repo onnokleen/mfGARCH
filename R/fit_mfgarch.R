@@ -19,6 +19,7 @@
 #' @importFrom numDeriv hessian
 #' @importFrom stats constrOptim
 #' @importFrom stats na.exclude
+#' @importFrom stats optim
 #' @importFrom stats pnorm
 #' @importFrom stats var
 #' @importFrom stats aggregate

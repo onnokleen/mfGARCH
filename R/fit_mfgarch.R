@@ -465,12 +465,21 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
                               grad = NULL, ui = ui.opt, ci = ci.opt, hessian = FALSE)
 
     if (multi.start == TRUE && gamma == TRUE) {
-      # par.start["gamma"] <- 0
+      p.e.nlminb.two <- try({
+        optim(par = p.e.nlminb$par, fn = function (theta) {
+          if( is.na(sum(lf(theta))) == TRUE) {
+            NA
+          } else {
+            sum(lf(theta))
+          }
+        }, method = "BFGS")}, silent = TRUE)
 
-      p.e.nlminb.two <- constrOptim(theta = par.start, f = function(theta) { sum(lf(theta)) },
-                                    grad = NULL, ui = ui.opt, ci = ci.opt, hessian = FALSE)
-      if (p.e.nlminb.two$value < p.e.nlminb$value) {
-        p.e.nlminb <- p.e.nlminb.two
+      if (class(p.e.nlminb.two) == "try-error") {
+        print("Second-step BFGS optimization failed. Fallback: First-stage Nelder-Mead estimate.")
+      } else {
+        if (p.e.nlminb.two$value < p.e.nlminb$value) {
+          p.e.nlminb <- p.e.nlminb.two
+        }
       }
     }
     par <- p.e.nlminb$par

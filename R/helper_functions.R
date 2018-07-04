@@ -75,7 +75,7 @@ llh_mf <-
     g <- calculate_g(omega = omega, alpha = alpha, beta = beta, gamma = gamma,
                      returns = ((ret - mu)/sqrt(tau)), g0 = g_zero)
 
-    if (alpha < 0 | beta < 0 | alpha + beta + gamma / 2 > 1 | sum(is.finite(g) == FALSE) > 0 | suppressWarnings(sum(is.nan(log(g * tau)) == TRUE) > 0)) {
+    if (sum(g <= 0) > 0) {
       #rep(NA, times = length(y))
       #stop("g_t seems to be negative for at least one point in time?")
       rep(NA, times = length(g))

@@ -190,6 +190,26 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
     p.e.nlminb <- constrOptim(theta = par.start,
                               f = function(theta) { sum(lf(theta)) },
                               grad = NULL, ui = ui.opt, ci = ci.opt, hessian = FALSE)
+
+    if (multi.start == TRUE && gamma == TRUE) {
+      p.e.nlminb.two <- try({
+        suppressWarnings(optim(par = p.e.nlminb$par, fn = function (theta) {
+          if( is.na(sum(lf(theta))) == TRUE) {
+            NA
+          } else {
+            sum(lf(theta))
+          }
+        }, method = "BFGS"))}, silent = TRUE)
+
+      if (class(p.e.nlminb.two) == "try-error") {
+        print("Second-step BFGS optimization failed. Fallback: First-stage Nelder-Mead estimate.")
+      } else {
+        if (p.e.nlminb.two$value < p.e.nlminb$value) {
+          p.e.nlminb <- p.e.nlminb.two
+        }
+      }
+    }
+
     par <- p.e.nlminb$par
     returns <- as.numeric(unlist(data[[y]]))
     tau <- rep(exp(par["m"]), times = length(returns))
@@ -606,13 +626,13 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
   #     }))
   #   }, silent = TRUE)
   inv_hessian <- try({
-    solve(-hessian(x = par, func = function (theta) {
+    solve(-suppressWarnings(hessian(x = par, func = function (theta) {
         if( is.na(sum(lf(theta))) == TRUE) {
           10000000
         } else {
           sum(lf(theta))
         }
-      }))
+      })))
     }, silent = TRUE)
   if (class(inv_hessian) == "try-error") {
     stop("Inverting the Hessian matrix failed. Possible workaround: Multiply returns by 100.")

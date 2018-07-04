@@ -16,7 +16,7 @@
 #' @export
 #' @importFrom numDeriv jacobian
 #' @importFrom stats nlminb
-#' @importFrom stats optimHess
+#' @importFrom numDeriv hessian
 #' @importFrom stats constrOptim
 #' @importFrom stats na.exclude
 #' @importFrom stats pnorm
@@ -465,7 +465,8 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
                               grad = NULL, ui = ui.opt, ci = ci.opt, hessian = FALSE)
 
     if (multi.start == TRUE && gamma == TRUE) {
-      par.start["gamma"] <- 0
+      # par.start["gamma"] <- 0
+
       p.e.nlminb.two <- constrOptim(theta = par.start, f = function(theta) { sum(lf(theta)) },
                                     grad = NULL, ui = ui.opt, ci = ci.opt, hessian = FALSE)
       if (p.e.nlminb.two$value < p.e.nlminb$value) {
@@ -585,8 +586,17 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
   }
   df.fitted$date <- as.Date(date_backup)
   # Standard errors --------------------------------------------------------------------------------
+  # inv_hessian <- try({
+  #   solve(-optimHess(par = par, fn = function (theta) {
+  #       if( is.na(sum(lf(theta))) == TRUE) {
+  #         10000000
+  #       } else {
+  #         sum(lf(theta))
+  #       }
+  #     }))
+  #   }, silent = TRUE)
   inv_hessian <- try({
-    solve(-optimHess(par = par, fn = function (theta) {
+    solve(-hessian(x = par, func = function (theta) {
         if( is.na(sum(lf(theta))) == TRUE) {
           10000000
         } else {

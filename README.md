@@ -9,7 +9,7 @@ An R package for estimating GARCH-MIDAS (MIxed-DAta-Sampling) models (Engle, Ghy
 
 ## Highlights
 - A comprehensive toolbox for estimating and forecasting using GARCH-MIDAS models
-- Easy to use, both with one or two exlanatory covariates
+- Easy to use, both with one or two explanatory covariates
 - Built for handling irregularly spaced mixed-frequency data
 
 Please cite as

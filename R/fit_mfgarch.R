@@ -488,7 +488,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
     if (multi.start == TRUE && gamma == TRUE) {
       p.e.nlminb.two <- try({
         optim(par = p.e.nlminb$par, fn = function (theta) {
-          if( is.na(sum(lf(theta))) == TRUE) {
+          if( is.na(sum(lf(theta))) == TRUE | theta["alpha"] < 0) {
             NA
           } else {
             sum(lf(theta))

@@ -597,27 +597,14 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
   inv_hessian <- try({
     solve(-optimHess(par = par, fn = function (theta) {
         if( is.na(sum(lf(theta))) == TRUE) {
-          NA
+          10000000
         } else {
           sum(lf(theta))
         }
       }))
     }, silent = TRUE)
   if (class(inv_hessian) == "try-error") {
-    inv_hessian <- try({
-      solve(-optimHess(par = par, fn = function (theta) {
-        if( is.na(sum(lf(theta))) == TRUE) {
-          1000000
-        } else {
-          sum(lf(theta))
-        }
-      }))
-    }, silent = TRUE)
-    if (class(inv_hessian) == "try-error") {
-      print("Inverting the Hessian matrix failed. Possible workaround: Multiply returns by 100.")
-    } else {
-      stop("Inverting the Hessian matrix is numerically unstable. Results should be viewed at with a grain of salt!")
-    }
+    stop("Inverting the Hessian matrix failed. Possible workaround: Multiply returns by 100.")
   }
   rob.std.err <- sqrt(diag(inv_hessian %*% crossprod(jacobian(func = lf, x = par)) %*% inv_hessian))
 

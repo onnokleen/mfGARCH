@@ -1,6 +1,3 @@
-v0.1.6
-- More robust estimation due to second step BFGS minimization
-
 v0.1.5
 - Support for two covariates
 

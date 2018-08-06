@@ -5,7 +5,7 @@
 \title{This function simulates a GARCH-MIDAS model. Innovations can follow a standard normal or student-t distribution.}
 \usage{
 simulate_mfgarch(n.days, mu, alpha, beta, gamma, m, theta, w1 = 1, w2, K, psi,
-  sigma.psi, low.freq = 1, student.t = NULL)
+  sigma.psi, low.freq = 1, n.intraday = 288, student.t = NULL)
 }
 \arguments{
 \item{n.days}{number of days}

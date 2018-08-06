@@ -34,6 +34,8 @@ simulate_mfgarch(n.days, mu, alpha, beta, gamma, m, theta, w1 = 1, w2, K, psi,
 
 \item{low.freq}{number of days per low-frequency period}
 
+\item{n.intraday}{number of maximum intraday returns}
+
 \item{student.t}{either NULL or degrees of freedom}
 }
 \description{

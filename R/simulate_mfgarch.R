@@ -12,6 +12,7 @@
 #' @param psi psi
 #' @param sigma.psi sigma.psi
 #' @param low.freq number of days per low-frequency period
+#' @param n.intraday number of maximum intraday returns
 #' @param student.t either NULL or degrees of freedom
 #' @keywords simulate_mfgarch
 #' @importFrom zoo rollapplyr

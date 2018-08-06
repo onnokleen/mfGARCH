@@ -802,8 +802,10 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
     if (weighting == "beta.unrestricted") {
       output$est.weighting <- calculate_phi(w1 = par["w1"], w2 = par["w2"], K = K)
     }
-    if (is.null(x.two) == FALSE & K.two > 1) {
-      output$est.weighting.two <- calculate_phi(w1 = 1, w2 = par["w2.two"], K = K.two)
+    if (is.null(x.two) == FALSE) {
+      if (K.two > 1) {
+        output$est.weighting.two <- calculate_phi(w1 = 1, w2 = par["w2.two"], K = K.two)
+      }
     }
 
   }

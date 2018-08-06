@@ -29,7 +29,6 @@ library(devtools)
 install_github("onnokleen/mfGARCH")
 ```
 
-
 ## Example
 ```r
 library(mfGARCH)

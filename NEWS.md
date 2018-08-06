@@ -1,3 +1,9 @@
+v0.1.7
+- Improved documentation for simulation functions
+- Bugfix for simulating when using student-t
+- Added K = K.two = 1, i.e. two covariates each with one lag
+- Added K > 0 and K.two = 1 for unrestricted beta-weighting scheme
+
 v0.1.6
 - Hessian matrix more accurate
 

@@ -1,4 +1,4 @@
-#' This function simulates a GARCH-MIDAS model
+#' This function simulates a GARCH-MIDAS model. Innovations can follow a standard normal or student-t distribution.
 #' @param n.days number of days
 #' @param mu mu
 #' @param alpha alpha
@@ -12,18 +12,22 @@
 #' @param psi psi
 #' @param sigma.psi sigma.psi
 #' @param low.freq number of days per low-frequency period
-#' @param student.t student.t
+#' @param student.t either NULL or degrees of freedom
 #' @keywords simulate_mfgarch
 #' @importFrom zoo rollapplyr
 #' @importFrom stats rnorm
 #' @importFrom stats rt
 #' @examples
 #' simulate_mfgarch(n.days = 200, mu = 0, alpha = 0.06, beta = 0.92, gamma = 0, m = 0,
-#' theta = 0.1, w1 = 1, w2 = 3, K = 12, psi = 0.98, sigma.psi = 0.1, low.freq = 100, student.t = NULL)
+#' theta = 0.1, w1 = 1, w2 = 3, K = 12, psi = 0.98, sigma.psi = 0.1, low.freq = 100)
 #' @export
-simulate_mfgarch <- function(n.days, mu, alpha, beta, gamma, m, theta, w1 = 1, w2, K, psi, sigma.psi, low.freq = 1, student.t = NULL) {
+simulate_mfgarch <- function(n.days, mu, alpha, beta, gamma, m, theta, w1 = 1, w2, K, psi, sigma.psi, low.freq = 1, n.intraday = 288, student.t = NULL) {
 
-  n.intraday <- 288
+  # n.intraday <- 288
+
+  if (n.intraday %% 48 != 0) {
+    stop("n.intraday has to be multiple of 48 (for calculating half-hour returns).")
+  }
 
   n.days <- n.days + low.freq * K * 2
 
@@ -56,17 +60,17 @@ simulate_mfgarch <- function(n.days, mu, alpha, beta, gamma, m, theta, w1 = 1, w
                       alpha = alpha,
                       beta = beta,
                       gamma = gamma,
-                      Z = rt(n = n.days * n.intraday, df = student.t),
+                      Z = rt(n = n.days * n.intraday, df = student.t) / sqrt(student.t / (student.t - 2)),
                       h0 = 0.1)
   }
 
   ret <- sim$ret_intraday * sqrt(rep(tau, each = n.intraday)) + mu /n.intraday
 
   df.ret <- data.frame(days = rep(c(1:n.days), each = n.intraday),
-                       half.hour = rep(c(1:(n.days * 48)), each = 6),
+                       half.hour = rep(c(1:(n.days * 48)), each = n.intraday / 48),
                        ret = ret)
 
-  half.hour.help <- aggregate(df.ret[c("ret")], by = list(half.hour = df.ret$half.hour, days = df.ret$days), FUN = sum)
+  half.hour.help <- aggregate(df.ret[c("ret")], by = list(half.hour = df.ret$half.hour, days = df.ret$days), FUN = sum, na.rm = TRUE)
   half.hour.vol <- aggregate(half.hour.help[c("ret")], by = list(days = half.hour.help$days), FUN = function(x) sum({x^2}))
   rm(half.hour.help)
 

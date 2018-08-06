@@ -3,7 +3,6 @@
 #' @param mu mu
 #' @param alpha alpha
 #' @param beta beta
-#' @param gamma gamma
 #' @param m m
 #' @param theta theta
 #' @param w1 w1
@@ -18,10 +17,10 @@
 #' @importFrom stats rnorm
 #' @importFrom stats setNames
 #' @examples
-#' \dontrun{simulate_mfgarch_diffusion(n.days = 200, mu = 0, alpha = 0.06, beta = 0.92, gamma = 0, m = 0,
+#' \dontrun{simulate_mfgarch_diffusion(n.days = 200, mu = 0, alpha = 0.06, beta = 0.92, m = 0,
 #' theta = 0.1, w1 = 1, w2 = 3, K = 12, psi = 0.98, sigma.psi = 0.1, low.freq = 10)}
 #' @export
-simulate_mfgarch_diffusion <- function(n.days, mu, alpha, beta, gamma, m, theta, w1 = 1, w2, K, psi, sigma.psi, low.freq = 1, n.intraday = 288) {
+simulate_mfgarch_diffusion <- function(n.days, mu, alpha, beta, m, theta, w1 = 1, w2, K, psi, sigma.psi, low.freq = 1, n.intraday = 288) {
 
   if ((n.days %% low.freq) != 0) {
     stop("n.days is no multiple of low.freq")
@@ -40,15 +39,15 @@ simulate_mfgarch_diffusion <- function(n.days, mu, alpha, beta, gamma, m, theta,
   Z.p <- rnorm(n.days * delta)
   Z.sigma <- rnorm(n.days * delta)
 
-  theta <- -log(alpha + gamma/2 + beta)
+  theta <- -log(alpha + beta)
   omega <- 1
   lambda <-
-    2 * log(alpha + gamma/2 + beta)^2 /
+    2 * log(alpha + beta)^2 /
     (
-      (((1 - (alpha + gamma / 2 + beta)^2) * (1 - beta)^2) / (alpha * (1 - beta * (alpha + beta + gamma / 2)))) +
-        6 * log(alpha + gamma / 2 + beta) +
-        2 * log(alpha + gamma / 2 + beta)^2 +
-        4 * (1- alpha - beta - gamma / 2)
+      (((1 - (alpha + beta)^2) * (1 - beta)^2) / (alpha * (1 - beta * (alpha + beta)))) +
+        6 * log(alpha + beta) +
+        2 * log(alpha + beta)^2 +
+        4 * (1- alpha - beta)
     )
 
   h <- calculate_h_andersen(ndays = n.days, delta = delta, mu = 0,
@@ -82,15 +81,6 @@ simulate_mfgarch_diffusion <- function(n.days, mu, alpha, beta, gamma, m, theta,
   rm(half.hour.help)
 
   colnames(half.hour.vol) <- c("days", "vol")
-  #sum(half.hour.vol != half.hour.vol.2, na.rm = TRUE)
-
-  # deprecated
-  # half.hour.vol <-
-  #   df.ret %>%
-  #   group_by(half.hour, days) %>%
-  #   summarise(ret = sum(ret)) %>%
-  #   group_by(days) %>%
-  #   summarise(vol = sum(ret^2))
 
   five.vol.vol <- aggregate(df.ret[c("ret")], by = list(days = df.ret$days), FUN = function(x) sum(x^2))
   daily.ret    <- aggregate(df.ret[c("ret")], by = list(days = df.ret$days), FUN = sum)

@@ -1,3 +1,6 @@
+v0.1.8
+- Corrected error messages
+
 v0.1.7
 - Improved documentation for simulation functions
 - Bugfix for simulating when using student-t

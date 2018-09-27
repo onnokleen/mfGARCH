@@ -16,6 +16,11 @@ Please cite as
 
 > Conrad, Christian and Kleen, Onno (2018). Two Are Better Than One: Volatility Forecasting Using Multiplicative Component GARCH Models. Available at SSRN: https://doi.org/10.2139/ssrn.2752354.
 
+and
+
+> Kleen, Onno (2018). mfGARCH: Mixed-Frequency GARCH Models. R package
+  version 0.1.7.
+
 ## Installation
 CRAN:
 ```r

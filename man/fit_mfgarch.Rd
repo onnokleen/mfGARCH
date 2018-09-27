@@ -6,8 +6,8 @@
 \usage{
 fit_mfgarch(data, y, x = NULL, K = NULL, low.freq = "date",
   var.ratio.freq = NULL, gamma = TRUE, weighting = "beta.restricted",
-  x.two = NULL, K.two = NULL, low.freq.two = NULL, weighting.two = NULL,
-  multi.start = FALSE)
+  x.two = NULL, K.two = NULL, low.freq.two = NULL,
+  weighting.two = NULL, multi.start = FALSE)
 }
 \arguments{
 \item{data}{data frame containing a column named date of type 'Date'.}

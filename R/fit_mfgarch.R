@@ -591,7 +591,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
         }, method = "BFGS"))}, silent = TRUE)
 
       if (class(p.e.nlminb.two) == "try-error") {
-        print("Second-step BFGS optimization failed. Fallback: Second-stage Nelder-Mead estimate with gamma = 0.")
+        print("First-stage BFGS optimization failed. Fallback: Second-stage Nelder-Mead estimate with gamma = 0.")
         par.start["gamma"] <- 0
         p.e.nlminb.two <- constrOptim(theta = par.start, f = function(theta) { sum(lf(theta)) },
                                       grad = NULL, ui = ui.opt, ci = ci.opt, hessian = FALSE)
@@ -715,7 +715,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
                          g0 = g_zero))
     }
 
-    if ((var.ratio.freq %in% c("date", "low.freq")) == FALSE) {
+    if ((var.ratio.freq %in% c("date", low.freq)) == FALSE) {
       if (is.null(x.two) == TRUE) {
         df.fitted <- cbind(data[c("date", y, low.freq, x, var.ratio.freq)], g = g, tau = tau)
       } else {

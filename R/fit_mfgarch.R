@@ -583,7 +583,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
     if (multi.start == TRUE && gamma == TRUE) {
       p.e.nlminb.two <- try({
         suppressWarnings(optim(par = p.e.nlminb$par, fn = function (theta) {
-          if( is.na(sum(lf(theta))) == TRUE | theta["alpha"] < 0) {
+          if( is.na(sum(lf(theta))) == TRUE | theta["alpha"] < 0 | theta["alpha"] + theta["beta"] + theta["gamma"]/2 >= 1) {
             NA
           } else {
             sum(lf(theta))
@@ -591,7 +591,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
         }, method = "BFGS"))}, silent = TRUE)
 
       if (class(p.e.nlminb.two) == "try-error") {
-        print("First-stage BFGS optimization failed. Fallback: Second-stage Nelder-Mead estimate with gamma = 0.")
+        # try an alternative second-stage optimization
         par.start["gamma"] <- 0
         p.e.nlminb.two <- constrOptim(theta = par.start, f = function(theta) { sum(lf(theta)) },
                                       grad = NULL, ui = ui.opt, ci = ci.opt, hessian = FALSE)
@@ -755,9 +755,11 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
       })))
     }, silent = TRUE)
   if (class(inv_hessian) == "try-error") {
-    stop("Inverting the Hessian matrix failed. Possible workaround: Multiply returns by 100.")
+    stop("Inverting the Hessian matrix failed. No standard errors calculated. Possible workaround: Multiply returns by 100.")
+    rob.std.err <- NA
+  } else {
+    rob.std.err <- sqrt(diag(inv_hessian %*% crossprod(jacobian(func = lf, x = par)) %*% inv_hessian))
   }
-  rob.std.err <- sqrt(diag(inv_hessian %*% crossprod(jacobian(func = lf, x = par)) %*% inv_hessian))
 
   # Output -----------------------------------------------------------------------------------------
   output <-

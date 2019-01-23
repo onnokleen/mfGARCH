@@ -32,7 +32,7 @@
 #' x.two = "dindpro", K.two = 12, low.freq.two = "year_month", weighting.two = "beta.restricted")
 #' }
 
-fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.ratio.freq = NULL, gamma = TRUE, weighting = "beta.restricted", x.two = NULL, K.two = NULL, low.freq.two = NULL, weighting.two = NULL, multi.start = FALSE) {
+fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.ratio.freq = NULL, gamma = TRUE, weighting = "beta.restricted", x.two = NULL, K.two = NULL, low.freq.two = NULL, weighting.two = NULL, multi.start = FALSE, control = list(par.start = NULL)) {
 
   print("For ensuring numerical stability of the parameter optimization and inversion of the Hessian, it is best to multiply log returns by 100.")
 
@@ -577,6 +577,10 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
 
     }
 
+    if(is.null(control$par.start) == FALSE) {
+      par.start <- control$par.start
+    }
+
     p.e.nlminb <- constrOptim(theta = par.start, f = function(theta) { sum(lf(theta)) },
                               grad = NULL, ui = ui.opt, ci = ci.opt, hessian = FALSE)
 
@@ -776,6 +780,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
          weighting.scheme = weighting,
          llh = -p.e.nlminb$value,
          bic = log(sum(!is.na(tau))) * length(par) - 2 * (-p.e.nlminb$value),
+         y = y,
          optim = p.e.nlminb)
 
   if (is.null(x.two) == FALSE) {

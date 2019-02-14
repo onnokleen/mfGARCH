@@ -594,6 +594,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
 
     p.e.nlminb <- constrOptim(theta = par.start, f = function(theta) { sum(lf(theta)) },
                               grad = NULL, ui = ui.opt, ci = ci.opt, hessian = FALSE)
+    p.e.nlminb$value <- -p.e.nlminb$value
 
     if (multi.start == TRUE && gamma == TRUE) {
       p.e.nlminb.two <- try({
@@ -605,12 +606,13 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
           }
         }, method = "BFGS"))}, silent = TRUE)
 
-      if (class(p.e.nlminb.two) != "try-error" && p.e.nlminb.two$value < p.e.nlminb$value) {
+      if (class(p.e.nlminb.two) != "try-error" && -p.e.nlminb.two$value > p.e.nlminb$value) {
         p.e.nlminb <- p.e.nlminb.two
+        p.e.nlminb$value <- -p.e.nlminb$value
       }
 
       par.max.lik.nr <- try({maxLik(logLik = function(x) - lf(x), start = par.start, method = "NR")}, silent = TRUE)
-      if (class(par.max.lik.nr) != "try-error" && par.max.lik.nr$maximum < p.e.nlminb$value &&
+      if (class(par.max.lik.nr) != "try-error" && par.max.lik.nr$maximum > p.e.nlminb$value &&
           par.max.lik.nr$estimate["w2"] >= 1 &&
           par.max.lik.nr$estimate["alpha"] + par.max.lik.nr$estimate["beta"] + par.max.lik.nr$estimate["gamma"] / 2 < 1 &&
           par.max.lik.nr$estimate["alpha"] >= 0 && par.max.lik.nr$estimate["beta"] >= 0) {
@@ -618,7 +620,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
         p.e.nlminb$value <- par.max.lik.nr$maximum
       }
       par.max.lik.nm <- try({maxLik(logLik = function(x) -lf(x), start = par.start, method = "NM")}, silent = TRUE)
-      if (class(par.max.lik.nm) != "try-error" && par.max.lik.nm$maximum < p.e.nlminb$value &&
+      if (class(par.max.lik.nm) != "try-error" && par.max.lik.nm$maximum > p.e.nlminb$value &&
           par.max.lik.nm$estimate["w2"] >= 1 &&
           par.max.lik.nm$estimate["alpha"] + par.max.lik.nm$estimate["beta"] + par.max.lik.nm$estimate["gamma"] / 2 < 1 &&
           par.max.lik.nm$estimate["alpha"] >= 0 && par.max.lik.nm$estimate["beta"] >= 0) {
@@ -635,8 +637,9 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
           }
         }, method = "BFGS"))}, silent = TRUE)
 
-      if (class(p.e.nlminb.three) != "try-error" && p.e.nlminb.three$value < p.e.nlminb$value) {
+      if (class(p.e.nlminb.three) != "try-error" && -p.e.nlminb.three$value > p.e.nlminb$value) {
         p.e.nlminb <- p.e.nlminb.three
+        p.e.nlminb$value <- -p.e.nlminb$value
       }
 
     }
@@ -652,12 +655,13 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
           }
         }, method = "BFGS"))}, silent = TRUE)
 
-      if (class(p.e.nlminb.two) != "try-error" && p.e.nlminb.two$value < p.e.nlminb$value) {
+      if (class(p.e.nlminb.two) != "try-error" && -p.e.nlminb.two$value > p.e.nlminb$value) {
         p.e.nlminb <- p.e.nlminb.two
+        p.e.nlminb$value <- -p.e.nlminb$value
       }
 
       par.max.lik.nr <- try({maxLik(logLik = function(x) - lf(x), start = par.start, method = "NR")}, silent = TRUE)
-      if (class(par.max.lik.nr) != "try-error" && par.max.lik.nr$maximum < p.e.nlminb$value &&
+      if (class(par.max.lik.nr) != "try-error" && par.max.lik.nr$maximum > p.e.nlminb$value &&
           par.max.lik.nr$estimate["w2"] >= 1 &&
           par.max.lik.nr$estimate["alpha"] + par.max.lik.nr$estimate["beta"] < 1 &&
           par.max.lik.nr$estimate["alpha"] >= 0 && par.max.lik.nr$estimate["beta"] >= 0) {
@@ -665,7 +669,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
         p.e.nlminb$value <- par.max.lik.nr$maximum
       }
       par.max.lik.nm <- try({maxLik(logLik = function(x) - lf(x), start = par.start, method = "NM")}, silent = TRUE)
-      if (class(par.max.lik.nm) != "try-error" && par.max.lik.nm$maximum < p.e.nlminb$value &&
+      if (class(par.max.lik.nm) != "try-error" && par.max.lik.nm$maximum > p.e.nlminb$value &&
           par.max.lik.nm$estimate["w2"] >= 1 &&
           par.max.lik.nm$estimate["alpha"] + par.max.lik.nm$estimate["beta"] < 1 &&
           par.max.lik.nm$estimate["alpha"] >= 0 && par.max.lik.nm$estimate["beta"] >= 0) {
@@ -682,8 +686,9 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
           }
         }, method = "BFGS"))}, silent = TRUE)
 
-      if (class(p.e.nlminb.three) != "try-error" && p.e.nlminb.three$value < p.e.nlminb$value) {
+      if (class(p.e.nlminb.three) != "try-error" && -p.e.nlminb.three$value > p.e.nlminb$value) {
         p.e.nlminb <- p.e.nlminb.three
+        p.e.nlminb$value <- -p.e.nlminb$value
       }
     }
     par <- p.e.nlminb$par
@@ -833,11 +838,11 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
         if( is.na(sum(lf(theta))) == TRUE) {
           0
         } else {
-          sum(lf(theta))
+          -sum(lf(theta))
         }
       })))
     }, silent = TRUE)
-  opg.std.err <- sqrt(diag(solve(crossprod(jacobian(func = lf, x = par)))))
+  opg.std.err <- sqrt(diag(solve(crossprod(jacobian(func = function(theta) -lf(theta), x = par)))))
 
   if (class(inv_hessian) == "try-error") {
     warning("Inverting the Hessian matrix failed. No robust standard errors calculated. Possible workaround: Multiply returns by 100.")

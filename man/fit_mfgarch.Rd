@@ -7,7 +7,8 @@
 fit_mfgarch(data, y, x = NULL, K = NULL, low.freq = "date",
   var.ratio.freq = NULL, gamma = TRUE, weighting = "beta.restricted",
   x.two = NULL, K.two = NULL, low.freq.two = NULL,
-  weighting.two = NULL, multi.start = FALSE)
+  weighting.two = NULL, multi.start = FALSE, control = list(par.start
+  = NULL))
 }
 \arguments{
 \item{data}{data frame containing a column named date of type 'Date'.}
@@ -35,6 +36,8 @@ fit_mfgarch(data, y, x = NULL, K = NULL, low.freq = "date",
 \item{weighting.two}{specifies the weighting scheme employed in the optional second long-term component. Currently, the only option is "beta.restricted"}
 
 \item{multi.start}{if TRUE, optimization is carried out with multiple starting values}
+
+\item{control}{a list}
 }
 \description{
 This function estimates a multiplicative mixed-frequency GARCH model. For the sake of numerical stability, it is best to multiply log returns by 100.

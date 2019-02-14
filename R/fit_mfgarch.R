@@ -12,6 +12,7 @@
 #' @param low.freq.two low frequency of optional second covariate
 #' @param weighting.two specifies the weighting scheme employed in the optional second long-term component. Currently, the only option is "beta.restricted"
 #' @param multi.start if TRUE, optimization is carried out with multiple starting values
+#' @param control a list
 #' @keywords fit_mfgarch
 #' @export
 #' @importFrom numDeriv jacobian
@@ -24,6 +25,7 @@
 #' @importFrom stats var
 #' @importFrom stats aggregate
 #' @importFrom numDeriv jacobian
+#' @importFrom maxLik maxLik
 #' @importFrom utils tail
 #' @examples
 #' \dontrun{
@@ -192,6 +194,11 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
       ui.opt <- rbind(c(0, -1, -1, 0), c(0, 1, 0, 0), c(0, 0, 1, 0))
       ci.opt <- c(-0.99999, 0, 0)
     }
+
+    if(is.null(control$par.start) == FALSE) {
+      par.start <- control$par.start
+    }
+
     p.e.nlminb <- constrOptim(theta = par.start,
                               f = function(theta) { sum(lf(theta)) },
                               grad = NULL, ui = ui.opt, ci = ci.opt, hessian = FALSE)
@@ -330,6 +337,10 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
         ui_opt <- rbind(c(0, -1, -1,  0, 0), c(0, 1, 0, 0, 0), c(0, 0, 1, 0, 0))
         ci_opt <- c(-0.99999, 0, 0)
       }
+    }
+
+    if(is.null(control$par.start) == FALSE) {
+      par.start <- control$par.start
     }
 
     p.e.nlminb <- constrOptim(theta = par_start, f = function(theta) { sum(lf(theta)) },
@@ -594,18 +605,73 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
           }
         }, method = "BFGS"))}, silent = TRUE)
 
-      if (class(p.e.nlminb.two) == "try-error") {
-        # try an alternative second-stage optimization
-        par.start["gamma"] <- 0
-        p.e.nlminb.two <- constrOptim(theta = par.start, f = function(theta) { sum(lf(theta)) },
-                                      grad = NULL, ui = ui.opt, ci = ci.opt, hessian = FALSE)
-        if (p.e.nlminb.two$value < p.e.nlminb$value) {
-          p.e.nlminb <- p.e.nlminb.two
-        }
-      } else {
-        if (p.e.nlminb.two$value < p.e.nlminb$value) {
-          p.e.nlminb <- p.e.nlminb.two
-        }
+      if (class(p.e.nlminb.two) != "try-error" && p.e.nlminb.two$value < p.e.nlminb$value) {
+        p.e.nlminb <- p.e.nlminb.two
+      }
+
+      par.max.lik.nr <- try({maxLik(logLik = -lf, start = par.start, method = "NR")})
+      if (class(par.max.lik.nr) != "try-error" && par.max.lik.nr$maximum < p.e.nlminb$value) {
+        p.e.nlminb$par <- par.max.lik.nr$estimate
+        p.e.nlminb$value <- par.max.lik.nr$maximum
+      }
+      par.max.lik.nm <- try({maxLik(logLik = -lf, start = par.start, method = "NM")})
+      if (class(par.max.lik.nm) != "try-error" && par.max.lik.nm$maximum < p.e.nlminb$value) {
+        p.e.nlminb$par <- par.max.lik.nm$estimate
+        p.e.nlminb$value <- par.max.lik.nm$maximum
+      }
+
+      p.e.nlminb.three <- try({
+        suppressWarnings(optim(par = par.start, fn = function (theta) {
+          if( is.na(sum(lf(theta))) == TRUE | theta["alpha"] < 0 | theta["alpha"] + theta["beta"] + theta["gamma"]/2  >= 1) {
+            NA
+          } else {
+            sum(lf(theta))
+          }
+        }, method = "BFGS"))}, silent = TRUE)
+
+      if (class(p.e.nlminb.three) != "try-error" && p.e.nlminb.three$value < p.e.nlminb$value) {
+        p.e.nlminb <- p.e.nlminb.three
+      }
+
+    }
+
+    if (multi.start == TRUE && gamma == FALSE) {
+
+      p.e.nlminb.two <- try({
+        suppressWarnings(optim(par = p.e.nlminb$par, fn = function (theta) {
+          if( is.na(sum(lf(theta))) == TRUE | theta["alpha"] < 0 | theta["alpha"] + theta["beta"]  >= 1) {
+            NA
+          } else {
+            sum(lf(theta))
+          }
+        }, method = "BFGS"))}, silent = TRUE)
+
+      if (class(p.e.nlminb.two) != "try-error" && p.e.nlminb.two$value < p.e.nlminb$value) {
+        p.e.nlminb <- p.e.nlminb.two
+      }
+
+      par.max.lik.nr <- try({maxLik(logLik = -lf, start = par.start, method = "NR")})
+      if (class(par.max.lik.nr) != "try-error" && par.max.lik.nr$maximum < p.e.nlminb$value) {
+        p.e.nlminb$par <- par.max.lik.nr$estimate
+        p.e.nlminb$value <- par.max.lik.nr$maximum
+      }
+      par.max.lik.nm <- try({maxLik(logLik = -lf, start = par.start, method = "NM")})
+      if (class(par.max.lik.nm) != "try-error" && par.max.lik.nm$maximum < p.e.nlminb$value) {
+        p.e.nlminb$par <- par.max.lik.nm$estimate
+        p.e.nlminb$value <- par.max.lik.nm$maximum
+      }
+
+      p.e.nlminb.three <- try({
+        suppressWarnings(optim(par = par.start, fn = function (theta) {
+          if( is.na(sum(lf(theta))) == TRUE | theta["alpha"] < 0 | theta["alpha"] + theta["beta"]  >= 1) {
+            NA
+          } else {
+            sum(lf(theta))
+          }
+        }, method = "BFGS"))}, silent = TRUE)
+
+      if (class(p.e.nlminb.three) != "try-error" && p.e.nlminb.three$value < p.e.nlminb$value) {
+        p.e.nlminb <- p.e.nlminb.three
       }
     }
     par <- p.e.nlminb$par
@@ -749,17 +815,20 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
   #       }
   #     }))
   #   }, silent = TRUE)
+
   inv_hessian <- try({
     solve(-suppressWarnings(hessian(x = par, func = function (theta) {
         if( is.na(sum(lf(theta))) == TRUE) {
-          10000000
+          0
         } else {
           sum(lf(theta))
         }
       })))
     }, silent = TRUE)
+  opg.std.err <- sqrt(diag(solve(crossprod(jacobian(func = lf, x = par)))))
+
   if (class(inv_hessian) == "try-error") {
-    stop("Inverting the Hessian matrix failed. No standard errors calculated. Possible workaround: Multiply returns by 100.")
+    warning("Inverting the Hessian matrix failed. No robust standard errors calculated. Possible workaround: Multiply returns by 100.")
     rob.std.err <- NA
   } else {
     rob.std.err <- sqrt(diag(inv_hessian %*% crossprod(jacobian(func = lf, x = par)) %*% inv_hessian))
@@ -772,7 +841,9 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
          broom.mgarch = data.frame(term = names(par),
                                    estimate = par,
                                    rob.std.err = rob.std.err,
-                                   p.value = 2 * (1 - pnorm(unlist(abs(par/rob.std.err))))),
+                                   p.value = 2 * (1 - pnorm(unlist(abs(par/rob.std.err)))),
+                                   opg.std.err = opg.std.err,
+                                   opg.p.value = 2 * (1 - pnorm(unlist(abs(par/opg.std.err))))),
          tau = tau,
          g = g,
          df.fitted = df.fitted,

@@ -8,13 +8,14 @@ Depends:
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 6.1.0
+RoxygenNote: 6.1.1
 Imports:
     Rcpp,
     graphics,
     stats,
     numDeriv,
-    zoo
+    zoo,
+    maxLik
 LinkingTo: Rcpp
 URL: https://github.com/onnokleen/mfGARCH/
 BugReports: https://github.com/onnokleen/mfGARCH/issues

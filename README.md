@@ -19,7 +19,7 @@ Please cite as
 and
 
 > Kleen, Onno (2018). mfGARCH: Mixed-Frequency GARCH Models. R package
-  version 0.1.7.
+  version 0.1.8.
 
 ## Installation
 CRAN:

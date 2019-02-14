@@ -1,5 +1,7 @@
 v0.1.8
 - Corrected error messages
+- More robust estimation methods
+- OPG standard errors are calculated as well
 
 v0.1.7
 - Improved documentation for simulation functions

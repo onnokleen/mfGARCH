@@ -610,14 +610,16 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
       }
 
       par.max.lik.nr <- try({maxLik(logLik = function(x) - lf(x), start = par.start, method = "NR")}, silent = TRUE)
-      if (class(par.max.lik.nr) != "try-error" && par.max.lik.nr$maximum < p.e.nlminb$value && par.max.lik.nr$estimate["w2"] >= 0 &&
+      if (class(par.max.lik.nr) != "try-error" && par.max.lik.nr$maximum < p.e.nlminb$value &&
+          par.max.lik.nr$estimate["w2"] >= 1 &&
           par.max.lik.nr$estimate["alpha"] + par.max.lik.nr$estimate["beta"] + par.max.lik.nr$estimate["gamma"] / 2 < 1 &&
           par.max.lik.nr$estimate["alpha"] >= 0 && par.max.lik.nr$estimate["beta"] >= 0) {
         p.e.nlminb$par <- par.max.lik.nr$estimate
         p.e.nlminb$value <- par.max.lik.nr$maximum
       }
       par.max.lik.nm <- try({maxLik(logLik = function(x) -lf(x), start = par.start, method = "NM")}, silent = TRUE)
-      if (class(par.max.lik.nm) != "try-error" && par.max.lik.nm$maximum < p.e.nlminb$value && par.max.lik.nm$estimate["w2"] >= 0 &&
+      if (class(par.max.lik.nm) != "try-error" && par.max.lik.nm$maximum < p.e.nlminb$value &&
+          par.max.lik.nm$estimate["w2"] >= 1 &&
           par.max.lik.nm$estimate["alpha"] + par.max.lik.nm$estimate["beta"] + par.max.lik.nm$estimate["gamma"] / 2 < 1 &&
           par.max.lik.nm$estimate["alpha"] >= 0 && par.max.lik.nm$estimate["beta"] >= 0) {
         p.e.nlminb$par <- par.max.lik.nm$estimate
@@ -656,7 +658,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
 
       par.max.lik.nr <- try({maxLik(logLik = function(x) - lf(x), start = par.start, method = "NR")}, silent = TRUE)
       if (class(par.max.lik.nr) != "try-error" && par.max.lik.nr$maximum < p.e.nlminb$value &&
-          par.max.lik.nr$estimate["w2"] >= 0 &&
+          par.max.lik.nr$estimate["w2"] >= 1 &&
           par.max.lik.nr$estimate["alpha"] + par.max.lik.nr$estimate["beta"] < 1 &&
           par.max.lik.nr$estimate["alpha"] >= 0 && par.max.lik.nr$estimate["beta"] >= 0) {
         p.e.nlminb$par <- par.max.lik.nr$estimate
@@ -664,7 +666,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
       }
       par.max.lik.nm <- try({maxLik(logLik = function(x) - lf(x), start = par.start, method = "NM")}, silent = TRUE)
       if (class(par.max.lik.nm) != "try-error" && par.max.lik.nm$maximum < p.e.nlminb$value &&
-          par.max.lik.nm$estimate["w2"] >= 0 &&
+          par.max.lik.nm$estimate["w2"] >= 1 &&
           par.max.lik.nm$estimate["alpha"] + par.max.lik.nm$estimate["beta"] < 1 &&
           par.max.lik.nm$estimate["alpha"] >= 0 && par.max.lik.nm$estimate["beta"] >= 0) {
         p.e.nlminb$par <- par.max.lik.nm$estimate

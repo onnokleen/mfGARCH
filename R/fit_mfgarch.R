@@ -609,12 +609,12 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
         p.e.nlminb <- p.e.nlminb.two
       }
 
-      par.max.lik.nr <- try({maxLik(logLik = -lf, start = par.start, method = "NR")})
+      par.max.lik.nr <- try({maxLik(logLik = function(x) - lf(x), start = par.start, method = "NR")}, silent = TRUE)
       if (class(par.max.lik.nr) != "try-error" && par.max.lik.nr$maximum < p.e.nlminb$value) {
         p.e.nlminb$par <- par.max.lik.nr$estimate
         p.e.nlminb$value <- par.max.lik.nr$maximum
       }
-      par.max.lik.nm <- try({maxLik(logLik = -lf, start = par.start, method = "NM")})
+      par.max.lik.nm <- try({maxLik(logLik = function(x) -lf(x), start = par.start, method = "NM")}, silent = TRUE)
       if (class(par.max.lik.nm) != "try-error" && par.max.lik.nm$maximum < p.e.nlminb$value) {
         p.e.nlminb$par <- par.max.lik.nm$estimate
         p.e.nlminb$value <- par.max.lik.nm$maximum
@@ -650,12 +650,12 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
         p.e.nlminb <- p.e.nlminb.two
       }
 
-      par.max.lik.nr <- try({maxLik(logLik = -lf, start = par.start, method = "NR")})
+      par.max.lik.nr <- try({maxLik(logLik = function(x) - lf(x), start = par.start, method = "NR")}, silent = TRUE)
       if (class(par.max.lik.nr) != "try-error" && par.max.lik.nr$maximum < p.e.nlminb$value) {
         p.e.nlminb$par <- par.max.lik.nr$estimate
         p.e.nlminb$value <- par.max.lik.nr$maximum
       }
-      par.max.lik.nm <- try({maxLik(logLik = -lf, start = par.start, method = "NM")})
+      par.max.lik.nm <- try({maxLik(logLik = function(x) - lf(x), start = par.start, method = "NM")}, silent = TRUE)
       if (class(par.max.lik.nm) != "try-error" && par.max.lik.nm$maximum < p.e.nlminb$value) {
         p.e.nlminb$par <- par.max.lik.nm$estimate
         p.e.nlminb$value <- par.max.lik.nm$maximum

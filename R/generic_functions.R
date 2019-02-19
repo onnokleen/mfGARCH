@@ -33,7 +33,7 @@ plot.mfGARCH <- function(x, ...) {
 }
 
 #' @export
-predict.mfGARCH <- function(object, horizon = c(1:10), fcts.tau = NULL, y = NULL, cond.var = NULL, cond.tau = NULL, ...) {
+predict.mfGARCH <- function(object, horizon = c(1:10), fcts.tau = NULL, y.last = NULL, cond.var = NULL, cond.tau = NULL, ...) {
   if (class(object) != "mfGARCH") {
     stop("Obejct is not in class mfGARCH")
   }
@@ -50,8 +50,10 @@ predict.mfGARCH <- function(object, horizon = c(1:10), fcts.tau = NULL, y = NULL
     fcts.tau <- object$tau.forecast
   }
 
-  if (is.null(y) == TRUE) {
+  if (is.null(y.last) == TRUE) {
     return <- tail(object$df.fitted[object$y], 1)
+  } else {
+    return <- y.last
   }
 
   if (is.na(object$par["gamma"]) == TRUE) {

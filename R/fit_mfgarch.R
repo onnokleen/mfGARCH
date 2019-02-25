@@ -222,7 +222,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
       }
     }
 
-    p.e.nlminb$value <- - p.e.nlminb$value
+    p.e.nlminb$value <- -p.e.nlminb$value
 
     par <- p.e.nlminb$par
     returns <- as.numeric(unlist(data[[y]]))
@@ -845,7 +845,13 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
         }
       })))
     }, silent = TRUE)
-  opg.std.err <- sqrt(diag(solve(crossprod(jacobian(func = function(theta) -lf(theta), x = par)))))
+
+  opg.std.err <- try({sqrt(diag(solve(crossprod(jacobian(func = function(theta) -lf(theta), x = par)))))},
+                     silent = TRUE)
+  if (class(inv_hessian) == "try-error") {
+    warning("Inverting the Hessian matrix failed. No OPG standard errors calculated.")
+    opg.std.err <- NA
+  }
 
   if (class(inv_hessian) == "try-error") {
     warning("Inverting the Hessian matrix failed. No robust standard errors calculated. Possible workaround: Multiply returns by 100.")

@@ -222,6 +222,8 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
       }
     }
 
+    p.e.nlminb$value <- - p.e.nlminb$value
+
     par <- p.e.nlminb$par
     returns <- as.numeric(unlist(data[[y]]))
     tau <- rep(exp(par["m"]), times = length(returns))
@@ -346,6 +348,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
     p.e.nlminb <- constrOptim(theta = par_start, f = function(theta) { sum(lf(theta)) },
                               grad = NULL, ui = ui_opt, ci = ci_opt, hessian = FALSE)
     par <- p.e.nlminb$par
+    p.e.nlminb$value <- -p.e.nlminb$value
 
     if (is.null(x.two) == FALSE) {
       tau <- calculate_tau_mf(df = data, x = covariate, low.freq = low.freq,

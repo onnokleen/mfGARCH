@@ -75,7 +75,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
     stop("No date column.")
   }
   if (inherits(data$date, 'Date') == FALSE) {
-    stop("Supplied date column is not of format 'Date'.")
+    stop(paste0("Supplied date column is not of format 'Date'. It is of class '", class(data$date), "'."))
   }
   if (is.null(x) == FALSE && K == 0) {
     warning("You specified an external covariate x but chose K = 0 - simple GARCH is estimated (K = 0).")

@@ -15,6 +15,34 @@
 #' @param control a list
 #' @keywords fit_mfgarch
 #' @export
+#'
+#' @return A list of class mfGARCH with letters and numbers.
+#' \itemize{
+#' \item par - vector of estimated parameters
+#' \item rob.std.err - sandwich/HAC-type standard errors
+#' \item broom.mgarch - a broom-like data.frame with entries
+#' 1) estimate: column of estimated parameters
+#' 2) rob.std.err - sandwich/HAC-type standard errors
+#' 3) p.value - p-values derived from sandwich/HAC-type standard errors
+#' 4) opg.std.err - Bollerslev-Wooldrige/OPG standard errors for GARCH processes
+#' 5) opg.p.value - corresponding alternative p-values
+#' \item tau - fitted long-term component
+#' \item g - fitted short-term component
+#' \item df.fitted - data frame with fitted values and residuals
+#' \item K - chosen lag-length in the long-term component
+#' \item weighting.scheme - chosen weighting scheme
+#' \item llh - log-likelihood value at estimated parameter vector
+#' \item bic - corresponding BIC value
+#' \item y - dependent variable y
+#' \item optim - output of the optimization routine
+#' \item K.two - lag-lenth of x.two if two covariates are employed
+#' \item weighting.scheme.two - chosen weighting scheme of x.two (if K.two != NULL)
+#' \item tau.forecast - one-step ahead forecast of the long-term component
+#' \item variance.ratio - calculated variance ratio
+#' \item est.weighting - estimated weighting scheme
+#' \item est.weighting.two - estimated weighting scheme of x.two (if K.two != NULL)
+#' }
+#'
 #' @importFrom numDeriv jacobian
 #' @importFrom stats nlminb
 #' @importFrom numDeriv hessian

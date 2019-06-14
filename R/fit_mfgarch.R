@@ -122,6 +122,9 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
   if (K < 0 || K %% 1 != 0) {
     stop("K can't be smaller than 0 and has to be an integer.")
   }
+  if (dim(unique(data[c(x, low.freq)]))[1] > dim(unique(data[c(low.freq)]))[1]) {
+    stop("There is more than one unique observation per low frequency entry.")
+  }
   # if ((is.null(x) == TRUE && (is.null(K) == TRUE)) || K == 0) {
   #   K <- 0
   # }

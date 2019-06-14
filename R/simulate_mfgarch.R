@@ -14,6 +14,7 @@
 #' @param low.freq number of days per low-frequency period
 #' @param n.intraday number of maximum intraday returns
 #' @param student.t either NULL or degrees of freedom
+#' @param corr correlation between innovations (should only be used for daily tau)
 #' @keywords simulate_mfgarch
 #' @importFrom zoo rollapplyr
 #' @importFrom stats rnorm
@@ -22,7 +23,7 @@
 #' simulate_mfgarch(n.days = 200, mu = 0, alpha = 0.06, beta = 0.92, gamma = 0, m = 0,
 #' theta = 0.1, w1 = 1, w2 = 3, K = 12, psi = 0.98, sigma.psi = 0.1, low.freq = 100)
 #' @export
-simulate_mfgarch <- function(n.days, mu, alpha, beta, gamma, m, theta, w1 = 1, w2, K, psi, sigma.psi, low.freq = 1, n.intraday = 288, student.t = NULL) {
+simulate_mfgarch <- function(n.days, mu, alpha, beta, gamma, m, theta, w1 = 1, w2, K, psi, sigma.psi, low.freq = 1, n.intraday = 288, student.t = NULL, corr = 0) {
 
   # n.intraday <- 288
 
@@ -36,34 +37,37 @@ simulate_mfgarch <- function(n.days, mu, alpha, beta, gamma, m, theta, w1 = 1, w
     stop("n.days is no multiple of low.freq")
   }
 
-  length_x <- n.days/low.freq
-  x.innov <- rnorm(length_x, 0, sigma.psi)
+  if (is.null(student.t) == TRUE) {
+    innov_intraday_returns <- rnorm(n.days * n.intraday)
+    sim <- simulate_r(n_days = n.days, n_intraday = n.intraday,
+                      alpha = alpha,
+                      beta = beta,
+                      gamma = gamma,
+                      Z = innov_intraday_returns,
+                      h0 = 1)
+  } else {
+    innov_intraday_returns <- rt(n = n.days * n.intraday, df = student.t) / sqrt(student.t / (student.t - 2))
+    sim <- simulate_r(n_days = n.days, n_intraday = n.intraday,
+                      alpha = alpha,
+                      beta = beta,
+                      gamma = gamma,
+                      Z = innov_intraday_returns,
+                      h0 = 1)
+  }
+  df_innov_returns <- data.frame(days = rep(c(1:n.days), each = n.intraday), innov = innov_intraday_returns /sqrt(n.intraday))
+  daily_innov_returns <- aggregate(df_innov_returns[c("innov")], by = list(days = df_innov_returns$days), FUN = sum)$innov
 
+  length_x <- n.days/low.freq
+  x.innov <- corr * daily_innov_returns + sqrt(1 - corr^2) * rnorm(length_x, 0, 1)
+  x.innov <- x.innov * sigma.psi
   x <- rep(0, times = length_x)
   for (ii in 2:(length_x)) {
     x[ii] <- psi * x[ii-1] + x.innov[ii]
   }
   rm(ii)
-
   tau <- calculate_tau(covariate = x, m = m, theta = theta, w1 = w1, w2 = w2, K = K)[-c(1:K)]
-
   tau <- rep(tau, each = low.freq)
 
-  if (is.null(student.t) == TRUE) {
-    sim <- simulate_r(n_days = n.days, n_intraday = n.intraday,
-                      alpha = alpha,
-                      beta = beta,
-                      gamma = gamma,
-                      Z = rnorm(n.days * n.intraday),
-                      h0 = 0.1)
-  } else {
-    sim <- simulate_r(n_days = n.days, n_intraday = n.intraday,
-                      alpha = alpha,
-                      beta = beta,
-                      gamma = gamma,
-                      Z = rt(n = n.days * n.intraday, df = student.t) / sqrt(student.t / (student.t - 2)),
-                      h0 = 0.1)
-  }
 
   ret <- sim$ret_intraday * sqrt(rep(tau, each = n.intraday)) + mu /n.intraday
 

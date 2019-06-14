@@ -1,5 +1,5 @@
 v0.1.8
-- Corrected error messages
+- More precise error messages
 - More robust estimation methods
 - OPG standard errors are calculated as well
 

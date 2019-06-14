@@ -1,8 +1,7 @@
 ### Update
 
 ### Test environments
-* local OS X install, R 3.5.0
-* Windows via devtools::build_win() - x86_64-w64-mingw32
+* local OS X install, R 3.6.0
 * Linux via travis-ci
 
 ## R CMD check results

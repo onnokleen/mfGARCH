@@ -14,7 +14,7 @@ An R package for estimating GARCH-MIDAS (MIxed-DAta-Sampling) models (Engle, Ghy
 
 Please cite as
 
-> Conrad, Christian and Kleen, Onno (2018). Two Are Better Than One: Volatility Forecasting Using Multiplicative Component GARCH Models. Available at SSRN: https://doi.org/10.2139/ssrn.2752354.
+> Conrad, Christian and Kleen, Onno (2018). Two Are Better Than One: Volatility Forecasting Using Multiplicative Component GARCH-MIDAS Models. Available at SSRN: https://doi.org/10.2139/ssrn.2752354.
 
 and
 

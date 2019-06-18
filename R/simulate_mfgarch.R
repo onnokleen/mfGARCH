@@ -15,8 +15,8 @@
 #' @param n.intraday number of maximum intraday returns
 #' @param student.t either NULL or degrees of freedom
 #' @param corr correlation between innovations (should only be used for daily tau)
-#' @param tau.rv if TRUE, a daily GARCH-MIDAS with RV as a covariate is estimated, see Wang and Ghysels (2015).
-#' psi and sigma.psi are ignored
+#' @param tau.rv if TRUE, a daily GARCH-MIDAS with RVol(22) as a covariate is estimated,
+#' arguments psi and sigma.psi are ignored
 #' @keywords simulate_mfgarch
 #' @importFrom zoo rollapplyr
 #' @importFrom stats rnorm
@@ -76,7 +76,7 @@ simulate_mfgarch <- function(n.days, mu, alpha, beta, gamma, m, theta, w1 = 1, w
     tau <- rep(tau, each = low.freq)
   } else {
     low.freq <- 1
-    x <- rollapplyr(sim$ret_daily, width = 22, FUN = mean, na.rm = TRUE, fill = NA)
+    x <- sqrt(rollapplyr(sim$ret_daily^2, width = 22, FUN = mean, na.rm = TRUE, fill = NA))
     tau <- calculate_tau(covariate = x, m = m, theta = theta, w1 = w1, w2 = w2, K = K)[-c(1:K)]
   }
 

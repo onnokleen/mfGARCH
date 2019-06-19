@@ -17,6 +17,10 @@ simulate_r <- function(n_days, n_intraday, alpha, beta, gamma, Z, h0) {
     .Call('_mfGARCH_simulate_r', PACKAGE = 'mfGARCH', n_days, n_intraday, alpha, beta, gamma, Z, h0)
 }
 
+simulate_r_rv_as_dependent <- function(n_days, n_intraday, alpha, beta, gamma, Z, h0, K, m, theta, weights) {
+    .Call('_mfGARCH_simulate_r_rv_as_dependent', PACKAGE = 'mfGARCH', n_days, n_intraday, alpha, beta, gamma, Z, h0, K, m, theta, weights)
+}
+
 sum_tau_fcts <- function(i, m, theta, phivar, covariate, K) {
     .Call('_mfGARCH_sum_tau_fcts', PACKAGE = 'mfGARCH', i, m, theta, phivar, covariate, K)
 }

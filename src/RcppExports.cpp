@@ -73,6 +73,27 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// simulate_r_rv_as_dependent
+List simulate_r_rv_as_dependent(double n_days, double n_intraday, double alpha, double beta, double gamma, NumericVector Z, double h0, int K, double m, double theta, NumericVector weights);
+RcppExport SEXP _mfGARCH_simulate_r_rv_as_dependent(SEXP n_daysSEXP, SEXP n_intradaySEXP, SEXP alphaSEXP, SEXP betaSEXP, SEXP gammaSEXP, SEXP ZSEXP, SEXP h0SEXP, SEXP KSEXP, SEXP mSEXP, SEXP thetaSEXP, SEXP weightsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type n_days(n_daysSEXP);
+    Rcpp::traits::input_parameter< double >::type n_intraday(n_intradaySEXP);
+    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< double >::type beta(betaSEXP);
+    Rcpp::traits::input_parameter< double >::type gamma(gammaSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type Z(ZSEXP);
+    Rcpp::traits::input_parameter< double >::type h0(h0SEXP);
+    Rcpp::traits::input_parameter< int >::type K(KSEXP);
+    Rcpp::traits::input_parameter< double >::type m(mSEXP);
+    Rcpp::traits::input_parameter< double >::type theta(thetaSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type weights(weightsSEXP);
+    rcpp_result_gen = Rcpp::wrap(simulate_r_rv_as_dependent(n_days, n_intraday, alpha, beta, gamma, Z, h0, K, m, theta, weights));
+    return rcpp_result_gen;
+END_RCPP
+}
 // sum_tau_fcts
 double sum_tau_fcts(int i, double m, double theta, NumericVector phivar, NumericVector covariate, int K);
 RcppExport SEXP _mfGARCH_sum_tau_fcts(SEXP iSEXP, SEXP mSEXP, SEXP thetaSEXP, SEXP phivarSEXP, SEXP covariateSEXP, SEXP KSEXP) {
@@ -110,6 +131,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_mfGARCH_calculate_h_andersen", (DL_FUNC) &_mfGARCH_calculate_h_andersen, 9},
     {"_mfGARCH_calculate_p", (DL_FUNC) &_mfGARCH_calculate_p, 6},
     {"_mfGARCH_simulate_r", (DL_FUNC) &_mfGARCH_simulate_r, 7},
+    {"_mfGARCH_simulate_r_rv_as_dependent", (DL_FUNC) &_mfGARCH_simulate_r_rv_as_dependent, 11},
     {"_mfGARCH_sum_tau_fcts", (DL_FUNC) &_mfGARCH_sum_tau_fcts, 6},
     {"_mfGARCH_sum_tau", (DL_FUNC) &_mfGARCH_sum_tau, 5},
     {NULL, NULL, 0}

@@ -119,9 +119,14 @@ simulate_mfgarch <- function(n.days, mu, alpha, beta, gamma, m, theta, w1 = 1, w
 #' @param w2 w2
 #' @param K K
 #' @param n.intraday number of maximum intraday returns, default 288
+#' @param low.freq number of days per low frequency
+#' @param rvol if TRUE, the square root of the realized variance is used as a covariate
+#' @examples
+#' simulate_mfgarch_rv_dependent(n.days = 2200, mu = 0, alpha = 0.06, beta = 0.92, gamma = 0, m = 0,
+#'   theta = 0.1, w1 = 1, w2 = 3, K = 3, low.freq = 22)
 #' @export
-simulate_mfgarch_rvol_dependent <- function(n.days, mu, alpha, beta, gamma, m, theta, w1 = 1, w2, K, n.intraday = 288) {
-  low.freq <- 1
+simulate_mfgarch_rv_dependent <- function(n.days, mu, alpha, beta, gamma, m, theta, w1 = 1, w2, K, n.intraday = 288, low.freq = 1, rvol = FALSE) {
+  # low.freq <- 1
   weighting <- calculate_phi(w1, w2, K)
   # n.intraday <- 288
 
@@ -129,18 +134,21 @@ simulate_mfgarch_rvol_dependent <- function(n.days, mu, alpha, beta, gamma, m, t
     stop("n.intraday has to be multiple of 48 (for calculating half-hour returns).")
   }
 
-  n.days <- n.days + low.freq * K * 3
+  n.days <- n.days + low.freq * K * 10
 
   if ((n.days %% low.freq) != 0) {
     stop("n.days is no multiple of low.freq")
   }
   innov_intraday_returns <- rnorm(n.days * n.intraday)
+
   sim <- simulate_r_rv_as_dependent(n_days = n.days, n_intraday = n.intraday,
-                                    alpha = alpha,
-                                    beta = beta,
-                                    gamma = gamma,
-                                    Z = innov_intraday_returns,
-                                    h0 = 1, K = K, m = m, theta = theta, weights = weighting)
+                                      alpha = alpha,
+                                      beta = beta,
+                                      gamma = gamma,
+                                      Z = innov_intraday_returns,
+                                      h0 = 1, K = K, m = m, theta = theta, weights = weighting,
+                                      lowfreq = low.freq,
+                                      rvol = rvol)
 
   ret <- sim$ret_intraday + mu /n.intraday
 
@@ -160,10 +168,10 @@ simulate_mfgarch_rvol_dependent <- function(n.days, mu, alpha, beta, gamma, m, t
   res <- data.frame(date = c(1:n.days),
                     # return_sim = sim$ret_daily,
                     return = daily.ret$ret,
-                    rvol22 = sim$rv22,
                     low_freq = rep(c(1:(n.days/low.freq)), each = low.freq),
-                    tau = sim$tau,
+                    tau = rep(sim$tau, each = low.freq),
                     g = sim$h_daily,
+                    covariate = rep(sim$rv22, each = low.freq),
                     #vol_half_hour = half.hour.vol$vol,
                     real_vol = five.vol.vol$ret,
                     real_vol_half_hour = half.hour.vol$vol)
@@ -173,10 +181,9 @@ simulate_mfgarch_rvol_dependent <- function(n.days, mu, alpha, beta, gamma, m, t
   res$real_vol_half_hour_5_days     <- rollapplyr(res$real_vol_half_hour, width = 5, FUN = mean, na.rm = TRUE, fill = NA)
   res$real_vol_half_hour_22_days    <- rollapplyr(res$real_vol_half_hour, width = 22, FUN = mean, na.rm = TRUE, fill = NA)
 
+  # res$covariate <- rep(sqrt(aggregate(res[c("return")], by = list(month = res$low_freq), FUN = function(x) mean(x^2))$return), each = low.freq)
+
   res[(low.freq * K * 3 + 1):n.days, ]
-
-
-
 
 
 }

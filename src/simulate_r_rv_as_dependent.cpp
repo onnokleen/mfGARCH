@@ -1,25 +1,26 @@
 //Includes/namespaces
 #include <Rcpp.h>
-#include <cstdio>
+#include <Rmath.h>
 using namespace Rcpp;
+using namespace std;
 
 // [[Rcpp::export]]
 List simulate_r_rv_as_dependent(double n_days, double n_intraday, double alpha, double beta, double gamma, NumericVector Z,
-                double h0, int K, double m, double theta, NumericVector weights) {
+                                  double h0, int K, double m, double theta, NumericVector weights, int lowfreq, bool rvol) {
 
   NumericVector r(n_days);
   NumericVector r_intraday(n_days * n_intraday);
   NumericVector h(n_days);
   NumericVector rv(n_days);
-  NumericVector tau(n_days);
-  NumericVector rv_tt(n_days);
+  NumericVector taulowfreq(n_days/lowfreq);
+  NumericVector rv_tt(n_days/lowfreq);
 
-  tau[0] = 1;
+  taulowfreq[0] = exp(m);
   rv_tt[0] = 1;
   h[0] = h0;
 
   for (int k = 0; k < n_intraday; k++) {
-    r_intraday[k] = Z[k] * sqrt(h[0]) / sqrt(n_intraday);
+    r_intraday[k] = Z[k] * std::sqrt(h[0]) / std::sqrt(n_intraday);
   }
   r[0] = 0;
   rv[0] = 0;
@@ -30,38 +31,57 @@ List simulate_r_rv_as_dependent(double n_days, double n_intraday, double alpha, 
 
 
   for (int i = 1; i < n_days; i++) {
-    // Rcout << "New day i: " << i << "\n";
+    // Rcout << "New day i: " << i << "\n" << std::endl;
     // Rcout << "The value of last-days return: " << r[i - 1] << "\n";
     if (r[i-1] < 0) {
-      h[i] = 1 - alpha - beta - gamma / 2 + (alpha + gamma) * r[i-1] * r[i-1] / tau[i-1] + beta * h[i-1];
+      h[i] = 1 - alpha - beta - gamma / 2 + (alpha + gamma) * pow(r[i-1], 2) / taulowfreq[(i -1)/lowfreq] + beta * h[i-1];
     } else {
-      h[i] = 1 - alpha - beta - gamma / 2 + alpha * r[i-1] * r[i-1] / tau[i-1] + beta * h[i-1];
+      h[i] = 1 - alpha - beta - gamma / 2 + alpha * pow(r[i-1] / r[i-1], 2) / taulowfreq[(i - 1)/lowfreq] + beta * h[i-1];
     }
-    // Rcout << "Day i: " << i << "\n";
+    // Rcpp::Rcout << "Day i: " << i << "\n";
     // Rcout << "h: " << h[i] << "\n";
-    rv_tt[i-1] = 0;
-    for (int k = 0; k < 22; k++) {
-      // Rcout << "The value of k: " << k << "\n";
-      if (i - 1 - k >= 0) {
-        // Rcout << "The value of returns_sq: " << r[i - i - k] * r[i - i - k] << "\n";
-        // Rcout << "The value of rv22: " << rv_tt[i-1] << "\n";
-        rv_tt[i-1] += r[i - 1 - k] * r[i - 1 - k] * 1 / 22;
-        // Rcout << "The value of rv22: " << rv_tt[i-1] << "\n";
+    // rv_tt[i-1] = 0;
+    // for (int k = 0; k < 22; k++) {
+    //   // Rcout << "The value of k: " << k << "\n";
+    //   if (i - 1 - k >= 0) {
+    //     // Rcout << "The value of returns_sq: " << r[i - i - k] * r[i - i - k] << "\n";
+    //     // Rcout << "The value of rv22: " << rv_tt[i-1] << "\n";
+    //     rv_tt[i-1] += r[i - 1 - k] * r[i - 1 - k] * 1 / 22;
+    //     // Rcout << "The value of rv22: " << rv_tt[i-1] << "\n";
+    //   }
+    //
+    // }
+    // Rcout << "Day i: " << i << "\n";
+    if (i%lowfreq == 0 && i/lowfreq <= n_days/lowfreq) {
+      rv_tt[i/lowfreq - 1] = 0;
+      for (int j = 1; j <= lowfreq; j++) {
+        if (i - j >= 0) {
+          rv_tt[i / lowfreq - 1] += pow(r[i - j], 2);
+
+        }
+      }
+      // Rcout << "rv_tt: " << rv_tt[(i+1)/lowfreq - 1] << "\n";
+      if (rvol == TRUE) {
+        rv_tt[i/lowfreq - 1] = std::sqrt(rv_tt[i/lowfreq - 1] / lowfreq);
       }
 
     }
-    // Rcout << "Day i: " << i << "\n";
-    tau[i] = m;
-    for (int j = 0; j < K; j++) {
-      if (i - 1 - j >= 0) {
-        tau[i] += theta * weights[j] * sqrt(rv_tt[i - 1 - j]);
+
+    if (i%lowfreq == 0 && i/lowfreq <= n_days/lowfreq) {
+      taulowfreq[i/lowfreq] = m;
+      for (int j = 0; j < K; j++) {
+        if (i/lowfreq - 1 - j >= 0) {
+          taulowfreq[i/lowfreq] += theta * weights[j] * rv_tt[i/lowfreq - 1 - j];
+          // Rcout << "rv_tt in taulowfreq: " << sqrt(rv_tt[(i+1)/lowfreq - 1 - j]) << "\n";
+        }
       }
+      taulowfreq[i/lowfreq] = std::exp(taulowfreq[i/lowfreq]);
     }
-    // Rcout << "Day i: " << i << "\n";
-    tau[i] = exp(tau[i]);
+
+
 
     for (int k = (i * n_intraday); k < ((i+1) * n_intraday); k++) {
-      r_intraday[k] = Z[k] * sqrt(h[i]) * sqrt(tau[i])/ sqrt(n_intraday);
+      r_intraday[k] = Z[k] * std::sqrt(h[i] * taulowfreq[i/lowfreq] / n_intraday);
     }
     // Rcout << "Day i: " << i << "\n";
     r[i] = 0;
@@ -69,14 +89,16 @@ List simulate_r_rv_as_dependent(double n_days, double n_intraday, double alpha, 
     for (int l = (i * n_intraday); l < ((i+1) * n_intraday); l++) {
       // Rcout << "Intraday l: " << l << "\n";
       r[i] += r_intraday[l];
-      rv[i] += (r_intraday[l] * r_intraday[l]);
+      rv[i] += pow(r_intraday[l], 2);
     }
   }
+
+  // rv_tt = std::sqrt(rv_tt / 22);
 
   return List::create(Named("ret_daily") = r,
                       Named("h_daily") = h,
                       Named("ret_intraday") = r_intraday,
                       Named("rv") = rv,
                       Named("rv22") = rv_tt,
-                      Named("tau") = tau);
+                      Named("tau") = taulowfreq);
 }

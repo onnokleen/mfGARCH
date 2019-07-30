@@ -183,7 +183,5 @@ simulate_mfgarch_rv_dependent <- function(n.days, mu, alpha, beta, gamma, m, the
 
   # res$covariate <- rep(sqrt(aggregate(res[c("return")], by = list(month = res$low_freq), FUN = function(x) mean(x^2))$return), each = low.freq)
 
-  res[(low.freq * K * 3 + 1):n.days, ]
-
-
+  res[(low.freq * K * 10 + 1):n.days, ]
 }

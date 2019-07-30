@@ -2,6 +2,7 @@ v0.1.8
 - More precise error messages
 - More robust estimation methods
 - OPG standard errors are calculated as well
+- Additional simulation option for RVol(22) and RV(22) as dependent variables 
 
 v0.1.7
 - Improved documentation for simulation functions

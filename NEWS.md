@@ -1,3 +1,6 @@
+v0.1.9
+- Compatibility with R 4.0.0
+
 v0.1.8
 - More precise error messages
 - More robust estimation methods

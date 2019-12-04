@@ -9,3 +9,4 @@
 ^test\.rds
 ^\.travis\.yml$
 ^README\.md$
+^CRAN-RELEASE$

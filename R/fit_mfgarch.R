@@ -882,14 +882,14 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
 
   opg.std.err <- try({sqrt(diag(solve(crossprod(jacobian(func = function(theta) -lf(theta), x = par)))))},
                      silent = TRUE)
-  if (class(inv_hessian) == "try-error") {
+  if (class(inv_hessian)[1] == "try-error") {
     warning("Inverting the OPG matrix failed. No OPG standard errors calculated.")
     opg.std.err <- NA
   }
   # browser()
   opg.std.err <- opg.std.err * sqrt((mean(df.fitted$residuals^4, na.rm = TRUE) - 1) / 2)
 
-  if (class(inv_hessian) == "try-error") {
+  if (class(inv_hessian)[1] == "try-error") {
     warning("Inverting the Hessian matrix failed. No robust standard errors calculated. Possible workaround: Multiply returns by 100.")
     rob.std.err <- NA
   } else {

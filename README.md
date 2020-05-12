@@ -5,7 +5,7 @@
 [![Downloads](https://cranlogs.r-pkg.org/badges/mfGARCH)](https://cranlogs.r-pkg.org/badges/mfGARCH)
 # mfGARCH - mixed-frequency GARCH models
 
-An R package for estimating GARCH-MIDAS (MIxed-DAta-Sampling) models (Engle, Ghysels and Sohn, 2013, [doi:10.1162/REST_a_00300](https://doi.org/10.1162/REST_a_00300)) and related statistical inference, accompanying the paper "Two are better than one: volatility forecasting using multiplicative component GARCH models" by Conrad and Kleen (2018, [doi:10.2139/ssrn.2752354](https://doi.org/10.2139/ssrn.2752354)). The GARCH-MIDAS model decomposes the conditional variance of (daily) stock returns into a short- and long-term component, where the latter may depend on an exogenous covariate sampled at a lower frequency.
+An R package for estimating GARCH-MIDAS (MIxed-DAta-Sampling) models (Engle, Ghysels and Sohn, 2013, [doi:10.1162/REST_a_00300](https://doi.org/10.1162/REST_a_00300)) and related statistical inference, accompanying the paper "Two are better than one: volatility forecasting using multiplicative component GARCH models" by Conrad and Kleen (2020, [doi:10.1002/jae.2742](https://doi.org/10.1002/jae.2742)). The GARCH-MIDAS model decomposes the conditional variance of (daily) stock returns into a short- and long-term component, where the latter may depend on an exogenous covariate sampled at a lower frequency.
 
 ## Highlights
 - A comprehensive toolbox for estimating and forecasting using GARCH-MIDAS models
@@ -14,12 +14,11 @@ An R package for estimating GARCH-MIDAS (MIxed-DAta-Sampling) models (Engle, Ghy
 
 Please cite as
 
-> Conrad, Christian and Kleen, Onno (2018). Two Are Better Than One: Volatility Forecasting Using Multiplicative Component GARCH-MIDAS Models. Available at SSRN: https://doi.org/10.2139/ssrn.2752354.
+> Conrad, Christian and Kleen, Onno (2020). Two are better than one: Volatility forecasting using multiplicative component GARCH-MIDAS models. Journal of Applied Econometrics 35: 19-45.
 
 and
 
-> Kleen, Onno (2018). mfGARCH: Mixed-Frequency GARCH Models. R package
-  version 0.1.8.
+> Kleen, Onno (2020). mfGARCH: Mixed-Frequency GARCH Models. R package version 0.2.0.
 
 ## Installation
 CRAN:

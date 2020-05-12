@@ -4,11 +4,22 @@
 \alias{fit_mfgarch}
 \title{This function estimates a multiplicative mixed-frequency GARCH model. For the sake of numerical stability, it is best to multiply log returns by 100.}
 \usage{
-fit_mfgarch(data, y, x = NULL, K = NULL, low.freq = "date",
-  var.ratio.freq = NULL, gamma = TRUE, weighting = "beta.restricted",
-  x.two = NULL, K.two = NULL, low.freq.two = NULL,
-  weighting.two = NULL, multi.start = FALSE, control = list(par.start
-  = NULL))
+fit_mfgarch(
+  data,
+  y,
+  x = NULL,
+  K = NULL,
+  low.freq = "date",
+  var.ratio.freq = NULL,
+  gamma = TRUE,
+  weighting = "beta.restricted",
+  x.two = NULL,
+  K.two = NULL,
+  low.freq.two = NULL,
+  weighting.two = NULL,
+  multi.start = FALSE,
+  control = list(par.start = NULL)
+)
 }
 \arguments{
 \item{data}{data frame containing a column named date of type 'Date'.}

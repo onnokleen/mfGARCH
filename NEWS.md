@@ -1,3 +1,6 @@
+v0.2.0
+- Better error management for OPG standard errors
+
 v0.1.9
 - Compatibility with R 4.0.0
 

@@ -4,8 +4,21 @@
 \alias{simulate_mfgarch_rv_dependent}
 \title{Simulate a GARCH-MIDAS similar to Wang/Ghysels with lagged RVol as covariate}
 \usage{
-simulate_mfgarch_rv_dependent(n.days, mu, alpha, beta, gamma, m, theta,
-  w1 = 1, w2, K, n.intraday = 288, low.freq = 1, rvol = FALSE)
+simulate_mfgarch_rv_dependent(
+  n.days,
+  mu,
+  alpha,
+  beta,
+  gamma,
+  m,
+  theta,
+  w1 = 1,
+  w2,
+  K,
+  n.intraday = 288,
+  low.freq = 1,
+  rvol = FALSE
+)
 }
 \arguments{
 \item{n.days}{number of days}

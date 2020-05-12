@@ -4,7 +4,8 @@
 \name{df_mfgarch}
 \alias{df_mfgarch}
 \title{Mixed-frequency data set.}
-\format{A data frame with 11,938 rows and 11 variables:
+\format{
+A data frame with 11,938 rows and 11 variables:
 \describe{
   \item{date}{date}
   \item{return}{daily S&P 500 log returns times 100}
@@ -17,7 +18,8 @@
   \item{nai}{NAI}
   \item{nfci}{National Financial Conditions Index}
   \item{year_month}{a dummy for each year/month combination}
-}}
+}
+}
 \source{
 \url{https://github.com/onnokleen/mfGARCH/}
 

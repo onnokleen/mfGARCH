@@ -14,7 +14,7 @@ An R package for estimating GARCH-MIDAS (MIxed-DAta-Sampling) models (Engle, Ghy
 
 Please cite as
 
-> Conrad, Christian and Kleen, Onno (2020). Two are better than one: Volatility forecasting using multiplicative component GARCH-MIDAS models. Journal of Applied Econometrics 35: 19-45.
+> Conrad, Christian and Kleen, Onno (2020). Two are better than one: Volatility forecasting using multiplicative component GARCH-MIDAS models. Journal of Applied Econometrics 35: 19&ndash;45.
 
 and
 

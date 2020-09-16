@@ -38,25 +38,25 @@ predict.mfGARCH <- function(object, horizon = c(1:10), fcts.tau = NULL, y.last =
     stop("Obejct is not in class mfGARCH")
   }
 
-  if (is.null(cond.var) == TRUE) {
+  if (is.null(cond.var)) {
     cond.var <- tail(object$g, 1)
   }
 
-  if (is.null(cond.tau) == TRUE) {
+  if (is.null(cond.tau)) {
     cond.tau <- tail(object$tau, 1)
   }
 
-  if (is.null(fcts.tau) == TRUE) {
+  if (is.null(fcts.tau)) {
     fcts.tau <- object$tau.forecast
   }
 
-  if (is.null(y.last) == TRUE) {
+  if (is.null(y.last)) {
     return <- tail(object$df.fitted[object$y], 1)
   } else {
     return <- y.last
   }
 
-  if (is.na(object$par["gamma"]) == TRUE) {
+  if (is.na(object$par["gamma"])) {
     fcts.tau * as.numeric(sapply(horizon, forecast_garch,
                                  omega = 1 - object$par["alpha"] - object$par["beta"] - 0/2,
                                  alpha = object$par["alpha"],

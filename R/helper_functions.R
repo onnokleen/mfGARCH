@@ -34,7 +34,7 @@ calculate_tau_mf <- function(df, x, low.freq, w1, w2, theta, m, K,
 
   result <- merge(df, cbind(unique(df[low.freq]), tau), by = low.freq)
 
-  if (is.null(x.two) == FALSE) {
+  if (!is.null(x.two)) {
     phi.var.two <- calculate_phi(w1.two, w2.two, K.two)
     covariate.two <- c(rep(NA, times = K.two), x.two)
     tau.two <- c(rep(NA, times = K.two),
@@ -58,7 +58,7 @@ llh_mf <-
            x.two = NULL, K.two = NULL, theta.two = NULL,
            low.freq.two = NULL, w1.two = NULL, w2.two = NULL) {
 
-    if (is.null(x.two) == FALSE) {
+    if (!is.null(x.two)) {
       tau <- calculate_tau_mf(df = df, x = x, low.freq = low.freq,
                               w1 = w1, w2 = w2, theta = theta, m = m, K = K,
                               x.two = x.two, K.two = K.two, theta.two = theta.two,
@@ -88,7 +88,7 @@ llh_mf <-
 llh_simple <- function(y, mu, alpha, beta, gamma, m, g_zero) {
   omega <- 1 - alpha - beta - gamma / 2
   ret <- y
-  ret_std <- (ret - mu)/sqrt(exp(m))
+  ret_std <- (ret - mu) / sqrt(exp(m))
   g <- calculate_g(omega = omega, alpha = alpha, beta = beta, gamma = gamma,
                    returns = ret_std, g0 = g_zero)
   1/2 * log(2 * pi) + 1/2 * log(g * exp(m)) + 1/2 * (ret - mu)^2/(g * exp(m))

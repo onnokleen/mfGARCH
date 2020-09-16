@@ -112,12 +112,12 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
     warning("You specified an external covariate x but chose K = 0 - simple GARCH is estimated (K = 0).")
   }
 
-  if (is.null(x) == TRUE) {
+  if (is.null(x)) {
     warning("No external covariate x is specified - simple GARCH is estimated (K = 0).")
     x <- "date"
     K <- 0
   }
-  if (is.null(K) == TRUE) {
+  if (is.null(K)) {
     warning("No K is specified - simple GARCH is estimated (K = 0).")
     x <- "date"
     K <- 0
@@ -140,18 +140,18 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
   if (low.freq %in% colnames(data) == FALSE) {
     stop(paste("There is no low freq. variable in your data frame with name ", low.freq, "."))
   }
-  if ("tau" %in% colnames(data) == TRUE) {
+  if ("tau" %in% colnames(data)) {
     stop("There may not be a column named tau - it will be part of df.fitted")
   }
-  if ("g" %in% colnames(data) == TRUE) {
+  if ("g" %in% colnames(data)) {
     stop("There may not be a column named g - it will be part of df.fitted")
   }
-  if (is.null(x) == TRUE) {
-    if (sum(is.na(data[[y]]) == TRUE) > 0) {
+  if (is.null(x)) {
+    if (sum(is.na(data[[y]])) > 0) {
       stop(paste0("Column ", y, "contains NAs."))
     }
   } else {
-    if (sum(is.na(data[[y]]) == TRUE) > 0 | sum(is.na(data[[x]]) == TRUE) > 0) {
+    if (sum(is.na(data[[y]])) > 0 | sum(is.na(data[[x]])) > 0) {
       stop(paste0("Either column ", y, " or column ", x, "includes NAs."))
     }
   }
@@ -172,14 +172,14 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
   date_backup <- data[["date"]]
   data["date"] <- as.numeric(unlist(data["date"]))
 
-  if (is.null(var.ratio.freq) == TRUE) {
+  if (is.null(var.ratio.freq)) {
     var.ratio.freq <- low.freq
     print(paste0("No frequency specified for calculating the variance ratio - default: low.freq = ", low.freq))
   }
 
   low_freq_backup <- data[, low.freq]
   if (x != "date") {
-    if (is.null(x.two) == TRUE) {
+    if (is.null(x.two)) {
       df_llh <- data[, c(y, x, low.freq)]
       df_llh[, low.freq] <- as.integer(unlist(df_llh[ , low.freq]))
     } else {
@@ -839,15 +839,15 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
                          g0 = g_zero))
     }
 
-    if ((var.ratio.freq %in% c("date", low.freq)) == FALSE) {
-      if (is.null(x.two) == TRUE) {
+    if (!(var.ratio.freq %in% c("date", low.freq))) {
+      if (is.null(x.two)) {
         df.fitted <- cbind(data[c("date", y, low.freq, x, var.ratio.freq)], g = g, tau = tau)
       } else {
         df.fitted <- cbind(data[c("date", y, low.freq, x, low.freq.two, x.two, var.ratio.freq)], g = g, tau = tau)
       }
 
     } else {
-      if (is.null(x.two) == TRUE) {
+      if (is.null(x.two)) {
         df.fitted <- cbind(data[c("date", y, low.freq, x)], g = g, tau = tau)
       } else {
         df.fitted <- cbind(data[c("date", y, low.freq, x, low.freq.two, x.two)], g = g, tau = tau)
@@ -916,7 +916,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
          y = y,
          optim = p.e.nlminb)
 
-  if (is.null(x.two) == FALSE) {
+  if (!is.null(x.two)) {
     output$K.two <- K.two
     output$weighting.scheme.two <- weighting.two
   }

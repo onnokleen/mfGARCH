@@ -859,25 +859,11 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
 
   }
   df.fitted$date <- as.Date(date_backup)
-  # Standard errors --------------------------------------------------------------------------------
-  # inv_hessian <- try({
-  #   solve(-optimHess(par = par, fn = function (theta) {
-  #       if( is.na(sum(lf(theta))) == TRUE) {
-  #         10000000
-  #       } else {
-  #         sum(lf(theta))
-  #       }
-  #     }))
-  #   }, silent = TRUE)
 
   inv_hessian <- try({
     solve(-suppressWarnings(hessian(x = par, func = function (theta) {
-        if( is.na(sum(lf(theta))) == TRUE) {
-          0
-        } else {
           -sum(lf(theta))
-        }
-      })))
+      }, method.args=list(eps=1e-4, d=0.001, zero.tol=sqrt(.Machine$double.eps/7e-7), r=4, v=2, show.details=FALSE))))
     }, silent = TRUE)
 
   opg.std.err <- try({sqrt(diag(solve(crossprod(jacobian(func = function(theta) -lf(theta), x = par)))))},

@@ -1,3 +1,6 @@
+v0.2.1
+- Better parameters for Hessian approximation
+
 v0.2.0
 - Better error management for OPG standard errors
 

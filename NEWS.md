@@ -1,5 +1,5 @@
 v0.2.1
-- Better parameters for Hessian approximation
+- Better parameters for Hessian approximation makes HAC standard errors more robust
 
 v0.2.0
 - Better error management for OPG standard errors

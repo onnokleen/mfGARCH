@@ -1,7 +1,7 @@
 ### Update
 
 ### Test environments
-* local OS X install, R 3.6.1
+* local OS X install, R 4.0.3
 * Linux via travis-ci
 
 ## R CMD check results

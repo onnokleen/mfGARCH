@@ -23,7 +23,7 @@ A data frame with 11,938 rows and 11 variables:
 \source{
 \url{https://github.com/onnokleen/mfGARCH/}
 
-\url{https://de.finance.yahoo.com/}
+\url{https://finance.yahoo.com/}
 
 \url{https://fred.stlouisfed.org}
 

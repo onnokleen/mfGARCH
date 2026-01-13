@@ -11,9 +11,7 @@
 #'   \item{nfci}{National Financial Conditions Index}
 #' }
 #' @source \url{https://github.com/onnokleen/mfGARCH/}
-#' @source \url{https://finance.yahoo.com/}
 #' @source \url{https://fred.stlouisfed.org/series/NFCI}
-#' @source \url{https://realized.oxford-man.ox.ac.uk}
 "df_financial"
 
 #' Mixed-frequency data set.
@@ -35,7 +33,5 @@
 #'   \item{year_month}{a dummy for each year/month combination}
 #' }
 #' @source \url{https://github.com/onnokleen/mfGARCH/}
-#' @source \url{https://finance.yahoo.com/}
 #' @source \url{https://fred.stlouisfed.org}
-#' @source \url{https://realized.oxford-man.ox.ac.uk}
 "df_mfgarch"

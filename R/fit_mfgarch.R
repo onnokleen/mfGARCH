@@ -201,7 +201,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
   # Parameter estimation
   if (K == 0) {
     if (gamma == TRUE) {
-      lf <- function(p) {
+      lf <- function(p, return.tau.times.g = FALSE) {
         llh_simple(y = ret,
                        mu = p["mu"],
                        alpha = p["alpha"],
@@ -214,7 +214,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
       ui.opt <- rbind(c(0, -1, -1, -1/2, 0), c(0, 1, 0, 0, 0), c(0, 0, 1, 0, 0))
       ci.opt <- c(-0.99999, 0, 0)
     } else {
-      lf <- function(p) {
+      lf <- function(p, return.tau.times.g = FALSE) {
         llh_simple(y = ret,
                        mu = p["mu"],
                        alpha = p["alpha"],
@@ -247,7 +247,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
           }
         }, method = "BFGS"))}, silent = TRUE)
 
-      if (class(p.e.nlminb.two) == "try-error") {
+      if (inherits(p.e.nlminb.two, "try-error")) {
         print("Second-step BFGS optimization failed. Fallback: First-stage Nelder-Mead estimate.")
       } else {
         if (p.e.nlminb.two$value < p.e.nlminb$value) {
@@ -301,7 +301,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
   if (K == 1) {
     if (is.null(K.two) == FALSE) {
       if (gamma == TRUE) {
-        lf <- function(p) {
+        lf <- function(p, return.tau.times.g = FALSE) {
           llh_mf(df = df_llh, y = ret, x = covariate, low.freq = low.freq,
                  mu = p["mu"],
                  omega = 1 - p["alpha"] - p["beta"] - p["gamma"]/2,
@@ -319,7 +319,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
         ui_opt <- rbind(c(0, -1, -1, -1/2, 0, 0, 0), c(0, 1, 0, 0, 0, 0, 0), c(0, 0, 1, 0, 0, 0, 0))
         ci_opt <- c(-0.99999, 0, 0)
       } else {
-        lf <- function(p) {
+        lf <- function(p, return.tau.times.g = FALSE) {
           llh_mf(df = df_llh,
                  y = ret, x = covariate, low.freq = low.freq,
                  mu = p["mu"],
@@ -342,7 +342,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
     } else {
 
       if (gamma == TRUE) {
-        lf <- function(p) {
+        lf <- function(p, return.tau.times.g = FALSE) {
           llh_mf(df = df_llh, y = ret, x = covariate, low.freq = low.freq,
                  mu = p["mu"],
                  omega = 1 - p["alpha"] - p["beta"] - p["gamma"]/2,
@@ -351,13 +351,14 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
                  gamma = p["gamma"],
                  m = p["m"],
                  theta = p["theta"],
-                 w1 = 1, w2 = 1, g_zero = g_zero, K = K)
+                 w1 = 1, w2 = 1, g_zero = g_zero, K = K,
+                 return.tau.times.g = return.tau.times.g)
         }
         par_start <- c(mu = 0, alpha = 0.02, beta = 0.85, gamma = 0.04, m = 0, theta = 0)
         ui_opt <- rbind(c(0, -1, -1, -1/2, 0, 0), c(0, 1, 0, 0, 0, 0), c(0, 0, 1, 0, 0, 0))
         ci_opt <- c(-0.99999, 0, 0)
       } else {
-        lf <- function(p) {
+        lf <- function(p, return.tau.times.g = FALSE) {
           llh_mf(df = df_llh,
                  y = ret, x = covariate, low.freq = low.freq,
                  mu = p["mu"],
@@ -367,7 +368,8 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
                  gamma = 0,
                  m = p["m"],
                  theta = p["theta"],
-                 w1 = 1, w2 = 1, g_zero = g_zero, K = K)
+                 w1 = 1, w2 = 1, g_zero = g_zero, K = K,
+                 return.tau.times.g = return.tau.times.g)
         }
         par_start <- c(mu = 0, alpha = 0.02, beta = 0.85, m = 0, theta = 0)
         ui_opt <- rbind(c(0, -1, -1,  0, 0), c(0, 1, 0, 0, 0), c(0, 0, 1, 0, 0))
@@ -442,7 +444,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
   if (K > 1) {
     if (gamma == TRUE) {
       if (weighting == "beta.restricted" & is.null(K.two) == TRUE) {
-        lf <- function(p) {
+        lf <- function(p, return.tau.times.g = FALSE) {
           llh_mf(df = df_llh,
                  y = ret,
                  x = covariate,
@@ -457,7 +459,8 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
                  w1 = 1,
                  w2 = p["w2"],
                  g_zero = g_zero,
-                 K = K)
+                 K = K,
+                 return.tau.times.g = return.tau.times.g)
         }
         par.start <- c(mu = 0, alpha = 0.02, beta = 0.85, gamma = 0.04,
                        m = 0, theta = 0, w2 = 3)
@@ -469,7 +472,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
       }
       if (weighting == "beta.restricted" & is.null(K.two) == FALSE) {
         if (K.two == 1) {
-          lf <- function(p) {
+          lf <- function(p, return.tau.times.g = FALSE) {
             llh_mf(df = df_llh,
                    y = ret,
                    x = covariate,
@@ -481,7 +484,8 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
                    w1 = 1, w2 = p["w2"], g_zero = g_zero, K = K,
                    x.two = covariate.two,
                    K.two = 1, low.freq.two = low.freq.two,
-                   theta.two = p["theta.two"], w1.two = 1, w2.two = 1)
+                   theta.two = p["theta.two"], w1.two = 1, w2.two = 1,
+                   return.tau.times.g = return.tau.times.g)
           }
           par.start <- c(mu = 0, alpha = 0.02, beta = 0.85, gamma = 0.04,
                          m = 0, theta = 0, w2 = 3, theta.two = 0)
@@ -493,7 +497,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
         }
         if (K.two > 1) {
           if (weighting.two == "beta.restricted") {
-            lf <- function(p) {
+            lf <- function(p, return.tau.times.g = FALSE) {
               llh_mf(df = df_llh,
                      y = ret,
                      x = covariate,
@@ -505,7 +509,8 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
                      w1 = 1, w2 = p["w2"], g_zero = g_zero, K = K,
                      x.two = covariate.two,
                      K.two = K.two, low.freq.two = low.freq.two,
-                     theta.two = p["theta.two"], w1.two = 1, w2.two = p["w2.two"])
+                     theta.two = p["theta.two"], w1.two = 1, w2.two = p["w2.two"],
+                     return.tau.times.g = return.tau.times.g)
             }
             par.start <- c(mu = 0, alpha = 0.02, beta = 0.85, gamma = 0.04,
                            m = 0, theta = 0, w2 = 3, theta.two = 0, w2.two = 3)
@@ -523,7 +528,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
       }
 
       if (weighting == "beta.unrestricted" & is.null(K.two) == TRUE){
-        lf <- function(p) {
+        lf <- function(p, return.tau.times.g = FALSE) {
           llh_mf(df = df_llh,
                  y = ret,
                  x = covariate,
@@ -533,7 +538,8 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
                  alpha = p["alpha"], beta = p["beta"], gamma = p["gamma"],
                  m = p["m"], theta = p["theta"], w1 = p["w1"], w2 = p["w2"],
                  g_zero = g_zero,
-                 K = K)
+                 K = K,
+                 return.tau.times.g = return.tau.times.g)
         }
         par.start <- c(mu = 0, alpha = 0.02, beta = 0.85, gamma = 0.04,
                        m = 0, theta = 0, w1 = 1.0000001, w2 = 3)
@@ -547,7 +553,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
 
       if (weighting == "beta.unrestricted" & is.null(weighting.two) == FALSE) {
         if (weighting.two == "beta.restricted") {
-          lf <- function(p) {
+          lf <- function(p, return.tau.times.g = FALSE) {
             llh_mf(df = df_llh,
                    y = ret,
                    x = covariate,
@@ -559,7 +565,8 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
                    w1 = p["w1"], w2 = p["w2"], g_zero = g_zero, K = K,
                    x.two = covariate.two,
                    K.two = K.two, low.freq.two = low.freq.two,
-                   theta.two = p["theta.two"], w1.two = 1, w2.two = p["w2.two"])
+                   theta.two = p["theta.two"], w1.two = 1, w2.two = p["w2.two"],
+                   return.tau.times.g = return.tau.times.g)
           }
           par.start <- c(mu = 0, alpha = 0.02, beta = 0.85, gamma = 0.04,
                          m = 0, theta = 0, w1 = 1.00000001, w2 = 3, theta.two = 0, w2.two = 3)
@@ -577,7 +584,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
     if (gamma == FALSE) {
 
       if (weighting == "beta.restricted") {
-        lf <- function(p) {
+        lf <- function(p, return.tau.times.g = FALSE) {
           llh_mf(df = df_llh,
                  y = ret,
                  x = covariate,
@@ -586,7 +593,8 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
                  alpha = p["alpha"], beta = p["beta"], gamma = 0,
                  m = p["m"], theta = p["theta"], w1 = 1, w2 = p["w2"],
                  g_zero = g_zero,
-                 K = K)
+                 K = K,
+                 return.tau.times.g = return.tau.times.g)
         }
         par.start <- c(mu = 0, alpha = 0.02, beta = 0.85, m = 0, theta = 0, w2 = 3)
         ui.opt <- rbind(c(0, -1, -1, 0, 0, 0),
@@ -597,7 +605,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
       }
 
       if (weighting == "beta.unrestricted") {
-        lf <- function(p) {
+        lf <- function(p, return.tau.times.g = FALSE) {
           llh_mf(df = df_llh,
                  y = ret,
                  x = covariate,
@@ -612,7 +620,8 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
                  w1 = p["w1"],
                  w2 = p["w2"],
                  g_zero = g_zero,
-                 K = K)
+                 K = K,
+                 return.tau.times.g = return.tau.times.g)
         }
         par.start <- c(mu = 0, alpha = 0.02, beta = 0.85, m = 0, theta = 0, w1 = 1.00000001, w2 = 3)
         ui.opt <- rbind(c(0, -1, -1, 0, 0, 0, 0),
@@ -643,13 +652,13 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
           }
         }, method = "BFGS"))}, silent = TRUE)
 
-      if (class(p.e.nlminb.two) != "try-error" && -p.e.nlminb.two$value > p.e.nlminb$value) {
+      if (!inherits(p.e.nlminb.two, "try-error") && -p.e.nlminb.two$value > p.e.nlminb$value) {
         p.e.nlminb <- p.e.nlminb.two
         p.e.nlminb$value <- -p.e.nlminb$value
       }
 
       par.max.lik.nr <- try({maxLik(logLik = function(x) - lf(x), start = par.start, method = "NR")}, silent = TRUE)
-      if (class(par.max.lik.nr) != "try-error" && par.max.lik.nr$maximum > p.e.nlminb$value &&
+      if (!inherits(par.max.lik.nr, "try-error") && par.max.lik.nr$maximum > p.e.nlminb$value &&
           par.max.lik.nr$estimate["w2"] >= 1 &&
           par.max.lik.nr$estimate["alpha"] + par.max.lik.nr$estimate["beta"] + par.max.lik.nr$estimate["gamma"] / 2 < 1 &&
           par.max.lik.nr$estimate["alpha"] >= 0 && par.max.lik.nr$estimate["beta"] >= 0) {
@@ -657,7 +666,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
         p.e.nlminb$value <- par.max.lik.nr$maximum
       }
       par.max.lik.nm <- try({maxLik(logLik = function(x) -lf(x), start = par.start, method = "NM")}, silent = TRUE)
-      if (class(par.max.lik.nm) != "try-error" && par.max.lik.nm$maximum > p.e.nlminb$value &&
+      if (!inherits(par.max.lik.nm, "try-error") && par.max.lik.nm$maximum > p.e.nlminb$value &&
           par.max.lik.nm$estimate["w2"] >= 1 &&
           par.max.lik.nm$estimate["alpha"] + par.max.lik.nm$estimate["beta"] + par.max.lik.nm$estimate["gamma"] / 2 < 1 &&
           par.max.lik.nm$estimate["alpha"] >= 0 && par.max.lik.nm$estimate["beta"] >= 0) {
@@ -674,7 +683,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
           }
         }, method = "BFGS"))}, silent = TRUE)
 
-      if (class(p.e.nlminb.three) != "try-error" && -p.e.nlminb.three$value > p.e.nlminb$value) {
+      if (!inherits(p.e.nlminb.three, "try-error") && -p.e.nlminb.three$value > p.e.nlminb$value) {
         p.e.nlminb <- p.e.nlminb.three
         p.e.nlminb$value <- -p.e.nlminb$value
       }
@@ -692,13 +701,13 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
           }
         }, method = "BFGS"))}, silent = TRUE)
 
-      if (class(p.e.nlminb.two) != "try-error" && -p.e.nlminb.two$value > p.e.nlminb$value) {
+      if (!inherits(p.e.nlminb.two, "try-error") && -p.e.nlminb.two$value > p.e.nlminb$value) {
         p.e.nlminb <- p.e.nlminb.two
         p.e.nlminb$value <- -p.e.nlminb$value
       }
 
       par.max.lik.nr <- try({maxLik(logLik = function(x) - lf(x), start = par.start, method = "NR")}, silent = TRUE)
-      if (class(par.max.lik.nr) != "try-error" && par.max.lik.nr$maximum > p.e.nlminb$value &&
+      if (!inherits(par.max.lik.nr, "try-error") && par.max.lik.nr$maximum > p.e.nlminb$value &&
           par.max.lik.nr$estimate["w2"] >= 1 &&
           par.max.lik.nr$estimate["alpha"] + par.max.lik.nr$estimate["beta"] < 1 &&
           par.max.lik.nr$estimate["alpha"] >= 0 && par.max.lik.nr$estimate["beta"] >= 0) {
@@ -706,7 +715,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
         p.e.nlminb$value <- par.max.lik.nr$maximum
       }
       par.max.lik.nm <- try({maxLik(logLik = function(x) - lf(x), start = par.start, method = "NM")}, silent = TRUE)
-      if (class(par.max.lik.nm) != "try-error" && par.max.lik.nm$maximum > p.e.nlminb$value &&
+      if (!inherits(par.max.lik.nm, "try-error") && par.max.lik.nm$maximum > p.e.nlminb$value &&
           par.max.lik.nm$estimate["w2"] >= 1 &&
           par.max.lik.nm$estimate["alpha"] + par.max.lik.nm$estimate["beta"] < 1 &&
           par.max.lik.nm$estimate["alpha"] >= 0 && par.max.lik.nm$estimate["beta"] >= 0) {
@@ -723,7 +732,7 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
           }
         }, method = "BFGS"))}, silent = TRUE)
 
-      if (class(p.e.nlminb.three) != "try-error" && -p.e.nlminb.three$value > p.e.nlminb$value) {
+      if (!inherits(p.e.nlminb.three, "try-error") && -p.e.nlminb.three$value > p.e.nlminb$value) {
         p.e.nlminb <- p.e.nlminb.three
         p.e.nlminb$value <- -p.e.nlminb$value
       }
@@ -865,17 +874,17 @@ fit_mfgarch <- function(data, y, x = NULL, K = NULL, low.freq = "date", var.rati
           -sum(lf(theta))
       }, method.args=list(eps=1e-4, d=0.001, zero.tol=sqrt(.Machine$double.eps/7e-7), r=4, v=2, show.details=FALSE))))
     }, silent = TRUE)
-
-  opg.std.err <- try({sqrt(diag(solve(crossprod(jacobian(func = function(theta) -lf(theta), x = par)))))},
+  # browser()
+  opg.std.err <- try({sqrt(diag(solve(crossprod(jacobian(func = function(theta) -lf(theta, return.tau.times.g = TRUE), x = par)))))},
                      silent = TRUE)
-  if (class(opg.std.err)[1] == "try-error") {
+  if (inherits(opg.std.err, "try-error")) {
     warning("Inverting the OPG matrix failed. No OPG standard errors calculated.")
     opg.std.err <- NA
   } else {
     opg.std.err <- opg.std.err * sqrt((mean(df.fitted$residuals^4, na.rm = TRUE) - 1) / 2)
   }
 
-  if (class(inv_hessian)[1] == "try-error") {
+  if (inherits(inv_hessian, "try-error")) {
     warning("Inverting the Hessian matrix failed. No robust standard errors calculated. Possible workaround: Multiply returns by 100.")
     rob.std.err <- NA
   } else {

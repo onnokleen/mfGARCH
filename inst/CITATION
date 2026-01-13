@@ -1,23 +1,41 @@
 citHeader("To cite the 'mfGARCH' package in publications use:")
 
-year = sub('.*(2[[:digit:]]{3})-.*', '\\1', meta$Date, perl = TRUE)
-vers = paste('R package version', meta$Version)
+year <- sub(".*(2[[:digit:]]{3})-.*", "\\1", meta$Date, perl = TRUE)
+vers <- paste("R package version", meta$Version)
 
-citEntry(
-  entry = 'manual',
-  title = paste('mfGARCH:', meta$Title),
-  author = Filter(function(p) 'aut' %in% p$role, as.person(meta$Author)),
-  year = year,
-  note = vers,
-  url = meta$URL,
-  textVersion = paste('Kleen, Onno (', year, '). mfGARCH: ', meta$Title, '. ', vers, '.', sep = '')
+## Authors with role "aut" from DESCRIPTION
+auts <- as.person(meta$Author)
+if (!is.null(auts$role)) {
+  auts <- auts[vapply(auts$role, function(r) "aut" %in% r, logical(1))]
+}
+
+bibentry(
+  bibtype = "Manual",
+  title   = paste("mfGARCH:", meta$Title),
+  author  = auts,
+  year    = year,
+  note    = vers,
+  url     = meta$URL,
+  textVersion = paste(
+    "Kleen, Onno (", year, "). mfGARCH: ", meta$Title, ". ", vers, ".",
+    sep = ""
+  )
 )
 
-citEntry(
-  entry = 'unpublished',
-  title = 'Two Are Better Than One: Volatility Forecasting Using Multiplicative Component GARCH Models',
-  author = personList(person("Christian", "Conrad"), person("Onno", "Kleen")),
-  year = '2018',
-  note = 'Available at SSRN: https://doi.org/10.2139/ssrn.2752354',
-  textVersion = paste0('Conrad, Christian and Kleen, Onno (2018). Two Are Better Than One: Volatility Forecasting Using Multiplicative Component GARCH Models. Available at SSRN: https://doi.org/10.2139/ssrn.2752354','.')
+bibentry(
+  bibtype = "Article",
+  title   = "Two are better than one: Volatility forecasting using multiplicative component GARCH-MIDAS models",
+  author  = c(person("Christian", "Conrad"), person("Onno", "Kleen")),
+  year    = "2020",
+  journal = "Journal of Applied Econometrics",
+  volume  = "35",
+  number  = "1",
+  pages   = "19-45",
+  doi     = "10.1002/jae.2742",
+  url     = "https://doi.org/10.1002/jae.2742",
+  textVersion = paste0(
+    "Conrad, Christian and Kleen, Onno (2020). Two are better than one: ",
+    "Volatility forecasting using multiplicative component GARCH-MIDAS models. ",
+    "Journal of Applied Econometrics, 35(1), 19-45. https://doi.org/10.1002/jae.2742."
+  )
 )

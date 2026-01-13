@@ -1,6 +1,6 @@
 #' @export
 print.mfGARCH <- function(x, ...) {
-    if (class(x) != "mfGARCH") {
+    if (!inherits(x, "mfGARCH")) {
         stop("Obejct is not in class mfGARCH")
     } else {
         print(x$broom.mgarch)
@@ -10,7 +10,7 @@ print.mfGARCH <- function(x, ...) {
 #' @importFrom graphics lines
 #' @export
 plot.mfGARCH <- function(x, ...) {
-  if (class(x) != "mfGARCH") {
+  if (!inherits(x, "mfGARCH")) {
     stop("Obejct is not in class mfGARCH")
   }
 
@@ -34,7 +34,7 @@ plot.mfGARCH <- function(x, ...) {
 
 #' @export
 predict.mfGARCH <- function(object, horizon = c(1:10), fcts.tau = NULL, y.last = NULL, cond.var = NULL, cond.tau = NULL, ...) {
-  if (class(object) != "mfGARCH") {
+  if (!inherits(object, "mfGARCH")) {
     stop("Obejct is not in class mfGARCH")
   }
 
@@ -81,7 +81,7 @@ predict.mfGARCH <- function(object, horizon = c(1:10), fcts.tau = NULL, y.last =
 #' @importFrom graphics plot
 #' @export
 plot_weighting_scheme <- function(x) {
-  if (class(x) != "mfGARCH") {
+  if (!inherits(x, "mfGARCH")) {
     stop("Obejct is not in class mfGARCH")
   }
 

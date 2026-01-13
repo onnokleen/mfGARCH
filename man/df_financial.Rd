@@ -17,11 +17,7 @@ A data frame with 11,306 rows and 5 variables:
 \source{
 \url{https://github.com/onnokleen/mfGARCH/}
 
-\url{https://finance.yahoo.com/}
-
 \url{https://fred.stlouisfed.org/series/NFCI}
-
-\url{https://realized.oxford-man.ox.ac.uk}
 }
 \usage{
 df_financial

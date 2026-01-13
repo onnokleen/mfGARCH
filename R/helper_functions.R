@@ -56,7 +56,7 @@ llh_mf <-
   function(df, x, y, low.freq, mu, omega, alpha, beta, gamma,
            m, theta, w1 = 1, w2 = 1, g_zero, K,
            x.two = NULL, K.two = NULL, theta.two = NULL,
-           low.freq.two = NULL, w1.two = NULL, w2.two = NULL) {
+           low.freq.two = NULL, w1.two = NULL, w2.two = NULL, return.tau.times.g = FALSE) {
 
     if (!is.null(x.two)) {
       tau <- calculate_tau_mf(df = df, x = x, low.freq = low.freq,
@@ -80,7 +80,12 @@ llh_mf <-
       #stop("g_t seems to be negative for at least one point in time?")
       rep(NA, times = length(g))
     } else {
-      1/2 * log(2 * pi) + 1/2 * log(g * tau) + 1/2 * (ret - mu)^2/(g * tau)
+      if (!return.tau.times.g) {
+        1/2 * log(2 * pi) + 1/2 * log(g * tau) + 1/2 * (ret - mu)^2/(g * tau)
+      } else {
+        log(g * tau)
+      }
+
     }
   }
 

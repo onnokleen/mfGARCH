@@ -5,6 +5,11 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // calculate_g
 NumericVector calculate_g(double omega, double alpha, double beta, double gamma, NumericVector returns, double g0);
 RcppExport SEXP _mfGARCH_calculate_g(SEXP omegaSEXP, SEXP alphaSEXP, SEXP betaSEXP, SEXP gammaSEXP, SEXP returnsSEXP, SEXP g0SEXP) {
